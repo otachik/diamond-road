@@ -2,12 +2,12 @@
 <html lang="ja">
 <meta charset="utf-8">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
-<title>水田自主トレロード</title>
+<title>水田トレーニングロード</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="水田自主トレロード">
+<meta name="apple-mobile-web-app-title" content="水田トレーニングロード">
 <meta name="theme-color" content="#0a1430">
 <link rel="apple-touch-icon" href="icon.png?v=2">
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -53,7 +53,7 @@ input, select, textarea { font: inherit; }
   padding-block: 8px calc(96px + env(safe-area-inset-bottom, 0px));
 }
 header.top { display: flex; align-items: center; justify-content: space-between; padding-block: 8px 14px; }
-.logo { font-family: var(--font-d); font-size: 18px; letter-spacing: .04em; display: flex; align-items: center; gap: 8px; }
+.logo { font-family: var(--font-d); font-size: 16px; letter-spacing: .02em; min-width: 0; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
 .logo .dia { width: 18px; height: 18px; background: var(--light); transform: rotate(45deg); border-radius: 3px; box-shadow: 0 0 14px rgba(255,216,74,.7); }
 .gear { flex: none; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; width: 52px; height: 52px; display: grid; place-items: center; position: relative; touch-action: manipulation; }
 .gear::after { content: ""; position: absolute; inset: -8px; }   /* 押せる範囲を見た目より広くする */
@@ -368,7 +368,7 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 @keyframes fly { to { transform: translateX(150vw); } }
 .sp-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 20px; animation: shake .35s 1.15s; }
 .sp-logo { width: 104px; height: 104px; object-fit: contain; border-radius: 22px; background: #fff; padding: 6px; box-shadow: 0 0 34px rgba(255,216,74,.55); transform: scale(0); animation: pop2 .45s .95s cubic-bezier(.2,1.6,.4,1) forwards; }
-.sp-title { font-family: var(--font-d); font-size: clamp(30px, 9vw, 46px); line-height: 1.25; margin-top: 14px; color: #fff; opacity: 0;
+.sp-title { font-family: var(--font-d); font-size: clamp(24px, 7.4vw, 44px); line-height: 1.25; margin-top: 14px; color: #fff; opacity: 0;
   text-shadow: 0 0 26px rgba(255,216,74,.85), 0 4px 0 #b88a00; animation: slam .45s 1.1s cubic-bezier(.2,1.3,.4,1) forwards; }
 .sp-title rt { font-size: .32em; }
 .sp-sub { font-family: var(--font-d); font-size: 22px; letter-spacing: .14em; color: var(--score); margin-top: 10px; padding: 2px 14px; border: 3px solid var(--score); border-radius: 8px;
@@ -487,7 +487,7 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 
 <div class="wrap">
   <header class="top">
-    <div class="logo"><span class="dia"></span><span><ruby>水田<rt>みずた</rt></ruby><ruby>自主<rt>じしゅ</rt></ruby>トレロード</span></div>
+    <div class="logo"><span class="dia"></span><span><ruby>水田<rt>みずた</rt></ruby>トレーニングロード</span></div>
     <div class="hdr-btns">
     <button class="gear help" data-act="tab" data-v="help" aria-label="つかいかた">?</button>
     <button class="gear" data-act="tab" data-v="settings" aria-label="せってい">
@@ -652,7 +652,7 @@ async function makeBackup() {
   const file = new File([backupJson(true)], name, { type: "application/json" });
   try {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "水田自主トレロードのバックアップ" });
+      await navigator.share({ files: [file], title: "水田トレーニングロードのバックアップ" });
       return bkDone("バックアップをほぞんしたよ");
     }
   } catch (e) { if (e && e.name === "AbortError") return; }
@@ -736,7 +736,7 @@ function updateDay(d) {
 }
 
 /* ---------- 毎日の野球クイズ（1日1問・正解で +3 EXP） ---------- */
-const QUIZ_EXP = 3;
+const QUIZ_EXP = 5;
 // [問題, [正解, まちがい, まちがい], かいせつ]
 const QUIZ = [
   ["ストライクを3つとられると、どうなる？", ["{三振|さんしん}でアウト", "フォアボールで{一塁|いちるい}へ", "もう{一度|いちど}{打|う}てる"], "ストライク3つで{三振|さんしん}。バッターはアウトになるよ。"],
@@ -1735,7 +1735,7 @@ async function drawCard() {
   const c = compute(), p = S.profile, ti = titleIdx(c.lv), title = plain(TITLES[ti]);
   const W = 1080, H = 1500, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const ctx = cv.getContext("2d");
   const FD = '"Dela Gothic One", "Hiragino Sans", sans-serif', FB = '"M PLUS Rounded 1c", "Hiragino Sans", sans-serif';
-  const texts = `${p.name}${p.number}${p.position}${title}PLAYERCARDLv.0123456789背番号ミートパワー走力肩守備水田自主トレロード練習日連続バッジあとEXPでSABCDEFGブロンズシルバーゴールドプラチナレインボー`;
+  const texts = `${p.name}${p.number}${p.position}${title}PLAYERCARDLv.0123456789背番号ミートパワー走力肩守備水田トレーニングロード練習日連続バッジあとEXPでSABCDEFGブロンズシルバーゴールドプラチナレインボー`;
   try { await Promise.all([document.fonts.load(`80px ${FD}`, texts), document.fonts.load(`700 40px ${FB}`, texts)]); } catch (e) {}
   const frames = [["#b06a3a", "#f0b07a", "#7a4220"], ["#b06a3a", "#f0b07a", "#7a4220"], ["#9aa6c4", "#f2f5ff", "#6f7a98"], ["#9aa6c4", "#f2f5ff", "#6f7a98"], ["#9aa6c4", "#f2f5ff", "#6f7a98"],
     ["#c99a10", "#ffe57a", "#a77800"], ["#c99a10", "#ffe57a", "#a77800"], ["#c99a10", "#ffe57a", "#a77800"], ["#7fe7ff", "#ffffff", "#8aa8ff"], ["#7fe7ff", "#ffffff", "#8aa8ff"], ["#ff5a5a", "#ffcf3d", "#4be37f", "#3db8ff", "#b05cff"]][ti];
@@ -1804,7 +1804,7 @@ async function drawCard() {
   // 下の帯
   ctx.fillStyle = "#eef2ff"; ctx.font = `800 30px ${FB}`;
   ctx.fillText(`練習 ${c.days}日　最長 ${c.best}日連続　バッジ ${c.badges.length}/${BADGES.length}`, 96, H - 110);
-  ctx.fillStyle = "#95a4d0"; ctx.font = `26px ${FD}`; ctx.fillText(`水田自主トレロード　${ymd().replace(/-/g, ".")}`, 96, H - 68);
+  ctx.fillStyle = "#95a4d0"; ctx.font = `26px ${FD}`; ctx.fillText(`水田トレーニングロード　${ymd().replace(/-/g, ".")}`, 96, H - 68);
   return cv.toDataURL("image/png");
 }
 
@@ -1873,7 +1873,7 @@ function splash() {
     <div class="sp-field"></div><div class="sp-ballway"><div class="sp-ball"></div></div>
     <div class="sp-center">
       <img class="sp-logo" src="icon.png?v=2" alt="" onerror="this.remove()">
-      <div class="sp-title">${R("{水田|みずた}{自主|じしゅ}トレロード")}</div>
+      <div class="sp-title">${R("{水田|みずた}トレーニングロード")}</div>
       <div class="sp-sub">PLAY BALL!</div>
       ${name ? `<div class="sp-name">${esc(name)}${R("{選手|せんしゅ}、きょうもいこう！")}</div>` : ""}
     </div>
