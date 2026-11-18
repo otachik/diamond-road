@@ -1550,7 +1550,7 @@ function vSettings(c) {
     <h2 class="sec" id="backup">${R("{記録|きろく}のバックアップ")}</h2>
     ${backupSection()}
     <h2 class="sec">${R("{音|おと}")}</h2>
-    <div class="panel"><div class="mrow"><div class="t">${R("ぜんぶクリアの{時|とき}の{音|おと}")}<small>${R("カキーン！と{歓声|かんせい}")}</small></div>
+    <div class="panel"><div class="mrow"><div class="t">${R("{効果音|こうかおん}")}<small>${R("{練習|れんしゅう}のチェック・カウンター・ぜんぶクリアの{音|おと}")}</small></div>
       <button class="sw ${S.sound !== false ? "on" : ""}" data-act="swSound" aria-label="おと" aria-pressed="${S.sound !== false}"></button></div></div>
     <div class="note">${R("いまの{記録|きろく}は、このスマホの{中|なか}にほぞんされています。")}</div>
   </div>`;
@@ -1670,6 +1670,57 @@ function sfxHomerun() {
     cheer.connect(bp); bp.connect(g3); g3.connect(out); cheer.start(t + .15);
   } catch (e) {}
 }
+/* ---------- 練習ごとの音（ファイルを使わず、その場で音を作る） ---------- */
+function sNoise(t, dur, o) {
+  const src = noiseBuf(dur), f = AC.createBiquadFilter(), g = AC.createGain();
+  f.type = o.type || "bandpass"; f.frequency.setValueAtTime(o.f0 || 1000, t); if (o.f1) f.frequency.exponentialRampToValueAtTime(o.f1, t + dur); f.Q.value = o.q || 1;
+  const v = o.vol || .3, a = o.attack || .005;
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  src.connect(f); f.connect(g); g.connect(AC.destination); src.start(t); src.stop(t + dur + .02);
+}
+function sTone(t, freq, dur, o) {
+  o = o || {}; const osc = AC.createOscillator(), g = AC.createGain();
+  osc.type = o.type || "sine"; osc.frequency.setValueAtTime(freq, t); if (o.f1) osc.frequency.exponentialRampToValueAtTime(o.f1, t + dur);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(o.vol || .2, t + (o.attack || .005)); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  osc.connect(g); g.connect(AC.destination); osc.start(t); osc.stop(t + dur + .02);
+}
+const SFX = {
+  // ブンッ！（素振り）：空気を切る音
+  swing: t => sNoise(t, .26, { f0: 2600, f1: 380, q: 1.2, vol: 1, attack: .09 }),
+  // タッタッタッ（ダッシュ）：足音
+  run: (t, n) => { for (let i = 0; i < n; i++) { const s = t + i * .11; sNoise(s, .06, { type: "lowpass", f0: 420, vol: .7 }); sTone(s, 95, .07, { vol: .35 }); } },
+  // パシッ（捕球）：グローブに入る音
+  catch: t => { sNoise(t, .07, { f0: 2200, q: .8, vol: .6, attack: .002 }); sTone(t, 150, .09, { vol: .3 }); },
+  // ドン…パシッ（壁当て）：壁に当たって、とる音
+  wall: t => { sNoise(t, .1, { type: "lowpass", f0: 260, vol: .8 }); sTone(t, 85, .12, { vol: .45 }); SFX.catch(t + .3); },
+  // ポーン（ストレッチ）：ゆったりした音
+  chime: t => { sTone(t, 659, 1.1, { vol: .14, attack: .02 }); sTone(t + .18, 988, 1.1, { vol: .1, attack: .02 }); },
+};
+function sfxKind(m) {
+  if (!m) return "chime";
+  const n = plain(m.name), ab = Object.keys(m.ab || {});
+  if (n.includes("素振")) return "swing";
+  if (plain(m.unit) === "分" || n.includes("ストレッチ")) return "chime";
+  if (n.includes("壁")) return "wall";
+  if (ab.includes("speed") || n.includes("ダッシュ") || n.includes("走")) return "run";
+  if (n.includes("捕") || ab.includes("def")) return "catch";
+  if (ab.includes("power") || ab.includes("meet")) return "swing";
+  if (ab.includes("arm")) return "wall";
+  return "chime";
+}
+// big: チェックした時（長め）／小: カウンターを1回タップした時（短め）
+function sfxItem(m, big) {
+  if (S.sound === false || !AC) return;
+  try {
+    const t = AC.currentTime + .01, k = sfxKind(m);
+    if (k === "swing") { SFX.swing(t); if (big) SFX.swing(t + .3); }
+    else if (k === "run") SFX.run(t, big ? 7 : 2);
+    else if (k === "wall") big ? SFX.wall(t) : SFX.catch(t);
+    else if (k === "catch") { SFX.catch(t); if (big) SFX.catch(t + .22); }
+    else if (big) SFX.chime(t); else sTone(t, 880, .08, { vol: .12 });
+  } catch (e) {}
+}
+
 function beep(freq, len, vol) {
   if (S.sound === false || !AC) return;
   try { const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain(); o.type = "sine"; o.frequency.value = freq;
@@ -1883,7 +1934,7 @@ const A = {
     if (!Object.keys(L.done).length) delete S.logs[d];
     else if (S.rest[d]) delete S.rest[d];   // 練習したら休養日ではなくなる
     save(); render();
-    if (adding) floatAt(id, `+${itemExp(m, m.count)} EXP`);
+    if (adding) { floatAt(id, `+${itemExp(m, m.count)} EXP`); sfxItem(m, true); }
     const after = compute();
     setTimeout(() => celebrate(before, after, "", L.clear && !wasClear), adding ? 450 : 0);
   },
@@ -1921,7 +1972,12 @@ const A = {
   },
   closeOv() { document.getElementById("ov").hidden = true; },
   tool(id) { audioUnlock(); openTool(id); },
-  toolTap() { if (!TS) return; TS.n++; beep(TS.n >= TS.target && TS.n - 1 < TS.target ? 1320 : 660, .07, .12); renderTool(); },
+  toolTap() {
+    if (!TS) return; TS.n++;
+    sfxItem(S.menu.find(x => x.id === TS.id), false);
+    if (TS.n === TS.target) { beep(1320, .15, .25); setTimeout(() => beep(1760, .25, .25), 140); }
+    renderTool();
+  },
   toolAdd(v) { if (!TS) return; TS.n = Math.max(0, TS.n + Number(v)); renderTool(); },
   toolDone() {
     if (!TS) return; const m = S.menu.find(x => x.id === TS.id);
