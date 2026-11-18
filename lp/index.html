@@ -63,6 +63,16 @@ th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-botto
 th { width: 34%; color: var(--dim); font-weight: 800; }
 .table-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
 .small { font-size: 13px; color: var(--dim); }
+.price-box { margin: 18px 0 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.price-box .price { margin: 0; }
+.price s { color: var(--dim); font-weight: 800; font-size: 18px; text-decoration-thickness: 2px; }
+.sale-tag { display: inline-block; background: var(--score); color: #fff; font-weight: 800; font-size: 13px; border-radius: 8px; padding: 3px 10px; }
+.sale-note { font-size: 13px; color: var(--dim); font-weight: 700; }
+.legal { padding-block: 24px; }
+.legal h2 { font-size: 17px; margin-bottom: 10px; }
+.legal h2 small { font-size: 11px; }
+.legal table { font-size: 12px; line-height: 1.7; }
+.legal th, .legal td { padding: 7px 10px; }
 footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text-align: center; color: var(--dim); font-size: 13px; }
 :focus-visible { outline: 3px solid var(--light); outline-offset: 2px; }
 @media (max-width: 820px) {
@@ -78,7 +88,11 @@ footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text
     <div class="eyebrow">TRAINING ROAD for PLAYERS</div>
     <h1>少年野球の自主練を、<em>ゲーム</em>にする。</h1>
     <p class="lead">毎日の自主練をチェックすると経験値がたまり、「新人選手」から「スーパースター」までレベルアップ。子どもが自分から開きたくなる、自主練習アプリです。選手の名前を入れた<b>その子専用のアプリ</b>を作ってお届けします。</p>
-    <div class="price"><b>300円</b><small>1選手（税込）・iPhone用</small></div>
+    <div class="price-box">
+      <div class="sale-tag" data-sale>オープン記念・割引中　12月1日（火）のお申し込みまで</div>
+      <div class="price"><s data-sale>500円</s><b><span data-sale>300円</span><span data-after hidden>500円</span></b><small>1選手（税込）・iPhone用</small></div>
+      <div class="sale-note" data-sale>12月2日（水）のお申し込みからは500円になります</div>
+    </div>
     <div class="ctas"><a class="btn main" href="#order">申し込み方法を見る</a><a class="btn sub" href="../demo/" target="_blank" rel="noopener">デモを全画面で開く</a></div>
   </div>
   <div>
@@ -111,7 +125,6 @@ footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text
         <li>選手カードの名前が、その子の名前で入ります（あとから変えられない、その子だけのカード）</li>
         <li>開いた時の演出に「〇〇選手 専用」と出ます</li>
         <li>その子専用のURL。スマホで開いて「ホーム画面に追加」するだけ</li>
-        <li>ホーム画面のアイコンに、好きな画像（チームのロゴなど）を入れることもできます（任意）</li>
       </ul></div>
     <div class="box"><b>使い方</b>
       <ul>
@@ -126,8 +139,8 @@ footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text
   <h2><small>HOW TO ORDER</small>申し込みの流れ</h2>
   <div class="steps">
     <div class="step"><div><b>DMで「選手版希望」と送る</b><span><a href="https://x.com/training_road" target="_blank" rel="noopener">X（旧Twitter）の @training_road</a> へダイレクトメッセージ（DM）をお送りください。</span></div></div>
-    <div class="step"><div><b>選手の情報を送る</b><span>選手カードにのせる名前（ひらがな・カタカナ・漢字のどれでも）をお送りください。アイコンに入れたい画像があれば、いっしょにどうぞ（チームのロゴは、使ってよいものに限ります）。</span></div></div>
-    <div class="step"><div><b>お振込み</b><span>DMで振込先をご案内します。ご案内から2日以内に、300円をお振込みください（振込手数料はお客様のご負担となります）。</span></div></div>
+    <div class="step"><div><b>選手の情報を送る</b><span>選手カードにのせる名前（ひらがな・カタカナ・漢字のどれでも）をお送りください。</span></div></div>
+    <div class="step"><div><b>お振込み</b><span>DMで振込先をご案内します。ご案内から2日以内に、<span data-sale>300円（割引価格）</span><span data-after hidden>500円</span>をお振込みください（振込手数料はお客様のご負担となります）。</span></div></div>
     <div class="step"><div><b>専用アプリのURLをお届け</b><span>入金を確認したら、原則その日のうちにDMでURLと使い方をお送りします（土日祝日は翌日になる場合があります）。</span></div></div>
     <div class="step"><div><b>ホーム画面に追加</b><span>選手が使うスマホでURLを開き、「ホーム画面に追加」すれば完成です。</span></div></div>
   </div>
@@ -135,26 +148,26 @@ footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text
 
 <section><div class="wrap">
   <h2><small>Q&amp;A</small>よくある質問</h2>
-  <details><summary>アプリストアからダウンロードするのですか？</summary><p>いいえ。スマホのブラウザ（iPhoneはSafari）でURLを開き、「ホーム画面に追加」して使います。アプリのように全画面で開きます。</p></details>
+  <details><summary>アプリストアからダウンロードするのですか？</summary><p>いいえ。iPhoneのブラウザ（SafariやChromeなど）でURLを開き、共有ボタンから「ホーム画面に追加」して使います。アプリのように全画面で開きます。</p></details>
   <details><summary>記録はどこに保存されますか？</summary><p>選手それぞれのスマホの中だけです。インターネット上には送られず、ほかの人からは見えません。そのため、監督やコーチがチーム全員の記録を見る機能はありません。</p></details>
   <details><summary>機種変更をしたら記録は消えますか？</summary><p>そのままでは引き継がれません。アプリの「記録のバックアップ」でファイルや文字にしておけば、新しいスマホで「バックアップからもどす」で元に戻せます。</p></details>
   <details><summary>ホーム画面のアイコンを消しても大丈夫？</summary><p>アイコンを消すと記録も消えることがあります。消す前にバックアップをとってください。</p></details>
   <details><summary>選手の写真はどこかに送られますか？</summary><p>送られません。背景の切り抜きもスマホの中で行います（はじめての時だけ、切り抜き用の部品をダウンロードします）。</p></details>
-  <details><summary>使えるスマホは？</summary><p>iPhone専用です（Safariで開いて使います）。Androidのスマホでは動作を確かめていないため、販売の対象外とさせていただいています。お申し込みの前に、無料のデモをお使いのiPhoneで開いて、動くか確かめてください。</p></details>
+  <details><summary>使えるスマホは？</summary><p>iPhone専用です。Androidのスマホでは動作を確かめていないため、販売の対象外とさせていただいています。お申し込みの前に、無料のデモをお使いのiPhoneで開いて、動くか確かめてください。</p></details>
 </div></section>
 
-<section id="tokushoho"><div class="wrap">
+<section id="tokushoho" class="legal"><div class="wrap">
   <h2><small>LEGAL</small>特定商取引法にもとづく表示</h2>
   <div class="table-wrap"><table>
     <tr><th>販売事業者</th><td>トレーニングロード<br><span class="small">氏名・住所・電話番号は、ご請求があれば遅滞なく開示します。</span></td></tr>
     <tr><th>連絡先</th><td><a href="https://x.com/training_road" target="_blank" rel="noopener">X（旧Twitter）の @training_road</a> のDM</td></tr>
-    <tr><th>販売価格</th><td>300円（税込）／1選手</td></tr>
+    <tr><th>販売価格</th><td><span data-sale>300円（税込）／1選手<br>※2026年12月1日（火）までのお申し込みに適用する割引価格です。12月2日（水）以降のお申し込みは500円（税込）です。</span><span data-after hidden>500円（税込）／1選手</span></td></tr>
     <tr><th>商品代金以外の必要料金</th><td>振込手数料（お客様のご負担）、インターネット接続にかかる通信料</td></tr>
     <tr><th>支払方法</th><td>銀行振込</td></tr>
     <tr><th>支払時期</th><td>振込先のご案内から2日以内</td></tr>
     <tr><th>引渡し時期</th><td>入金確認後、原則即日（土日祝日は翌日になる場合があります）。DMでURLをお届けします</td></tr>
     <tr><th>返品・キャンセル</th><td>お振込み前はキャンセルできます。デジタルの商品のため、URLのお届け後の返品・返金はお受けしていません。お届けしたURLが開けないなど、こちらの不備があった場合は直すか、返金します。</td></tr>
-    <tr><th>動作環境</th><td>iPhone（Safari）。iOSは最新に近いバージョンでお使いください。Androidは対象外です</td></tr>
+    <tr><th>動作環境</th><td>iPhone（iOSは最新に近いバージョン。SafariやChromeなどのブラウザ）。Androidは対象外です</td></tr>
   </table></div>
 </div></section>
 
@@ -165,11 +178,19 @@ footer { padding-block: 30px calc(30px + env(safe-area-inset-bottom, 0px)); text
     <li>記録は各スマホの中に保存されます。端末の故障・データ消去などによる記録の消失について、販売者は責任を負えません。定期的なバックアップをおすすめします。</li>
     <li>練習はけがに気をつけ、無理のない範囲で行ってください。練習量は、指導者やおうちの方と相談して決めてください。</li>
     <li>アプリは改善のため、同じURLのまま内容が新しくなることがあります。</li>
-    <li>申し込みでいただいた選手の名前・画像は、専用アプリの制作とお届けのためだけに使います。</li>
+    <li>申し込みでいただいた選手の名前は、専用アプリの制作とお届けのためだけに使います。</li>
   </ul></div>
 </div></section>
 </main>
 
 <footer>© トレーニングロード</footer>
+<script>
+// 割引期間（12月1日まで）が終わったら、自動で500円の表示にする
+(function () {
+  if (Date.now() < new Date("2026-12-02T00:00:00+09:00").getTime()) return;
+  document.querySelectorAll("[data-sale]").forEach(function (e) { e.remove(); });
+  document.querySelectorAll("[data-after]").forEach(function (e) { e.hidden = false; });
+})();
+</script>
 </body>
 </html>
