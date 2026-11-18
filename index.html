@@ -373,6 +373,8 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 .sp-title rt { font-size: .32em; }
 .sp-sub { font-family: var(--font-d); font-size: 22px; letter-spacing: .14em; color: var(--score); margin-top: 10px; padding: 2px 14px; border: 3px solid var(--score); border-radius: 8px;
   transform: rotate(-6deg) scale(2.2); opacity: 0; animation: stamp .3s 1.5s cubic-bezier(.3,1.5,.5,1) forwards; text-shadow: 0 0 12px rgba(255,107,61,.6); }
+.sp-only { margin-top: 12px; font-weight: 800; font-size: 14px; color: #241800; background: var(--light); border-radius: 99px; padding: 2px 14px; opacity: 0; animation: fadein .4s 1.6s forwards; }
+.field input.locked { background: rgba(255,216,74,.08); border-color: rgba(255,216,74,.4); color: var(--light); font-weight: 800; }
 .sp-name { margin-top: 14px; font-weight: 800; color: var(--light); opacity: 0; animation: fadein .4s 1.75s forwards; }
 .sp-skip { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: 12px; color: var(--dim); font-weight: 700; }
 @keyframes pop2 { to { transform: scale(1); } }
@@ -540,6 +542,8 @@ const itemAb = (m, n) => { const f = m.var ? Math.max(1, Math.round(n / 200)) : 
 
 /* ---------- ほぞん（このスマホの中だけ） ---------- */
 const KEY = "diamond-road-v1";
+// 選手専用版：販売するときに選手の名前を入れておく（名前は変えられない）
+const FIXED = (window.TR_PLAYER && String(window.TR_PLAYER.name || "").trim()) || "";
 const blank = () => ({ v: 2, profile: { name: "", number: "", position: "" }, menu: DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), logs: {}, games: [], goals: { dream: "", year: "", month: "", monthKey: "", steps: [] }, reviews: {}, started: "" });
 let S;
 function loadState() {
@@ -1027,15 +1031,20 @@ function photoSection() {
 
 function vSetup() {
   return `<div class="panel stack">
-    <div style="font-family:var(--font-d);font-size:22px;line-height:1.4">ようこそ！<br>${R("{選手|せんしゅ}カードをつくろう")}</div>
-    <div class="hint">${R("{名前|なまえ}と{背番号|せばんごう}を{入|い}れると、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートするよ。")}</div>
+    <div style="font-family:var(--font-d);font-size:22px;line-height:1.4">ようこそ！<br>${FIXED ? `${esc(FIXED)}${R("{選手|せんしゅ}")}` : R("{選手|せんしゅ}カードをつくろう")}</div>
+    <div class="hint">${FIXED ? R(`このアプリは${FIXED}{選手|せんしゅ}{専用|せんよう}だよ。{背番号|せばんごう}とポジションを{入|い}れて、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートしよう。`)
+                              : R("{名前|なまえ}と{背番号|せばんごう}を{入|い}れると、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートするよ。")}</div>
     ${profileFields()}
     <button class="btn wide" data-act="saveProfile">${R("スタート！")}</button>
   </div>`;
 }
 function profileFields() {
   const p = S.profile;
-  return `<div class="field"><label for="pf-name">${R("なまえ")}</label><input id="pf-name" maxlength="16" value="${esc(p.name)}" placeholder="れい：たろう"></div>
+  if (FIXED) return `<div class="field"><label for="pf-name">${R("なまえ（この{選手|せんしゅ}{専用|せんよう}なので、かえられません）")}</label><input id="pf-name" class="locked" value="${esc(FIXED)}" readonly aria-readonly="true"></div>` + profileRest(p);
+  return `<div class="field"><label for="pf-name">${R("なまえ")}</label><input id="pf-name" maxlength="16" value="${esc(p.name)}" placeholder="れい：たろう"></div>` + profileRest(p);
+}
+function profileRest(p) {
+  return `
     <div class="row2">
       <div class="field"><label for="pf-num">${R("{背番号|せばんごう}")}</label><input id="pf-num" inputmode="numeric" maxlength="3" value="${esc(p.number)}" placeholder="10"></div>
       <div class="field"><label for="pf-pos">${R("ポジション")}</label><input id="pf-pos" list="poslist" maxlength="20" value="${esc(p.position)}" placeholder="ショート"></div>
@@ -1044,7 +1053,7 @@ function profileFields() {
 }
 
 function vHome(c) {
-  if (!S.profile.name) return vSetup();
+  if (!S.profile.name || (FIXED && !S.profile.ready)) return vSetup();
   const t = todayStats(); const C = 2 * Math.PI * 42;
   const step = S.goals.steps.find(s => !s.done);
   const pend = pendingReviews();
@@ -1875,6 +1884,7 @@ function splash() {
       <img class="sp-logo" src="icon.png?v=2" alt="" onerror="this.remove()">
       <div class="sp-title">${R("{水田|みずた}トレーニングロード")}</div>
       <div class="sp-sub">PLAY BALL!</div>
+      ${FIXED ? `<div class="sp-only">${esc(FIXED)} ${R("{選手|せんしゅ}{専用|せんよう}")}</div>` : ""}
       ${name ? `<div class="sp-name">${esc(name)}${R("{選手|せんしゅ}、きょうもいこう！")}</div>` : ""}
     </div>
     <div class="sp-skip">${R("タップでスキップ")}</div>`;
@@ -1907,7 +1917,7 @@ const A = {
   doRestore() {
     const o = pendingRestore; if (!o) return;
     try { localStorage.setItem(KEY, JSON.stringify(o.data)); } catch (e) {}
-    S = normalize(o.data); save();
+    S = normalize(o.data); if (FIXED) S.profile.name = FIXED; save();
     if (o.photo) savePhoto(o.photo);
     pendingRestore = null; bkMsg = ""; bkText = "";
     tab = "home"; render(); window.scrollTo(0, 0);
@@ -1917,9 +1927,9 @@ const A = {
   photoDel() { savePhoto(null); render(); },
   goReview() { tab = "goal"; render(); const el = document.getElementById("reviews"); if (el) el.scrollIntoView(); },
   saveProfile() {
-    const name = document.getElementById("pf-name").value.trim();
+    const name = FIXED || document.getElementById("pf-name").value.trim();
     if (!name) { document.getElementById("pf-name").focus(); return; }
-    S.profile = { name, number: document.getElementById("pf-num").value.trim(), position: document.getElementById("pf-pos").value.trim() };
+    S.profile = { name, number: document.getElementById("pf-num").value.trim(), position: document.getElementById("pf-pos").value.trim(), ready: true };
     save(); tab = "home"; render(); window.scrollTo(0, 0);
   },
   toggle(id) {
@@ -2092,9 +2102,10 @@ document.addEventListener("keydown", e => {
 });
 
 S = loadState();
+if (FIXED) S.profile.name = FIXED;   // 選手専用版は、名前をいつもその選手にする
 // デモ版（販売ページから触ってもらう用）だけ、はじめにお試しの記録を入れる
 function seedDemo() {
-  S.profile = { name: "デモ選手", number: "10", position: "ショート" };
+  S.profile = { name: FIXED || "デモ選手", number: "10", position: "ショート", ready: true };
   const t = ymd(), r = rng(42);
   for (let i = 30; i >= 1; i--) {
     if (i % 9 === 0) continue;
@@ -2107,7 +2118,7 @@ function seedDemo() {
   S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
   S.started = addDays(t, -30); save();
 }
-if (window.TR_DEMO && !S.profile.name) seedDemo();
+if (window.TR_DEMO && !S.profile.ready) seedDemo();
 loadPhoto();
 render();
 splash();
