@@ -58,6 +58,21 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .gear { flex: none; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; width: 52px; height: 52px; display: grid; place-items: center; position: relative; touch-action: manipulation; }
 .gear::after { content: ""; position: absolute; inset: -8px; }   /* 押せる範囲を見た目より広くする */
 .gear svg { width: 26px; height: 26px; }
+.hdr-btns { display: flex; gap: 10px; flex: none; }
+.gear.help { font-family: var(--font-d); font-size: 24px; color: var(--light); }
+.help-doc details { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.help-doc summary { list-style: none; cursor: pointer; padding: 14px 16px; font-family: var(--font-d); font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.help-doc summary::-webkit-details-marker { display: none; }
+.help-doc summary::after { content: "＋"; color: var(--light); font-family: var(--font-b); font-weight: 800; }
+.help-doc details[open] summary::after { content: "−"; }
+.help-doc .body { padding: 0 16px 16px; font-size: 14px; line-height: 2; }
+.help-doc .body h3 { font-size: 14px; margin: 10px 0 2px; color: var(--light); }
+.help-doc .body p { margin: 4px 0; }
+.help-doc .body ul { margin: 4px 0; padding-left: 20px; }
+.help-doc .warn { background: rgba(255,107,61,.12); border: 1px solid rgba(255,107,61,.5); border-radius: 12px; padding: 8px 12px; margin: 8px 0; font-weight: 700; }
+.help-doc .rows div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.help-doc .rows div:last-child { border-bottom: 0; }
+.help-doc .rows em { font-style: normal; font-family: var(--font-d); color: var(--light); white-space: nowrap; }
 .gear:active { background: var(--panel2); transform: scale(.95); }
 
 h2.sec { font-family: var(--font-d); font-size: 17px; margin: 22px 0 10px; letter-spacing: .03em; display: flex; align-items: baseline; gap: 10px; }
@@ -379,9 +394,12 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 <div class="wrap">
   <header class="top">
     <div class="logo"><span class="dia"></span><span><ruby>水田<rt>みずた</rt></ruby><ruby>自主<rt>じしゅ</rt></ruby>トレロード</span></div>
+    <div class="hdr-btns">
+    <button class="gear help" data-act="tab" data-v="help" aria-label="つかいかた">?</button>
     <button class="gear" data-act="tab" data-v="settings" aria-label="せってい">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
+    </div>
   </header>
   <main id="view"><div class="panel">よみこみ中…</div></main>
 </div>
@@ -591,7 +609,7 @@ function renderTabs() {
 }
 function render() {
   const c = compute();
-  const v = { home: vHome, train: vTrain, record: vRecord, game: vGame, goal: vGoal, settings: vSettings }[tab] || vHome;
+  const v = { home: vHome, train: vTrain, record: vRecord, game: vGame, goal: vGoal, settings: vSettings, help: vHelp }[tab] || vHome;
   document.getElementById("view").innerHTML = v(c);
   renderTabs();
 }
@@ -944,6 +962,53 @@ function vReviews() {
       ${done.map(card).join("")}
       ${!pend.length && !done.length ? `<div class="note">${R("{月|つき}が{終|お}わったら、ここでその{月|つき}のふりかえりができるよ（{月|つき}の{最後|さいご}の3{日|か}{間|かん}からできる）。")}</div>` : ""}
     </div>`;
+}
+
+/* ---------- つかいかた・ちゅうい ---------- */
+function vHelp() {
+  const P = s => `<p>${R(s)}</p>`, H = s => `<h3>${R(s)}</h3>`, L = a => `<ul>${a.map(s => `<li>${R(s)}</li>`).join("")}</ul>`;
+  const sec = (title, body, open) => `<details ${open ? "open" : ""}><summary><span>${R(title)}</span></summary><div class="body">${body}</div></details>`;
+  const lvRows = TITLES.map((t, i) => `<div><span>${R(t)}</span><em>Lv.${i === 0 ? 1 : i * 5}〜</em></div>`).join("");
+  const menuRows = S.menu.filter(m => m.on).map(m => `<div><span>${R(m.name)}</span><em>${m.var ? "+15〜70" : "+" + m.exp}</em></div>`).join("");
+  return `<div class="stack help-doc">
+    <h2 class="sec" style="margin-top:0">${R("つかいかた・ちゅうい")}</h2>
+    ${sec("このアプリでできること", P("{毎日|まいにち}の{自主練|じしゅれん}をチェックすると、EXP（{経験値|けいけんち}）がたまってレベルが{上|あ}がるよ。レベルが{上|あ}がると「{新人|しんじん}{選手|せんしゅ}」から「スーパースター」まで{称号|しょうごう}がかわっていく。")
+      + P("{試合|しあい}の{記録|きろく}や、{夢|ゆめ}・{目標|もくひょう}も{書|か}いておけるよ。"), true)}
+    ${sec("{画面|がめん}ごとのつかいかた",
+      H("ホーム") + P("{選手|せんしゅ}カードと、きょうの{達成率|たっせいりつ}、{何日|なんにち}{続|つづ}けているかが{見|み}られる。")
+      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜600{回|かい}）。いちばん{上|うえ}には{前|まえ}の{試合|しあい}と「つぎにがんばること」が{出|で}るよ。")
+      + H("きろく") + P("{練習|れんしゅう}カレンダー、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。")
+      + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。")
+      + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
+      + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、{音|おと}をかえられる。"))}
+    ${sec("EXPのもらいかた",
+      `<div class="rows">${menuRows}
+        <div><span>${R("きょうのメニューをぜんぶクリア")}</span><em>+${CLEAR_BONUS}</em></div>
+        <div><span>${R("3{日|か}・7{日|か}・14{日|か}{連続|れんぞく}")}</span><em>+30 / +70 / +100</em></div>
+        <div><span>${R("30{日|にち}{連続|れんぞく}ごと")}</span><em>+200</em></div>
+        <div><span>${R("{試合|しあい}を{記録|きろく}")}</span><em>+${GAME_EXP}</em></div>
+        <div><span>${R("スモールステップを{達成|たっせい}")}</span><em>+${STEP_EXP}</em></div>
+        <div><span>${R("{月|つき}のふりかえり")}</span><em>+${REVIEW_EXP}</em></div></div>`
+      + P("{素振|すぶ}りは{回数|かいすう}が{多|おお}いほどEXPがふえる（50{回|かい}で+15、600{回|かい}で+70）。"))}
+    ${sec("レベルと{称号|しょうごう}", `<div class="rows">${lvRows}</div>` + P("{練習|れんしゅう}すると、ミート・パワー・{走力|そうりょく}・{肩|かた}・{守備|しゅび}の{能力|のうりょく}もG→Sに{育|そだ}つよ。"))}
+    ${sec("{写真|しゃしん}を{入|い}れるには",
+      P("{歯車|はぐるま}→「{選手|せんしゅ}の{写真|しゃしん}」→「{写真|しゃしん}をえらぶ」。{背景|はいけい}は{自動|じどう}で{切|き}り{抜|ぬ}くよ。")
+      + L(["{立|た}っていて、{体|からだ}ぜんぶか{上半身|じょうはんしん}がはっきり{写|うつ}った{写真|しゃしん}がおすすめ", "{人|ひと}がたくさん{写|うつ}っている{写真|しゃしん}は、うまく{切|き}り{抜|ぬ}けないことがある", "{切|き}り{抜|ぬ}きはスマホの{中|なか}でするので、{写真|しゃしん}は{外|そと}に{送|おく}られない"]))}
+    ${sec("{記録|きろく}について（だいじ）",
+      `<div class="warn">${R("{記録|きろく}は、このスマホの{中|なか}だけにほぞんされているよ。")}</div>`
+      + L(["いつもホーム{画面|がめん}のアイコンから{開|ひら}こう。Safariから{開|ひら}くと、{記録|きろく}が{別|べつ}になってしまう",
+           "ホーム{画面|がめん}のアイコンを{消|け}すと、{記録|きろく}も{消|き}えることがある",
+           "Safariの「{履歴|りれき}とWebサイトデータを{消去|しょうきょ}」をすると{記録|きろく}が{消|き}える",
+           "スマホをかえると、{記録|きろく}はひきつがれない"]))}
+    ${sec("アプリが{新|あたら}しくならない{時|とき}",
+      L(["{画面|がめん}の{下|した}から{上|うえ}にスワイプして、このアプリを{上|うえ}にはじいて{閉|と}じてから、もう{一度|いちど}{開|ひら}く",
+         "{新|あたら}しくなってから10{分|ぷん}くらいは、{前|まえ}のままのことがある",
+         "{記録|きろく}は、アプリが{新|あたら}しくなっても{消|き}えない"]))}
+    ${sec("おうちの{人|ひと}へ",
+      P("{記録|きろく}はお{子|こ}さんのスマホのブラウザの{中|なか}だけに{保存|ほぞん}され、インターネット{上|じょう}には{送|おく}られません。{写真|しゃしん}の{切|き}り{抜|ぬ}きもスマホの{中|なか}で{行|おこな}います（はじめての{時|とき}だけ、{切|き}り{抜|ぬ}き{用|よう}の{部品|ぶひん}をダウンロードします）。")
+      + P("ほかの{人|ひと}のスマホからは{記録|きろく}を{見|み}られません。チームメイトもURLを{開|ひら}けば、それぞれのスマホで{使|つか}えます。"))}
+    <button class="btn sub" data-act="tab" data-v="home">${R("ホームにもどる")}</button>
+  </div>`;
 }
 
 function vSettings(c) {
