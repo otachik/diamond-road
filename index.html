@@ -75,8 +75,8 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .help-doc .rows em { font-style: normal; font-family: var(--font-d); color: var(--light); white-space: nowrap; }
 .gear:active { background: var(--panel2); transform: scale(.95); }
 
-h2.sec { font-family: var(--font-d); font-size: 17px; margin: 22px 0 10px; letter-spacing: .03em; display: flex; align-items: baseline; gap: 10px; }
-h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); font-weight: 700; }
+h2.sec { font-family: var(--font-d); font-size: 17px; margin: 22px 0 10px; letter-spacing: .03em; }
+h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); font-weight: 700; margin-left: 10px; letter-spacing: 0; }
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
 
@@ -131,6 +131,10 @@ h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); f
 .stage-info .ps { font-size: 13px; color: var(--ink); font-weight: 800; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
 .thumb { display: block; max-height: 160px; max-width: 100%; border-radius: 12px; margin: 0 auto; }
 .thumb.cut { background: repeating-conic-gradient(#1a2c5e 0 25%, #13214a 0 50%) 0 0 / 16px 16px; }
+.warn-box { display: flex; flex-direction: column; gap: 8px; background: rgba(255,107,61,.12); border: 1px solid rgba(255,107,61,.6); border-radius: 14px; padding: 12px; }
+.del-btn.armed, .btn.armed { background: var(--score); color: #fff; box-shadow: 0 4px 0 #8a2c10; }
+.bk-msg { font-weight: 800; color: var(--turf); }
+.bk-text { width: 100%; height: 90px; font-size: 12px; background: #0b1636; color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
 .vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
 label.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
 .busy { display: flex; align-items: center; gap: 12px; font-weight: 800; }
@@ -448,8 +452,12 @@ const KEY = "diamond-road-v1";
 const blank = () => ({ v: 2, profile: { name: "", number: "", position: "" }, menu: DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), logs: {}, games: [], goals: { dream: "", year: "", month: "", monthKey: "", steps: [] }, reviews: {}, started: "" });
 let S;
 function loadState() {
-  let s = blank();
-  try { const t = localStorage.getItem(KEY); if (t) s = Object.assign(blank(), JSON.parse(t)); } catch (e) {}
+  let raw = null;
+  try { const t = localStorage.getItem(KEY); if (t) raw = JSON.parse(t); } catch (e) {}
+  return normalize(raw);
+}
+function normalize(raw) {
+  const s = raw ? Object.assign(blank(), raw) : blank();
   if ((s.v || 1) < 2) {   // 前の版のメニューを新しいメニューに入れかえる（自分で足したメニューは残す）
     s.menu = [...DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), ...s.menu.filter(m => m.custom)];
     s.v = 2;
@@ -529,6 +537,49 @@ async function segmentCut(c) {
   o.getContext("2d").drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height);
   return shrink(o, 520, "image/png");
 }
+/* ---------- バックアップ（記録を1つのファイルや文字にして、とっておく・もどす） ---------- */
+const BK_APP = "mizuta-jishutore";
+let bkMsg = "", bkText = "", pendingRestore = null;
+const backupJson = withPhoto => JSON.stringify({ app: BK_APP, v: 2, at: ymd(), data: S, photo: withPhoto ? PHOTO : null });
+function parseBackup(text) {
+  try {
+    const o = JSON.parse(String(text).trim());
+    if (o && o.app === BK_APP && o.data && typeof o.data === "object" && typeof o.data.logs === "object") return o;
+  } catch (e) {}
+  return null;
+}
+function backupSummary(o) {
+  const keep = S; S = normalize(o.data); const c = compute(); const name = S.profile.name; S = keep;
+  return { name, lv: c.lv, days: c.days, at: o.at || "", photo: !!o.photo };
+}
+function bkDone(msg) { S.lastBackup = ymd(); save(); bkMsg = msg; render(); }
+async function makeBackup() {
+  const name = `mizuta-jishutore-${ymd()}.json`;
+  const file = new File([backupJson(true)], name, { type: "application/json" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "水田自主トレロードのバックアップ" });
+      return bkDone("バックアップをほぞんしたよ");
+    }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  try {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    bkDone("バックアップのファイルをほぞんしたよ");
+  } catch (e) { bkMsg = "ファイルにできなかったよ。「{文字|もじ}でコピー」をためしてね"; render(); }
+}
+async function copyBackup() {
+  const t = backupJson(false);
+  try { await navigator.clipboard.writeText(t); bkText = ""; bkDone("コピーしたよ。LINEやメモにはりつけて、とっておこう"); }
+  catch (e) { bkText = t; bkMsg = "{下|した}の{文字|もじ}をぜんぶえらんで、コピーしてね"; render(); }
+}
+function askRestore(text) {
+  const o = parseBackup(text);
+  if (!o) { pendingRestore = null; bkMsg = "バックアップの{形|かたち}になっていないよ。もう{一度|いちど}たしかめてね"; render(); return; }
+  pendingRestore = o; bkMsg = ""; render();
+  const el = document.getElementById("bk-confirm"); if (el) el.scrollIntoView({ block: "center" });
+}
+
 async function handlePhoto(file) {
   photoWork = { state: "busy" }; render();
   let raw = null;
@@ -999,7 +1050,7 @@ function vHelp() {
       + L(["いつもホーム{画面|がめん}のアイコンから{開|ひら}こう。Safariから{開|ひら}くと、{記録|きろく}が{別|べつ}になってしまう",
            "ホーム{画面|がめん}のアイコンを{消|け}すと、{記録|きろく}も{消|き}えることがある",
            "Safariの「{履歴|りれき}とWebサイトデータを{消去|しょうきょ}」をすると{記録|きろく}が{消|き}える",
-           "スマホをかえると、{記録|きろく}はひきつがれない"]))}
+           "スマホをかえる{時|とき}やアイコンを{置|お}きなおす{時|とき}は、{先|さき}に{歯車|はぐるま}の「{記録|きろく}のバックアップ」をとっておこう。あとで「バックアップからもどす」で{元|もと}にもどせるよ"]))}
     ${sec("アプリが{新|あたら}しくならない{時|とき}",
       L(["{画面|がめん}の{下|した}から{上|うえ}にスワイプして、このアプリを{上|うえ}にはじいて{閉|と}じてから、もう{一度|いちど}{開|ひら}く",
          "{新|あたら}しくなってから10{分|ぷん}くらいは、{前|まえ}のままのことがある",
@@ -1008,6 +1059,34 @@ function vHelp() {
       P("{記録|きろく}はお{子|こ}さんのスマホのブラウザの{中|なか}だけに{保存|ほぞん}され、インターネット{上|じょう}には{送|おく}られません。{写真|しゃしん}の{切|き}り{抜|ぬ}きもスマホの{中|なか}で{行|おこな}います（はじめての{時|とき}だけ、{切|き}り{抜|ぬ}き{用|よう}の{部品|ぶひん}をダウンロードします）。")
       + P("ほかの{人|ひと}のスマホからは{記録|きろく}を{見|み}られません。チームメイトもURLを{開|ひら}けば、それぞれのスマホで{使|つか}えます。"))}
     <button class="btn sub" data-act="tab" data-v="home">${R("ホームにもどる")}</button>
+  </div>`;
+}
+
+function backupSection() {
+  const last = S.lastBackup ? R(`さいごのバックアップ：${jpDate(S.lastBackup)}`) : R("まだバックアップしていないよ");
+  let confirm = "";
+  if (pendingRestore) {
+    const b = backupSummary(pendingRestore);
+    confirm = `<div class="warn-box" id="bk-confirm">
+      <div style="font-weight:800">${R("このバックアップにもどす？")}</div>
+      <div class="hint">${b.at ? R(jpDate(b.at)) + "・" : ""}${esc(b.name || "")} Lv.${b.lv}・${R(`{練習|れんしゅう}した{日|ひ} ${b.days}`)}${b.photo ? R("・{写真|しゃしん}あり") : ""}</div>
+      <div style="font-weight:700">${R("いまの{記録|きろく}は、このバックアップに{入|い}れかわるよ。")}</div>
+      <div class="row2"><button class="btn sub" data-act="cancelRestore">${R("やめる")}</button><button class="btn del-btn" data-act="doRestore">${R("もどす")}</button></div>
+    </div>`;
+  }
+  return `<div class="panel form">
+    <div class="hint">${R("スマホをかえる{時|とき}や、アイコンを{置|お}きなおす{前|まえ}に、バックアップをとっておこう。ときどきとっておくと{安心|あんしん}だよ。")}</div>
+    <div class="hint" style="color:var(--light)">${last}</div>
+    ${bkMsg ? `<div class="bk-msg">${R(bkMsg)}</div>` : ""}
+    <button class="btn" data-act="makeBackup">${R("ファイルにする（{写真|しゃしん}こみ）")}</button>
+    <button class="btn sub" data-act="copyBackup">${R("{文字|もじ}でコピーする（{写真|しゃしん}なし）")}</button>
+    ${bkText ? `<textarea id="bk-text" class="bk-text" readonly>${esc(bkText)}</textarea>` : ""}
+    <div style="font-weight:800;margin-top:6px">${R("バックアップからもどす")}</div>
+    <label class="btn sub" for="bk-file">${R("ファイルをえらんでもどす")}</label>
+    <input type="file" id="bk-file" accept=".json,application/json,text/plain" class="vh" tabindex="-1" aria-hidden="true">
+    <div class="field"><label for="bk-paste">${R("コピーした{文字|もじ}をはりつけてもどす")}</label><textarea id="bk-paste" placeholder="ここにはりつける"></textarea></div>
+    <button class="btn sub" data-act="pasteRestore">${R("はりつけた{文字|もじ}でもどす")}</button>
+    ${confirm}
   </div>`;
 }
 
@@ -1037,6 +1116,8 @@ function vSettings(c) {
       </div>
       <button class="btn sub" data-act="addMenu">${R("{足|た}す")}</button>
     </div>
+    <h2 class="sec" id="backup">${R("{記録|きろく}のバックアップ")}</h2>
+    ${backupSection()}
     <h2 class="sec">${R("{音|おと}")}</h2>
     <div class="panel"><div class="mrow"><div class="t">${R("ぜんぶクリアの{時|とき}の{音|おと}")}<small>${R("カキーン！と{歓声|かんせい}")}</small></div>
       <button class="sw ${S.sound !== false ? "on" : ""}" data-act="swSound" aria-label="おと" aria-pressed="${S.sound !== false}"></button></div></div>
@@ -1174,6 +1255,19 @@ const A = {
     render();
   },
   swSound() { S.sound = S.sound === false; save(); if (S.sound) { audioUnlock(); } render(); },
+  makeBackup() { makeBackup(); },
+  copyBackup() { copyBackup(); },
+  pasteRestore() { askRestore(document.getElementById("bk-paste").value); },
+  cancelRestore() { pendingRestore = null; render(); },
+  doRestore() {
+    const o = pendingRestore; if (!o) return;
+    try { localStorage.setItem(KEY, JSON.stringify(o.data)); } catch (e) {}
+    S = normalize(o.data); save();
+    if (o.photo) savePhoto(o.photo);
+    pendingRestore = null; bkMsg = ""; bkText = "";
+    tab = "home"; render(); window.scrollTo(0, 0);
+    showOv(`<div class="big">${R("もどしたよ！")}</div><div class="mid">${esc(S.profile.name || "")} Lv.${compute().lv}</div>`);
+  },
   photoCancel() { photoWork = null; render(); },
   photoDel() { savePhoto(null); render(); },
   goReview() { tab = "goal"; render(); const el = document.getElementById("reviews"); if (el) el.scrollIntoView(); },
@@ -1254,7 +1348,7 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel"]);
+const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "toggle") audioUnlock();
@@ -1262,8 +1356,9 @@ document.addEventListener("click", e => {
   if (ctl && ctl !== b && b.contains(ctl)) return;   // 行の中の回数えらびを押した時はチェックしない
   const a = b.dataset.act;
   if (NEEDS_CONFIRM.has(a) && !b.classList.contains("armed")) {
-    b.classList.add("armed"); b.innerHTML = R("もう{一度|いちど}で{消|け}す");
-    setTimeout(() => { if (b.isConnected) { b.classList.remove("armed"); b.innerHTML = R("{消|け}す"); } }, 3000);
+    const orig = b.innerHTML;
+    b.classList.add("armed"); b.innerHTML = R(a === "doRestore" ? "もう{一度|いちど}おすと、もどすよ" : "もう{一度|いちど}で{消|け}す");
+    setTimeout(() => { if (b.isConnected) { b.classList.remove("armed"); b.innerHTML = orig; } }, 3000);
     return;
   }
   A[a] && A[a](b.dataset.v, b, e);
@@ -1277,6 +1372,7 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.goal) { S.goals[t.dataset.goal] = t.value.trim(); if (t.dataset.goal === "month") S.goals.monthKey = ymd().slice(0, 7); save(); }
   if (t.dataset.count) A.setCount(t.dataset.count, parseInt(t.value) || 10);
+  if (t.id === "bk-file" && t.files && t.files[0]) { const f = t.files[0]; t.value = ""; f.text().then(askRestore, () => askRestore("")); }
   if (t.id === "photo-in" && t.files && t.files[0]) { const f = t.files[0]; t.value = ""; handlePhoto(f); }
 });
 document.addEventListener("keydown", e => {
