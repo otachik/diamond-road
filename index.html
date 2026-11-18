@@ -90,6 +90,33 @@ h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); f
 .who .ttl { display: inline-block; font-size: 12px; font-weight: 800; color: #1a1300; background: var(--light); border-radius: 6px; padding: 1px 8px; }
 .who .nm { font-family: var(--font-d); font-size: 26px; line-height: 1.25; margin-top: 6px; word-break: break-all; }
 .who .ps { font-size: 13px; color: var(--dim); font-weight: 700; }
+.stage {
+  position: relative; height: 260px; margin-top: 10px; border-radius: 14px; overflow: hidden; isolation: isolate;
+  background:
+    radial-gradient(circle at 68% 28%, rgba(255,216,74,.38), transparent 52%),
+    repeating-conic-gradient(from -8deg at 68% 110%, rgba(255,255,255,.07) 0 5deg, transparent 5deg 12deg),
+    linear-gradient(180deg, #25408a, #0c1736);
+}
+.stage::after { content: ""; position: absolute; inset: auto 0 0 0; height: 46%; background: linear-gradient(0deg, rgba(6,12,32,.92), transparent); z-index: 1; pointer-events: none; }
+.stage-num { position: absolute; right: -4px; top: -26px; font-family: var(--font-d); font-size: 210px; line-height: 1; color: rgba(255,216,74,.13); z-index: -1; }
+.player.cut {
+  position: absolute; right: 2%; bottom: 0; height: 97%; max-width: 72%; object-fit: contain; object-position: bottom;
+  filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 0 18px rgba(255,216,74,.75));
+}
+.player.raw { position: absolute; right: 14px; top: 14px; height: 76%; width: 52%; object-fit: cover; border-radius: 12px; border: 3px solid #fff; transform: rotate(3deg); box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.stage-no { position: absolute; left: 14px; top: 10px; z-index: 2; display: flex; flex-direction: column; }
+.stage-no small { font-size: 10px; font-weight: 800; color: var(--light); }
+.stage-no b { font-family: var(--font-d); font-weight: 400; font-size: 44px; line-height: 1; color: var(--light); text-shadow: 0 0 14px rgba(255,216,74,.5); }
+.stage-info { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 2; }
+.stage-info .ttl { display: inline-block; font-size: 12px; font-weight: 800; color: #1a1300; background: var(--light); border-radius: 6px; padding: 1px 8px; }
+.stage-info .nm { font-family: var(--font-d); font-size: 28px; line-height: 1.2; margin-top: 4px; text-shadow: 0 2px 10px rgba(0,0,0,.8); word-break: break-all; max-width: 62%; }
+.stage-info .ps { font-size: 13px; color: var(--ink); font-weight: 800; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+.thumb { display: block; max-height: 160px; max-width: 100%; border-radius: 12px; margin: 0 auto; }
+.thumb.cut { background: repeating-conic-gradient(#1a2c5e 0 25%, #13214a 0 50%) 0 0 / 16px 16px; }
+.vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+label.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+.busy { display: flex; align-items: center; gap: 12px; font-weight: 800; }
+.spin { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--light); animation: spin 1s linear infinite; }
 .lvrow { display: flex; align-items: baseline; justify-content: space-between; margin-top: 14px; }
 .lv { font-family: var(--font-d); font-size: 15px; color: var(--light); }
 .lv b { font-size: 30px; font-weight: 400; margin-left: 2px; }
@@ -192,6 +219,18 @@ h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); f
 .game .sc { font-family: var(--font-d); font-size: 28px; font-variant-numeric: tabular-nums; }
 .game .line { font-size: 13px; color: var(--dim); font-weight: 700; }
 .game .memo { margin-top: 8px; font-size: 14px; background: rgba(0,0,0,.2); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; word-break: break-all; }
+.memo small { display: block; font-size: 11px; font-weight: 800; color: var(--dim); }
+.memo.next { border-left: 3px solid var(--score); }
+.lastgame { background: linear-gradient(135deg, #050a1c, #14234f); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.lg-head { display: flex; justify-content: space-between; align-items: center; }
+.lg-score { display: flex; align-items: center; gap: 8px; }
+.lg-score .vs { font-weight: 800; flex: 1; min-width: 0; word-break: break-all; }
+.lg-score b { font-family: var(--font-d); font-weight: 400; font-size: 24px; color: var(--score); font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(255,107,61,.45); }
+.lastgame .line { font-size: 13px; color: var(--dim); font-weight: 700; }
+.lg-theme { background: rgba(255,107,61,.14); border: 1px solid rgba(255,107,61,.5); border-radius: 12px; padding: 8px 10px; font-weight: 800; font-size: 15px; white-space: pre-wrap; word-break: break-all; }
+.lg-theme small, .lg-good small { display: block; font-size: 11px; color: var(--score); font-weight: 800; }
+.lg-good { font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+.lg-good small { color: var(--dim); }
 .form { display: flex; flex-direction: column; gap: 12px; }
 .field label { display: block; font-size: 12px; font-weight: 800; color: var(--dim); margin-bottom: 4px; }
 .field input, .field select, .field textarea {
@@ -352,6 +391,90 @@ function loadState() {
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
+/* ---------- 選手の写真（記録とは別にほぞん。写真が大きくても記録が消えないように） ---------- */
+const PKEY = KEY + "-photo";
+let PHOTO = null;        // { src: 画像, cut: 切り抜いたか }
+let photoWork = null;    // えらんでいる途中の写真 { state: "busy"|"ready"|"error", raw, cut, msg }
+function loadPhoto() { try { const t = localStorage.getItem(PKEY); if (t) PHOTO = JSON.parse(t); } catch (e) {} }
+function savePhoto(p) {
+  try { if (p) localStorage.setItem(PKEY, JSON.stringify(p)); else localStorage.removeItem(PKEY); } catch (e) { return false; }
+  PHOTO = p; return true;
+}
+// 切り抜きはスマホの中で行う（写真は外に送らない）。人を見分けるAIの部品だけを最初に1回読みこむ
+const VISION = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+const SEG_MODEL = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite";
+let segP = null;
+function getSeg() {
+  if (!segP) segP = (async () => {
+    const v = await import(VISION + "/vision_bundle.mjs");
+    const fs = await v.FilesetResolver.forVisionTasks(VISION + "/wasm");
+    return v.ImageSegmenter.createFromOptions(fs, { baseOptions: { modelAssetPath: SEG_MODEL, delegate: "CPU" }, runningMode: "IMAGE", outputCategoryMask: false, outputConfidenceMasks: true });
+  })().catch(e => { segP = null; throw e; });
+  return segP;
+}
+function fileToCanvas(file, maxSide) {
+  return new Promise((ok, ng) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); ng(new Error("load")); };
+    img.src = url;
+  });
+}
+function shrink(c, maxH, type, q) {
+  const s = Math.min(1, maxH / c.height); const o = document.createElement("canvas");
+  o.width = Math.round(c.width * s); o.height = Math.round(c.height * s);
+  o.getContext("2d").drawImage(c, 0, 0, o.width, o.height); return o.toDataURL(type, q);
+}
+async function segmentCut(c) {
+  const seg = await getSeg();
+  const r = seg.segment(c);
+  const m = r.confidenceMasks[r.confidenceMasks.length - 1];
+  const mw = m.width, mh = m.height, arr = m.getAsFloat32Array().slice();
+  if (r.close) r.close();
+  // まわりの方が「人らしい」と出たら、白黒が逆なので入れかえる
+  let edge = 0, ec = 0, mid = 0, mc = 0;
+  for (let y = 0; y < mh; y++) for (let x = 0; x < mw; x++) {
+    const p = arr[y * mw + x];
+    if (x < mw * .05 || x > mw * .95 || y < mh * .05) { edge += p; ec++; }
+    else if (Math.abs(x - mw / 2) < mw * .15 && Math.abs(y - mh / 2) < mh * .2) { mid += p; mc++; }
+  }
+  const inv = edge / ec > mid / mc;
+  const w = c.width, h = c.height, ctx = c.getContext("2d"), id = ctx.getImageData(0, 0, w, h), d = id.data;
+  let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let p = arr[Math.min(mh - 1, Math.floor(y * mh / h)) * mw + Math.min(mw - 1, Math.floor(x * mw / w))];
+    if (inv) p = 1 - p;
+    const a = Math.max(0, Math.min(1, (p - 0.35) / 0.3));
+    d[(y * w + x) * 4 + 3] = Math.round(a * 255);
+    if (a > 0.15) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 - x0 < w * .1 || y1 - y0 < h * .15) throw new Error("noperson");
+  ctx.putImageData(id, 0, 0);
+  const padX = Math.round((x1 - x0) * .04), padY = Math.round((y1 - y0) * .03);
+  x0 = Math.max(0, x0 - padX); y0 = Math.max(0, y0 - padY); x1 = Math.min(w - 1, x1 + padX); y1 = h - 1 > y1 + padY ? y1 + padY : h - 1;
+  const o = document.createElement("canvas"); o.width = x1 - x0 + 1; o.height = y1 - y0 + 1;
+  o.getContext("2d").drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height);
+  return shrink(o, 520, "image/png");
+}
+async function handlePhoto(file) {
+  photoWork = { state: "busy" }; render();
+  let raw = null;
+  try {
+    const c = await fileToCanvas(file, 720);
+    raw = shrink(c, 520, "image/jpeg", 0.85);
+    const cut = await segmentCut(c);
+    photoWork = { state: "ready", raw, cut };
+  } catch (e) {
+    photoWork = raw ? { state: "ready", raw, cut: null, msg: "{切|き}り{抜|ぬ}きがうまくいかなかったよ。{切|き}り{抜|ぬ}かないで{使|つか}うこともできるよ" }
+                    : { state: "error", msg: "{写真|しゃしん}を{読|よ}みこめなかったよ。ちがう{写真|しゃしん}でためしてね" };
+  }
+  render();
+}
+
 /* ---------- 道具 ---------- */
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const R = s => esc(s).replace(/\{([^|{}]+)\|([^{}]+)\}/g, "<ruby>$1<rt>$2</rt></ruby>");
@@ -427,14 +550,43 @@ function playerCard(c) {
   const pctExp = Math.round(c.into / c.need * 100);
   return `<section class="card ${tcls}"><div class="card-in">
     <div class="card-top"><span class="eyebrow">PLAYER CARD</span><span class="tierlabel">${tname}</span></div>
-    <div class="card-mid">
+    ${PHOTO ? stageHtml(PHOTO.src, PHOTO.cut, R(TITLES[ti])) : `<div class="card-mid">
       <div class="num"><small>${R("{背番号|せばんごう}")}</small><b>${esc(p.number || "-")}</b></div>
       <div class="who"><span class="ttl">${R(TITLES[ti])}</span><div class="nm">${esc(p.name)}</div><div class="ps">${p.position ? esc(p.position) : R("ポジション{未設定|みせってい}")}</div></div>
-    </div>
+    </div>`}
     <div class="lvrow"><span class="lv">Lv.<b>${c.lv}</b></span><span class="expnote">${c.lv >= MAX_LV ? "MAX！" : `あと <b>${c.need - c.into}</b> EXPで Lv.${c.lv + 1}`}</span></div>
     <div class="bar"><i style="width:${c.lv >= MAX_LV ? 100 : pctExp}%"></i></div>
     <div class="abils">${ABIL.map(a => { const v = abVal(c.ab[a.k] || 0), r = rank(v); return `<div class="ab"><small>${R(a.n)}</small><span class="rk rk-${r}">${r}</span><em>${v}</em></div>`; }).join("")}</div>
   </div></section>`;
+}
+
+// 写真入りの選手カードのまん中（スポットライトの舞台に、切り抜いた選手が立つ）
+function stageHtml(src, cut, ttlHtml) {
+  const p = S.profile;
+  return `<div class="stage">
+    <div class="stage-num" aria-hidden="true">${esc(p.number || "")}</div>
+    <img class="player ${cut ? "cut" : "raw"}" src="${src}" alt="">
+    <div class="stage-no"><small>${R("{背番号|せばんごう}")}</small><b>${esc(p.number || "-")}</b></div>
+    <div class="stage-info"><span class="ttl">${ttlHtml}</span><div class="nm">${esc(p.name || "なまえ")}</div><div class="ps">${p.position ? esc(p.position) : R("ポジション{未設定|みせってい}")}</div></div>
+  </div>`;
+}
+function photoSection() {
+  const w = photoWork;
+  if (w && w.state === "busy") return `<div class="panel"><div class="busy"><span class="spin"></span>${R("{写真|しゃしん}を{切|き}り{抜|ぬ}いています…（はじめてのときは{少|すこ}し{時間|じかん}がかかるよ）")}</div></div>`;
+  if (w && w.state === "ready") return `<div class="panel form">
+      ${w.msg ? `<div class="hint">${R(w.msg)}</div>` : `<div class="hint">${R("こんなカードになるよ")}</div>`}
+      <div class="card t2"><div class="card-in">${stageHtml(w.cut || w.raw, !!w.cut, R("{新人|しんじん}{選手|せんしゅ}"))}</div></div>
+      ${w.cut ? `<button class="btn" data-act="photoUse" data-v="cut">${R("これでOK")}</button><button class="btn sub" data-act="photoUse" data-v="raw">${R("{切|き}り{抜|ぬ}かないで{使|つか}う")}</button>`
+              : `<button class="btn" data-act="photoUse" data-v="raw">${R("{切|き}り{抜|ぬ}かないで{使|つか}う")}</button>`}
+      <div class="row2"><label class="btn sub" for="photo-in">${R("ちがう{写真|しゃしん}にする")}</label><button class="btn sub" data-act="photoCancel">${R("やめる")}</button></div>
+    </div>`;
+  return `<div class="panel form">
+    ${w && w.state === "error" ? `<div class="hint" style="color:var(--score)">${R(w.msg)}</div>` : ""}
+    ${PHOTO ? `<img class="thumb ${PHOTO.cut ? "cut" : ""}" src="${PHOTO.src}" alt="いまの写真">` : ""}
+    <div class="hint">${R("{立|た}っている{写真|しゃしん}で、{体|からだ}ぜんぶか{上半身|じょうはんしん}がはっきり{写|うつ}ったものがおすすめ。{背景|はいけい}は{自動|じどう}で{切|き}り{抜|ぬ}くよ。{写真|しゃしん}はこのスマホの{中|なか}だけで{使|つか}われて、{外|そと}には{送|おく}られないよ。")}</div>
+    <div class="row2"><label class="btn" for="photo-in">${R(PHOTO ? "{写真|しゃしん}をかえる" : "{写真|しゃしん}をえらぶ")}</label>
+      ${PHOTO ? `<button class="del" data-act="photoDel">${R("{写真|しゃしん}を{消|け}す")}</button>` : ""}</div>
+  </div>`;
 }
 
 function vSetup() {
@@ -488,6 +640,7 @@ function vTrain(c) {
   const d = ymd(), L = S.logs[d] || { done: {} }, t = todayStats();
   const act = S.menu.filter(m => m.on);
   return `<div class="stack">
+    ${lastGameCard()}
     <div class="dayhead"><div><div class="hint">${R("きょうのメニュー")}</div><div class="d">${R(jpDate(d))}</div></div><div class="c">${t.done}/${t.total}</div></div>
     <div class="bar"><i style="width:${t.pct}%"></i></div>
     <div class="items">${act.map(m => {
@@ -553,7 +706,7 @@ function vRecord(c) {
 }
 
 const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["ks", "{空振|からぶ}り{三振|さんしん}"], ["kl", "{見逃|みのが}し{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
-const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "" });
+const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "", good: "", next: "" });
 // 三振の数（前の版の「三振」k もふくめる）
 const kAll = a => (a.k || 0) + (a.ks || 0) + (a.kl || 0);
 const hitsOf = a => (a.h || 0) + (a.d2 || 0) + (a.d3 || 0) + (a.hr || 0);
@@ -567,6 +720,25 @@ function gameLine(g) {
   if (a.bb) parts.push(`フォアボール${a.bb}`);
   if (g.sb) parts.push(`{盗塁|とうるい}${g.sb}`);
   return parts.join("・");
+}
+function gameNotes(g) {
+  return (g.good ? `<div class="memo"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : "")
+       + (g.next ? `<div class="memo next"><small>${R("つぎにがんばること")}</small>${esc(g.next)}</div>` : "")
+       + (g.memo ? `<div class="memo">${esc(g.memo)}</div>` : "");
+}
+// れんしゅう画面のいちばん上に出す、いちばん新しい試合
+function lastGameCard() {
+  const g = [...S.games].sort((a, b) => b.date.localeCompare(a.date))[0]; if (!g) return "";
+  const res = g.my > g.their ? ["w", "{勝|か}ち"] : g.my < g.their ? ["l", "{負|ま}け"] : ["d", "{引|ひ}き{分|わ}け"];
+  return `<section class="lastgame">
+    <div class="lg-head"><span class="eyebrow">LAST GAME</span><span class="hint">${R(jpDate(g.date))}</span></div>
+    <div class="lg-score"><span class="vs">vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}</span><span class="res ${res[0]}">${R(res[1])}</span><b>${g.my} - ${g.their}</b></div>
+    <div class="line">${R(gameLine(g))}</div>
+    ${g.next ? `<div class="lg-theme"><small>${R("つぎにがんばること → きょうのテーマ")}</small>${esc(g.next)}</div>` : ""}
+    ${g.good ? `<div class="lg-good"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}
+    ${!g.next && !g.good && g.memo ? `<div class="lg-good">${esc(g.memo)}</div>` : ""}
+    ${!g.next && !g.good && !g.memo ? `<div class="hint">${R("{試合|しあい}の{記録|きろく}に「つぎにがんばること」を{書|か}くと、ここに{出|で}るよ")}</div>` : ""}
+  </section>`;
 }
 function vGame(c) {
   let h = 0, ab = 0, bb = 0, rbi = 0, w = 0, l = 0, dr = 0, ks = 0, kl = 0;
@@ -593,7 +765,7 @@ function vGame(c) {
         <div class="game-top"><div class="vs"><span class="hint">${R(jpDate(g.date))}</span><br>vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}</div><span class="res ${res[0]}">${R(res[1])}</span></div>
         <div class="sc">${g.my} - ${g.their}</div>
         <div class="line">${R(gameLine(g))}</div>
-        ${g.memo ? `<div class="memo">${esc(g.memo)}</div>` : ""}
+        ${gameNotes(g)}
         <div style="margin-top:10px;text-align:right"><button class="del" data-act="delGame" data-v="${g.id}">${R("{消|け}す")}</button></div>
       </div>`; }).join("")}
     ${!list.length && !draft ? `<div class="note">${R("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打率|だりつ}は{自動|じどう}で{計算|けいさん}されるよ")}</div>` : ""}
@@ -614,7 +786,8 @@ function gameForm() {
     <div class="hint">${R("じぶんの{打席|だせき}（1{打席|だせき}ごとに＋をおす）")}</div>
     <div class="counters">${BAT.map(([k, n]) => cnt("ab." + k, n, g.ab[k])).join("")}
       ${cnt("rbi", "{打点|だてん}", g.rbi)}${cnt("sb", "{盗塁|とうるい}", g.sb)}</div>
-    <div class="field"><label for="g-memo">${R("ひとこと（よかったこと・つぎにがんばること）")}</label><textarea id="g-memo" data-draft="memo" maxlength="300">${esc(g.memo)}</textarea></div>
+    <div class="field"><label for="g-good">${R("よかったこと")}</label><textarea id="g-good" data-draft="good" maxlength="300">${esc(g.good)}</textarea></div>
+    <div class="field"><label for="g-next">${R("つぎにがんばること（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="g-next" data-draft="next" maxlength="300">${esc(g.next)}</textarea></div>
     <div class="row2"><button class="btn sub" data-act="cancelGame">${R("やめる")}</button><button class="btn" data-act="saveGame">${R("{記録|きろく}する")}</button></div>
   </div>`;
 }
@@ -727,6 +900,9 @@ function vSettings(c) {
   return `<div class="stack">
     <h2 class="sec" style="margin-top:0">${R("{選手|せんしゅ}カード")}</h2>
     <div class="panel form">${profileFields()}<button class="btn" data-act="saveProfile">${R("ほぞんする")}</button></div>
+    <h2 class="sec">${R("{選手|せんしゅ}の{写真|しゃしん}")}</h2>
+    ${photoSection()}
+    <input type="file" id="photo-in" accept="image/*" class="vh" tabindex="-1" aria-hidden="true">
     <h2 class="sec">${R("{練習|れんしゅう}メニュー")}<small>${R("オフにすると{今日|きょう}から{出|で}なくなる")}</small></h2>
     <div class="panel">${S.menu.map(m => `<div class="mrow">
         <div class="t">${R(m.name)}<small>${R(m.var ? `${m.step}〜${m.max}${m.unit}（${m.step}{回|かい}ごとにえらぶ）` : `${m.count}${m.unit}・+${m.exp} EXP`)}</small></div>
@@ -770,6 +946,15 @@ function floatAt(id, text) {
 /* ---------- うごき ---------- */
 const A = {
   tab(v) { tab = v; render(); window.scrollTo(0, 0); },
+  photoUse(v) {
+    const w = photoWork; if (!w) return;
+    const ok = savePhoto({ src: v === "cut" && w.cut ? w.cut : w.raw, cut: v === "cut" && !!w.cut });
+    photoWork = ok ? null : { state: "error", msg: "{写真|しゃしん}をほぞんできなかったよ。スマホの{空|あ}きが{少|すく}ないかも" };
+    if (ok) { tab = "home"; window.scrollTo(0, 0); }
+    render();
+  },
+  photoCancel() { photoWork = null; render(); },
+  photoDel() { savePhoto(null); render(); },
   goReview() { tab = "goal"; render(); const el = document.getElementById("reviews"); if (el) el.scrollIntoView(); },
   saveProfile() {
     const name = document.getElementById("pf-name").value.trim();
@@ -810,7 +995,7 @@ const A = {
   },
   saveGame() {
     const before = compute(); const g = draft;
-    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: g.memo.trim() });
+    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: "", good: g.good.trim(), next: g.next.trim() });
     draft = null; save(); render(); celebrate(before, compute(), "");
   },
   delGame(id) { S.games = S.games.filter(g => g.id !== id); save(); render(); },
@@ -848,7 +1033,7 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview"]);
+const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const ctl = e.target.closest("select, input, textarea, label");
@@ -870,6 +1055,7 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.goal) { S.goals[t.dataset.goal] = t.value.trim(); if (t.dataset.goal === "month") S.goals.monthKey = ymd().slice(0, 7); save(); }
   if (t.dataset.count) A.setCount(t.dataset.count, parseInt(t.value) || 10);
+  if (t.id === "photo-in" && t.files && t.files[0]) { const f = t.files[0]; t.value = ""; handlePhoto(f); }
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.id === "step-new") A.addStep();
@@ -877,5 +1063,6 @@ document.addEventListener("keydown", e => {
 });
 
 S = loadState();
+loadPhoto();
 render();
 </script>
