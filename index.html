@@ -2092,6 +2092,22 @@ document.addEventListener("keydown", e => {
 });
 
 S = loadState();
+// デモ版（販売ページから触ってもらう用）だけ、はじめにお試しの記録を入れる
+function seedDemo() {
+  S.profile = { name: "デモ選手", number: "10", position: "ショート" };
+  const t = ymd(), r = rng(42);
+  for (let i = 30; i >= 1; i--) {
+    if (i % 9 === 0) continue;
+    const d = addDays(t, -i), L = (S.logs[d] = { done: {} });
+    S.menu.forEach(m => { if (r() < .85) { const n = m.var ? 50 + Math.floor(r() * 16) * 10 : m.count; L.done[m.id] = { name: m.name, exp: itemExp(m, n), ab: itemAb(m, n), count: n, unit: m.unit }; } });
+    const act = S.menu.filter(x => x.on); L.clear = act.every(x => L.done[x.id]);
+  }
+  S.games.push({ id: "demo1", date: addDays(t, -4), opp: "サンプル少年団", my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", next: "見逃し三振をしない。ストライクはふる" });
+  S.goals = { dream: "プロやきゅうせんしゅになる", year: "レギュラーになる", month: "打率3割", monthKey: t.slice(0, 7), steps: [{ id: "ds1", text: "素振り200回を1週間つづける", done: false }, { id: "ds2", text: "毎日ストレッチ", done: true, doneDate: addDays(t, -10) }] };
+  S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
+  S.started = addDays(t, -30); save();
+}
+if (window.TR_DEMO && !S.profile.name) seedDemo();
 loadPhoto();
 render();
 splash();
