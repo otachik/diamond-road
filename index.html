@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="ja">
 <meta charset="utf-8">
-<title>ダイヤモンドロード</title>
+<title>水田自主トレロード</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ダイヤモンドロード">
+<meta name="apple-mobile-web-app-title" content="水田自主トレロード">
 <meta name="theme-color" content="#0a1430">
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -144,6 +144,9 @@ h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); f
 .item .tx { flex: 1; min-width: 0; }
 .item .tx b { display: block; font-size: 17px; font-weight: 800; }
 .item .tx small { color: var(--dim); font-weight: 700; font-size: 12px; }
+.item { cursor: pointer; }
+.cntsel { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; }
+.cntsel select { background: #0b1636; color: var(--light); border: 1px solid var(--line); border-radius: 9px; padding: 3px 8px; font-size: 16px; font-weight: 800; font-family: var(--font-d); }
 .item .xp { flex: none; font-family: var(--font-d); font-size: 13px; color: var(--light); }
 .item.done { background: linear-gradient(90deg, rgba(63,209,122,.2), var(--panel)); border-color: rgba(63,209,122,.55); }
 .item.done .ck { background: var(--turf); border-color: var(--turf); box-shadow: 0 0 14px rgba(63,209,122,.6); }
@@ -224,6 +227,26 @@ h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); f
 .addrow { display: flex; gap: 8px; }
 .addrow input { flex: 1; min-width: 0; background: #0b1636; color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 16px; }
 
+.explain b { font-size: 15px; }
+.explain p { margin: 6px 0 8px; font-size: 14px; }
+.explain ul { margin: 0; padding-left: 20px; font-size: 14px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; }
+.explain .ex { margin-top: 10px; font-size: 13px; color: var(--light); background: rgba(255,216,74,.08); border-radius: 10px; padding: 8px 10px; font-weight: 700; }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--font-d); font-size: 18px; }
+.mstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.mstats div { background: rgba(0,0,0,.25); border-radius: 10px; padding: 6px 8px; min-width: 0; }
+.mstats small { display: block; font-size: 10px; font-weight: 800; color: var(--dim); }
+.mstats b { font-family: var(--font-d); font-weight: 400; font-size: 18px; font-variant-numeric: tabular-nums; }
+.mstats b span { font-family: var(--font-b); font-size: 11px; color: var(--dim); font-weight: 800; }
+.grades { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.grade { background: #0b1636; border: 1px solid var(--line); border-radius: 12px; padding: 10px 4px; font-weight: 800; font-size: 13px; }
+.grade.on { background: var(--light); color: #241800; border-color: var(--light); }
+.chip.grade-a { color: var(--light); border-color: rgba(255,216,74,.5); } .chip.grade-c { color: var(--dim); }
+.review .rv-row { margin-top: 10px; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+.review .rv-row small { display: block; font-size: 11px; font-weight: 800; color: var(--dim); }
+.rv-banner { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 1px solid rgba(255,107,61,.6); background: linear-gradient(90deg, rgba(255,107,61,.22), var(--panel)); border-radius: 16px; padding: 12px 14px; }
+.rv-banner .flag { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--score); display: grid; place-items: center; font-size: 20px; color: #fff; }
+.rv-banner b { display: block; font-size: 16px; } .rv-banner small { color: var(--dim); font-weight: 700; font-size: 12px; }
+
 /* ===== せってい ===== */
 .mrow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .mrow:last-child { border-bottom: 0; }
@@ -264,7 +287,7 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 
 <div class="wrap">
   <header class="top">
-    <div class="logo"><span class="dia"></span>ダイヤモンドロード</div>
+    <div class="logo"><span class="dia"></span><span><ruby>水田<rt>みずた</rt></ruby><ruby>自主<rt>じしゅ</rt></ruby>トレロード</span></div>
     <button class="gear" data-act="tab" data-v="settings" aria-label="せってい">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
@@ -298,20 +321,34 @@ const TITLES = [
 const TIERS = [["t0","ブロンズ"],["t0","ブロンズ"],["t1","シルバー"],["t1","シルバー"],["t1","シルバー"],["t2","ゴールド"],["t2","ゴールド"],["t2","ゴールド"],["t3","プラチナ"],["t3","プラチナ"],["t4","レインボー"]];
 const POSITIONS = ["ピッチャー","キャッチャー","ファースト","セカンド","サード","ショート","レフト","センター","ライト"];
 
+// var: true のメニューは、その日に回数を選べる（10回ごと、maxまで）
 const DEFAULT_MENU = [
-  { id: "m1", name: "{素振|すぶ}り",           count: 50, unit: "{回|かい}", exp: 20, ab: { meet: 1, power: 1 }, on: true },
-  { id: "m2", name: "シャドーピッチング",       count: 30, unit: "{回|かい}", exp: 15, ab: { arm: 1 }, on: true },
-  { id: "m3", name: "{壁当|かべあ}て",          count: 50, unit: "{球|きゅう}", exp: 20, ab: { def: 1, arm: 1 }, on: true },
-  { id: "m4", name: "ダッシュ",                 count: 10, unit: "{本|ほん}", exp: 15, ab: { speed: 1 }, on: true },
-  { id: "m5", name: "ゴロの{捕球|ほきゅう}",     count: 30, unit: "{回|かい}", exp: 15, ab: { def: 1 }, on: true },
-  { id: "m6", name: "ストレッチ",               count: 10, unit: "{分|ふん}", exp: 10, ab: { speed: 1 }, on: true },
-  { id: "m7", name: "{野球|やきゅう}ノート",      count: 1,  unit: "ページ",   exp: 10, ab: {}, on: true },
+  { id: "m1", name: "{素振|すぶ}り",                 count: 50, unit: "{回|かい}", var: true, step: 10, max: 600, ab: { meet: 1, power: 1 }, on: true },
+  { id: "m3", name: "{壁当|かべあ}て",                count: 20, unit: "{回|かい}", exp: 15, ab: { def: 1, arm: 1 }, on: true },
+  { id: "m4", name: "ダッシュ",                       count: 10, unit: "{本|ほん}", exp: 15, ab: { speed: 1 }, on: true },
+  { id: "m5", name: "{捕球|ほきゅう}{練習|れんしゅう}", count: 30, unit: "{回|かい}", exp: 15, ab: { def: 1 }, on: true },
+  { id: "m6", name: "ストレッチ",                     count: 10, unit: "{分|ふん}", exp: 10, ab: { speed: 1 }, on: true },
 ];
+const REVIEW_EXP = 50;    // 月のふりかえり
+// 回数を選べるメニューは、回数が多いほどEXPと能力が増える（50回→15、100回→20、600回→70）
+const itemExp = (m, n) => m.var ? 10 + Math.floor(n / 50) * 5 : m.exp;
+const itemAb = (m, n) => { const f = m.var ? Math.max(1, Math.round(n / 200)) : 1; const o = {}; for (const k in (m.ab || {})) o[k] = m.ab[k] * f; return o; };
 
-/* ---------- ほぞん（いまはこの端末の中。あとでネット保存に差しかえる所） ---------- */
+/* ---------- ほぞん（このスマホの中だけ） ---------- */
 const KEY = "diamond-road-v1";
-const blank = () => ({ v: 1, profile: { name: "", number: "", position: "" }, menu: DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), logs: {}, games: [], goals: { dream: "", year: "", month: "", steps: [] } });
-let S = (() => { try { const t = localStorage.getItem(KEY); if (t) return Object.assign(blank(), JSON.parse(t)); } catch (e) {} return blank(); })();
+const blank = () => ({ v: 2, profile: { name: "", number: "", position: "" }, menu: DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), logs: {}, games: [], goals: { dream: "", year: "", month: "", monthKey: "", steps: [] }, reviews: {}, started: "" });
+let S;
+function loadState() {
+  let s = blank();
+  try { const t = localStorage.getItem(KEY); if (t) s = Object.assign(blank(), JSON.parse(t)); } catch (e) {}
+  if ((s.v || 1) < 2) {   // 前の版のメニューを新しいメニューに入れかえる（自分で足したメニューは残す）
+    s.menu = [...DEFAULT_MENU.map(m => ({ ...m, ab: { ...m.ab } })), ...s.menu.filter(m => m.custom)];
+    s.v = 2;
+  }
+  s.reviews = s.reviews || {};
+  if (!s.started) s.started = Object.keys(s.logs).sort()[0] || ymd();
+  return s;
+}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ---------- 道具 ---------- */
@@ -348,6 +385,7 @@ function compute() {
   const cur = days.length && (prev === today || prev === addDays(today, -1)) ? run : 0;
   exp += S.games.length * GAME_EXP;
   exp += S.goals.steps.filter(s => s.done).length * STEP_EXP;
+  exp += Object.keys(S.reviews).length * REVIEW_EXP;
   let lv = 1, rest = exp;
   while (lv < MAX_LV && rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
   return { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv) };
@@ -420,8 +458,11 @@ function vHome(c) {
   if (!S.profile.name) return vSetup();
   const t = todayStats(); const C = 2 * Math.PI * 42;
   const step = S.goals.steps.find(s => !s.done);
+  const pend = pendingReviews();
   return `<div class="stack">
     ${playerCard(c)}
+    ${pend.length ? `<button class="rv-banner" data-act="goReview">
+      <span class="flag">✎</span><span><b>${R(`${ymLabel(pend[pend.length - 1]).replace(/^\d+\{年\|ねん\}/, "")}のふりかえりをしよう！`)}</b><small>${R(`できたら +${REVIEW_EXP} EXP`)}</small></span></button>` : ""}
     <section class="panel"><div class="today">
       <div class="ring ${t.pct === 100 ? "full" : ""}"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
         <circle cx="50" cy="50" r="42" fill="none" stroke="${t.pct === 100 ? "var(--light)" : "var(--turf)"}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - t.pct / 100)}"/></svg>
@@ -450,12 +491,21 @@ function vTrain(c) {
     <div class="bar"><i style="width:${t.pct}%"></i></div>
     <div class="items">${act.map(m => {
       const done = !!(L.done && L.done[m.id]);
+      const n = done ? L.done[m.id].count : m.count;
       const tags = Object.keys(m.ab || {}).map(k => `<span class="tag">${R(ABIL.find(a => a.k === k).n)}</span>`).join("");
+      if (m.var) {
+        const opts = []; for (let i = m.step; i <= m.max; i += m.step) opts.push(`<option value="${i}" ${i === n ? "selected" : ""}>${i}</option>`);
+        return `<div class="item ${done ? "done" : ""}" data-act="toggle" data-v="${m.id}" role="button" tabindex="0" aria-pressed="${done}">
+          <span class="ck">${CHECK}</span>
+          <span class="tx"><b>${R(m.name)}</b><span class="cntsel"><select id="cnt-${m.id}" data-count="${m.id}" aria-label="回数">${opts.join("")}</select><small>${R(m.unit)}</small></span><span class="tags">${tags}</span></span>
+          <span class="xp">+${itemExp(m, n)}</span></div>`;
+      }
       return `<button class="item ${done ? "done" : ""}" data-act="toggle" data-v="${m.id}" aria-pressed="${done}">
         <span class="ck">${CHECK}</span>
         <span class="tx"><b>${R(m.name)}</b><small>${R(`${m.count}${m.unit}`)}</small><span class="tags">${tags}</span></span>
-        <span class="xp">+${m.exp}</span></button>`; }).join("")}
+        <span class="xp">+${itemExp(m, m.count)}</span></button>`; }).join("")}
     </div>
+    ${act.some(m => m.var) ? `<div class="hint">${R("{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェック。{回数|かいすう}が{多|おお}いほどEXPがふえるよ")}</div>` : ""}
     ${act.length ? `<div class="note">${R(`ぜんぶクリアで <b>+${CLEAR_BONUS} EXP</b> のボーナス。3{日|か}・7{日|か}・14{日|か}…と{続|つづ}けるとさらにボーナス！`)}</div>`
                  : `<div class="note">${R("メニューがないよ。{右上|みぎうえ}の{歯車|はぐるま}から{足|た}してね")}</div>`}
   </div>`;
@@ -501,20 +551,26 @@ function vRecord(c) {
   </div>`;
 }
 
-const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["k", "{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
-const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, k: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "" });
+const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["ks", "{空振|からぶ}り{三振|さんしん}"], ["kl", "{見逃|みのが}し{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
+const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "" });
+// 三振の数（前の版の「三振」k もふくめる）
+const kAll = a => (a.k || 0) + (a.ks || 0) + (a.kl || 0);
+const hitsOf = a => (a.h || 0) + (a.d2 || 0) + (a.d3 || 0) + (a.hr || 0);
+const atBats = a => hitsOf(a) + kAll(a) + (a.out || 0);
 function gameLine(g) {
-  const a = g.ab, hits = a.h + a.d2 + a.d3 + a.hr, ab = hits + a.k + a.out;
+  const a = g.ab, hits = hitsOf(a), ab = atBats(a);
   const parts = [`${ab}{打数|だすう}${hits}{安打|あんだ}`];
   if (a.hr) parts.push(`ホームラン${a.hr}`);
+  if (kAll(a)) parts.push(`{三振|さんしん}${kAll(a)}（{空振|からぶ}り${(a.ks || 0) + (a.k || 0)}・{見逃|みのが}し${a.kl || 0}）`);
   if (g.rbi) parts.push(`{打点|だてん}${g.rbi}`);
   if (a.bb) parts.push(`フォアボール${a.bb}`);
   if (g.sb) parts.push(`{盗塁|とうるい}${g.sb}`);
   return parts.join("・");
 }
 function vGame(c) {
-  let h = 0, ab = 0, bb = 0, rbi = 0, w = 0, l = 0, dr = 0;
-  for (const g of S.games) { const a = g.ab, hits = a.h + a.d2 + a.d3 + a.hr; h += hits; ab += hits + a.k + a.out; bb += a.bb; rbi += g.rbi;
+  let h = 0, ab = 0, bb = 0, rbi = 0, w = 0, l = 0, dr = 0, ks = 0, kl = 0;
+  for (const g of S.games) { const a = g.ab; h += hitsOf(a); ab += atBats(a); bb += a.bb || 0; rbi += g.rbi;
+    ks += (a.ks || 0) + (a.k || 0); kl += a.kl || 0;
     if (g.my > g.their) w++; else if (g.my < g.their) l++; else dr++; }
   const f3 = x => x == null ? "---" : x.toFixed(3).replace(/^0/, "");
   const avg = ab ? h / ab : null, obp = (ab + bb) ? (h + bb) / (ab + bb) : null;
@@ -528,6 +584,7 @@ function vGame(c) {
       <div class="sb"><small>${R("{試合|しあい}")}</small><b>${S.games.length}</b></div>
       <div class="sb"><small>${R("{勝|か}ち-{負|ま}け")}</small><b>${w}-${l}${dr ? `-${dr}` : ""}</b></div>
     </div>
+    ${S.games.length ? `<div class="hint">${R(`{三振|さんしん} ${ks + kl}（{空振|からぶ}り ${ks}・{見逃|みのが}し ${kl}）`)}</div>` : ""}
     ${draft ? gameForm() : `<button class="btn wide" data-act="newGame">${R(`{試合|しあい}を{記録|きろく}する（+${GAME_EXP} EXP）`)}</button>`}
     ${list.length ? `<h2 class="sec">${R("{試合|しあい}の{記録|きろく}")}</h2>` : ""}
     ${list.map(g => { const res = g.my > g.their ? ["w", "{勝|か}ち"] : g.my < g.their ? ["l", "{負|ま}け"] : ["d", "{引|ひ}き{分|わ}け"];
@@ -572,6 +629,16 @@ function vGoal(c) {
       ${rung("", "month", "こんげつの{目標|もくひょう}", "れい：だりつ3わりをこえる")}
     </div>
     <h2 class="sec">${R("スモールステップ")}<small>${R(`1つできたら +${STEP_EXP} EXP`)}</small></h2>
+    <div class="panel explain">
+      <b>${R("スモールステップってなに？")}</b>
+      <p>${R("{大|おお}きな{目標|もくひょう}を、すぐにできる{小|ちい}さな{一歩|いっぽ}に{分|わ}けたものだよ。{小|ちい}さな「できた！」を{積|つ}みかさねると、{大|おお}きな{目標|もくひょう}にとどくよ。")}</p>
+      <ul>
+        <li>${R("1〜2{週間|しゅうかん}でできることにする")}</li>
+        <li>${R("{数|かず}を{入|い}れる（「50{回|かい}」「1{週間|しゅうかん}」など）")}</li>
+        <li>${R("できたら□をおしてチェック！")}</li>
+      </ul>
+      <div class="ex">${R("れい：{今月|こんげつ}「ゴロをエラーしない」→ ステップ「{捕球|ほきゅう}{練習|れんしゅう}30{回|かい}を1{週間|しゅうかん}{毎日|まいにち}やる」")}</div>
+    </div>
     <div class="steps">${g.steps.map(s => `<div class="stp ${s.done ? "done" : ""}">
         <button class="ck2" data-act="step" data-v="${s.id}" aria-label="できた" aria-pressed="${!!s.done}">${CHECKW}</button>
         <span class="t">${esc(s.text)}</span>
@@ -579,7 +646,79 @@ function vGoal(c) {
       ${!g.steps.length ? `<div class="note">${R("{今月|こんげつ}の{目標|もくひょう}に{近|ちか}づくための、すぐできる{小|ちい}さなことを{書|か}こう。れい：「{毎日|まいにち}{素振|すぶ}り50{回|かい}を1{週間|しゅうかん}{続|つづ}ける」")}</div>` : ""}
       <div class="addrow"><input id="step-new" maxlength="60" placeholder="あたらしいステップ"><button class="btn sm" data-act="addStep">${R("{足|た}す")}</button></div>
     </div>
+    ${vReviews()}
   </div>`;
+}
+
+/* ---------- 月のふりかえり ---------- */
+const GRADES = [["a", "◎ できた"], ["b", "○ もう{少|すこ}し"], ["c", "△ できなかった"]];
+let rvDraft = {};
+const ymLabel = ym => { const [y, m] = ym.split("-").map(Number); return `${y}{年|ねん}${m}{月|がつ}`; };
+const prevYm = ym => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${pad(m - 1)}`; };
+const daysIn = ym => { const [y, m] = ym.split("-").map(Number); return new Date(y, m, 0).getDate(); };
+// ふりかえりができる月：はじめた月〜先月。今月も、のこり3日になったらできる
+function reviewableMonths() {
+  const today = ymd(), cur = today.slice(0, 7), first = (S.started || today).slice(0, 7);
+  const out = [];
+  if (Number(today.slice(8)) >= daysIn(cur) - 2) out.push(cur);
+  for (let ym = prevYm(cur); ym >= first; ym = prevYm(ym)) out.push(ym);
+  return out;
+}
+const pendingReviews = () => reviewableMonths().filter(ym => !S.reviews[ym]);
+function monthStats(ym) {
+  const days = Object.keys(S.logs).filter(d => d.startsWith(ym) && Object.keys(S.logs[d].done || {}).length);
+  let exp = 0, swing = 0, clear = 0;
+  for (const d of days) { const L = S.logs[d]; if (L.clear) { clear++; exp += CLEAR_BONUS; }
+    for (const id in L.done) { const e = L.done[id]; exp += e.exp || 0; if (plain(e.name) === "素振り") swing += e.count || 0; } }
+  const games = S.games.filter(g => g.date.startsWith(ym));
+  let h = 0, ab = 0; for (const g of games) { h += hitsOf(g.ab); ab += atBats(g.ab); }
+  exp += games.length * GAME_EXP;
+  const steps = S.goals.steps.filter(s => s.done && (s.doneDate || "").startsWith(ym)).length;
+  exp += steps * STEP_EXP;
+  return { days: days.length, dim: daysIn(ym), clear, swing, games: games.length, avg: ab ? (h / ab).toFixed(3).replace(/^0/, "") : "---", steps, exp };
+}
+function statLine(ym) {
+  const s = monthStats(ym);
+  return `<div class="mstats">
+    <div><small>${R("{練習|れんしゅう}した{日|ひ}")}</small><b>${s.days}<span>/${s.dim}</span></b></div>
+    <div><small>${R("ぜんぶクリア")}</small><b>${s.clear}<span>${R("{日|にち}")}</span></b></div>
+    <div><small>${R("{素振|すぶ}り")}</small><b>${s.swing.toLocaleString()}<span>${R("{回|かい}")}</span></b></div>
+    <div><small>${R("{試合|しあい}")}</small><b>${s.games}<span>${s.games ? R(" {打率|だりつ}") + s.avg : ""}</span></b></div>
+    <div><small>${R("ステップ{達成|たっせい}")}</small><b>${s.steps}</b></div>
+    <div><small>${R("ためたEXP")}</small><b>${s.exp.toLocaleString()}</b></div>
+  </div>`;
+}
+function vReviews() {
+  const pend = pendingReviews();
+  const done = Object.keys(S.reviews).sort().reverse();
+  const form = ym => {
+    const d = rvDraft[ym] || (rvDraft[ym] = { goal: S.goals.monthKey === ym || !S.goals.monthKey ? S.goals.month : "", grade: "", good: "", next: "" });
+    return `<div class="panel form review">
+      <div class="rv-head">${R(ymLabel(ym))}<span class="chip">${R("まだ")}</span></div>
+      ${statLine(ym)}
+      <div class="field"><label for="rv-${ym}-goal">${R("この{月|つき}の{目標|もくひょう}")}</label><input id="rv-${ym}-goal" data-rv="${ym}|goal" maxlength="60" value="${esc(d.goal)}"></div>
+      <div class="field"><label>${R("{目標|もくひょう}はできた？")}</label><div class="grades">${GRADES.map(([k, n]) =>
+        `<button class="grade ${d.grade === k ? "on" : ""}" data-act="rvGrade" data-v="${ym}|${k}" aria-pressed="${d.grade === k}">${R(n)}</button>`).join("")}</div></div>
+      <div class="field"><label for="rv-${ym}-good">${R("よかったこと・できるようになったこと")}</label><textarea id="rv-${ym}-good" data-rv="${ym}|good" maxlength="300">${esc(d.good)}</textarea></div>
+      <div class="field"><label for="rv-${ym}-next">${R("{来月|らいげつ}がんばること")}</label><textarea id="rv-${ym}-next" data-rv="${ym}|next" maxlength="300">${esc(d.next)}</textarea></div>
+      <button class="btn" data-act="saveReview" data-v="${ym}">${R(`ふりかえりをほぞん（+${REVIEW_EXP} EXP）`)}</button>
+    </div>`;
+  };
+  const card = ym => { const r = S.reviews[ym]; const g = GRADES.find(x => x[0] === r.grade);
+    return `<div class="panel review">
+      <div class="rv-head">${R(ymLabel(ym))}${g ? `<span class="chip grade-${r.grade}">${R(g[1])}</span>` : ""}</div>
+      ${statLine(ym)}
+      ${r.goal ? `<div class="rv-row"><small>${R("{目標|もくひょう}")}</small>${esc(r.goal)}</div>` : ""}
+      ${r.good ? `<div class="rv-row"><small>${R("よかったこと")}</small>${esc(r.good)}</div>` : ""}
+      ${r.next ? `<div class="rv-row"><small>${R("{来月|らいげつ}がんばること")}</small>${esc(r.next)}</div>` : ""}
+      <div style="text-align:right"><button class="del" data-act="delReview" data-v="${ym}">${R("{消|け}す")}</button></div>
+    </div>`; };
+  return `<h2 class="sec" id="reviews">${R("{月|つき}のふりかえり")}<small>${R(`+${REVIEW_EXP} EXP`)}</small></h2>
+    <div class="stack">
+      ${pend.map(form).join("")}
+      ${done.map(card).join("")}
+      ${!pend.length && !done.length ? `<div class="note">${R("{月|つき}が{終|お}わったら、ここでその{月|つき}のふりかえりができるよ（{月|つき}の{最後|さいご}の3{日|か}{間|かん}からできる）。")}</div>` : ""}
+    </div>`;
 }
 
 function vSettings(c) {
@@ -589,7 +728,7 @@ function vSettings(c) {
     <div class="panel form">${profileFields()}<button class="btn" data-act="saveProfile">${R("ほぞんする")}</button></div>
     <h2 class="sec">${R("{練習|れんしゅう}メニュー")}<small>${R("オフにすると{今日|きょう}から{出|で}なくなる")}</small></h2>
     <div class="panel">${S.menu.map(m => `<div class="mrow">
-        <div class="t">${R(m.name)}<small>${R(`${m.count}${m.unit}・+${m.exp} EXP`)}</small></div>
+        <div class="t">${R(m.name)}<small>${R(m.var ? `${m.step}〜${m.max}${m.unit}（${m.step}{回|かい}ごとにえらぶ）` : `${m.count}${m.unit}・+${m.exp} EXP`)}</small></div>
         ${m.custom ? `<button class="del" data-act="delMenu" data-v="${m.id}">${R("{消|け}す")}</button>` : ""}
         <button class="sw ${m.on ? "on" : ""}" data-act="swMenu" data-v="${m.id}" aria-label="オンオフ" aria-pressed="${!!m.on}"></button></div>`).join("")}</div>
     <div class="panel form">
@@ -630,6 +769,7 @@ function floatAt(id, text) {
 /* ---------- うごき ---------- */
 const A = {
   tab(v) { tab = v; render(); window.scrollTo(0, 0); },
+  goReview() { tab = "goal"; render(); const el = document.getElementById("reviews"); if (el) el.scrollIntoView(); },
   saveProfile() {
     const name = document.getElementById("pf-name").value.trim();
     if (!name) { document.getElementById("pf-name").focus(); return; }
@@ -641,15 +781,23 @@ const A = {
     const L = S.logs[d] || (S.logs[d] = { done: {} });
     const m = S.menu.find(x => x.id === id); if (!m) return;
     const adding = !L.done[id];
-    if (adding) L.done[id] = { name: m.name, exp: m.exp, ab: { ...m.ab }, count: m.count, unit: m.unit };
+    if (adding) L.done[id] = { name: m.name, exp: itemExp(m, m.count), ab: itemAb(m, m.count), count: m.count, unit: m.unit };
     else delete L.done[id];
     const act = S.menu.filter(x => x.on); const wasClear = !!L.clear;
     L.clear = act.length > 0 && act.every(x => L.done[x.id]);
     if (!Object.keys(L.done).length) delete S.logs[d];
     save(); render();
-    if (adding) floatAt(id, `+${m.exp} EXP`);
+    if (adding) floatAt(id, `+${itemExp(m, m.count)} EXP`);
     const after = compute();
     setTimeout(() => celebrate(before, after, L.clear && !wasClear ? "MISSION<br>CLEAR!" : ""), adding ? 450 : 0);
+  },
+  setCount(id, n) {   // 素振りの回数をえらんだ時。チェック済みなら今日の記録も直す
+    const m = S.menu.find(x => x.id === id); if (!m) return;
+    const before = compute();
+    m.count = n;
+    const L = S.logs[ymd()];
+    if (L && L.done[id]) Object.assign(L.done[id], { count: n, exp: itemExp(m, n), ab: itemAb(m, n) });
+    save(); render(); celebrate(before, compute(), "");
   },
   newGame() { draft = newDraft(); render(); },
   cancelGame() { draft = null; render(); },
@@ -675,6 +823,19 @@ const A = {
     s.done = !s.done; s.doneDate = s.done ? ymd() : null; save(); render();
     if (s.done) celebrate(before, compute(), "ステップ<br>" + R("{達成|たっせい}！"));
   },
+  rvGrade(v) {
+    const [ym, k] = v.split("|"); (rvDraft[ym] || (rvDraft[ym] = { goal: "", grade: "", good: "", next: "" })).grade = k;
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  },
+  saveReview(ym) {
+    const d = rvDraft[ym] || {};
+    const before = compute();
+    S.reviews[ym] = { goal: (d.goal || "").trim(), grade: d.grade || "", good: (d.good || "").trim(), next: (d.next || "").trim(), at: ymd() };
+    delete rvDraft[ym]; save();
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+    celebrate(before, compute(), R("ふりかえり") + "<br>" + R("{完了|かんりょう}！"));
+  },
+  delReview(ym) { delete S.reviews[ym]; save(); render(); },
   delStep(id) { S.goals.steps = S.goals.steps.filter(x => x.id !== id); save(); render(); },
   swMenu(id) { const m = S.menu.find(x => x.id === id); if (m) { m.on = !m.on; save(); render(); } },
   delMenu(id) { S.menu = S.menu.filter(x => x.id !== id); save(); render(); },
@@ -686,9 +847,11 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu"]);
+const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
+  const ctl = e.target.closest("select, input, textarea, label");
+  if (ctl && ctl !== b && b.contains(ctl)) return;   // 行の中の回数えらびを押した時はチェックしない
   const a = b.dataset.act;
   if (NEEDS_CONFIRM.has(a) && !b.classList.contains("armed")) {
     b.classList.add("armed"); b.innerHTML = R("もう{一度|いちど}で{消|け}す");
@@ -697,9 +860,21 @@ document.addEventListener("click", e => {
   }
   A[a] && A[a](b.dataset.v, b, e);
 });
-document.addEventListener("input", e => { const t = e.target; if (t.dataset.draft && draft) draft[t.dataset.draft] = t.value; });
-document.addEventListener("change", e => { const t = e.target; if (t.dataset.goal) { S.goals[t.dataset.goal] = t.value.trim(); save(); } });
-document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "step-new") A.addStep(); });
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.draft && draft) draft[t.dataset.draft] = t.value;
+  if (t.dataset.rv) { const [ym, f] = t.dataset.rv.split("|"); (rvDraft[ym] || (rvDraft[ym] = { goal: "", grade: "", good: "", next: "" }))[f] = t.value; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.goal) { S.goals[t.dataset.goal] = t.value.trim(); if (t.dataset.goal === "month") S.goals.monthKey = ymd().slice(0, 7); save(); }
+  if (t.dataset.count) A.setCount(t.dataset.count, parseInt(t.value) || 10);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id === "step-new") A.addStep();
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches('div[data-act="toggle"]')) { e.preventDefault(); A.toggle(e.target.dataset.v); }
+});
 
+S = loadState();
 render();
 </script>
