@@ -322,6 +322,54 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 .ov .tap { margin-top: 26px; font-size: 12px; color: var(--dim); font-weight: 700; }
 @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ===== 開いた時の演出（ナイターの照明がつく → ボールが飛ぶ → タイトル） ===== */
+.splash { position: fixed; inset: 0; z-index: 100; background: #040817; overflow: hidden; display: grid; place-items: center; transition: opacity .45s; cursor: pointer; }
+.splash.out { opacity: 0; pointer-events: none; }
+.sp-beam { position: absolute; top: -12%; width: 75%; height: 125%; opacity: 0;
+  background: linear-gradient(180deg, rgba(255,244,190,.42), rgba(255,244,190,.06) 70%, transparent);
+  clip-path: polygon(38% 0, 52% 0, 100% 100%, 0 100%); animation: lighton .9s .1s forwards; }
+.sp-beam.l { left: -28%; transform: rotate(-22deg); transform-origin: 45% 0; }
+.sp-beam.r { right: -28%; transform: rotate(22deg) scaleX(-1); transform-origin: 55% 0; animation-delay: .28s; }
+.sp-lamps { position: absolute; top: 5%; display: grid; grid-template-columns: repeat(4, 12px); gap: 5px; opacity: 0; animation: lighton .9s .1s forwards; }
+.sp-lamps.l { left: 9%; } .sp-lamps.r { right: 9%; animation-delay: .28s; }
+.sp-lamps i { width: 12px; height: 12px; border-radius: 50%; background: #fff7cf; box-shadow: 0 0 12px 4px rgba(255,236,150,.85); }
+@keyframes lighton { 0% { opacity: 0; } 15% { opacity: .9; } 22% { opacity: .1; } 34% { opacity: 1; } 42% { opacity: .5; } 55%, 100% { opacity: 1; } }
+.sp-field { position: absolute; left: 50%; bottom: -34vmin; width: 100vmin; height: 100vmin; transform: translateX(-50%) rotate(45deg); border-radius: 8px;
+  background: radial-gradient(circle at 70% 70%, #1d7a42, #0e3d24 70%); box-shadow: 0 0 0 10px #8a5a32, 0 0 80px rgba(63,209,122,.35); opacity: 0; animation: fadein .6s .35s forwards; }
+.sp-field::after { content: ""; position: absolute; inset: 22%; border: 4px solid rgba(255,255,255,.75); }
+@keyframes fadein { to { opacity: 1; } }
+.sp-ballway { position: absolute; left: 0; right: 0; top: 64%; height: 0; transform: rotate(-26deg); pointer-events: none; }
+.sp-ball { position: absolute; left: 0; top: -11px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transform: translateX(-30vw);
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,.12), 0 0 18px rgba(255,255,255,.9); animation: fly .75s .45s cubic-bezier(.25,.75,.35,1) forwards; }
+.sp-ball::before { content: ""; position: absolute; right: 50%; top: 7px; width: 46vw; height: 8px; border-radius: 4px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.85)); }
+.sp-ball::after { content: ""; position: absolute; inset: 3px 5px; border-left: 2px dashed #e33; border-right: 2px dashed #e33; border-radius: 50%; }
+@keyframes fly { to { transform: translateX(150vw); } }
+.sp-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 20px; animation: shake .35s 1.15s; }
+.sp-logo { width: 104px; height: 104px; object-fit: contain; border-radius: 22px; background: #fff; padding: 6px; box-shadow: 0 0 34px rgba(255,216,74,.55); transform: scale(0); animation: pop2 .45s .95s cubic-bezier(.2,1.6,.4,1) forwards; }
+.sp-title { font-family: var(--font-d); font-size: clamp(30px, 9vw, 46px); line-height: 1.25; margin-top: 14px; color: #fff; opacity: 0;
+  text-shadow: 0 0 26px rgba(255,216,74,.85), 0 4px 0 #b88a00; animation: slam .45s 1.1s cubic-bezier(.2,1.3,.4,1) forwards; }
+.sp-title rt { font-size: .32em; }
+.sp-sub { font-family: var(--font-d); font-size: 22px; letter-spacing: .14em; color: var(--score); margin-top: 10px; padding: 2px 14px; border: 3px solid var(--score); border-radius: 8px;
+  transform: rotate(-6deg) scale(2.2); opacity: 0; animation: stamp .3s 1.5s cubic-bezier(.3,1.5,.5,1) forwards; text-shadow: 0 0 12px rgba(255,107,61,.6); }
+.sp-name { margin-top: 14px; font-weight: 800; color: var(--light); opacity: 0; animation: fadein .4s 1.75s forwards; }
+.sp-skip { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: 12px; color: var(--dim); font-weight: 700; }
+@keyframes pop2 { to { transform: scale(1); } }
+@keyframes slam { from { opacity: 0; transform: scale(2.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes stamp { to { opacity: 1; transform: rotate(-6deg) scale(1); } }
+@keyframes shake { 0%, 100% { transform: translate(0); } 20% { transform: translate(-6px, 3px); } 40% { transform: translate(5px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(3px, -1px); } }
+
+/* ===== オールクリアの演出（ホームラン） ===== */
+.ov canvas.fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ov .box { z-index: 1; }
+.hr-eyebrow { font-family: var(--font-d); letter-spacing: .3em; font-size: 14px; color: var(--turf); text-shadow: 0 0 12px rgba(63,209,122,.8); animation: fadein .3s .5s both; }
+.hr-title { font-family: var(--font-d); font-size: clamp(46px, 15vw, 70px); line-height: 1.05; font-style: italic; transform: skewX(-8deg);
+  background: linear-gradient(180deg, #fffbe0, #ffd84a 45%, #ff7a2e); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 0 #8a3c00) drop-shadow(0 0 22px rgba(255,190,60,.7)); animation: slam .5s .55s cubic-bezier(.2,1.3,.4,1) both; }
+.hr-sub { font-family: var(--font-d); font-size: 20px; margin-top: 10px; animation: fadein .3s 1s both; }
+.hr-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; animation: fadein .3s 1.2s both; }
+.hr-chips .chip { font-size: 14px; padding: 4px 12px; }
+.hr-chips .chip.gold { background: var(--light); color: #241800; border-color: var(--light); }
+.ov .after-hr { animation: fadein .3s 1.4s both; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 
@@ -660,7 +708,7 @@ function vTrain(c) {
         <span class="xp">+${itemExp(m, m.count)}</span></button>`; }).join("")}
     </div>
     ${act.some(m => m.var) ? `<div class="hint">${R("{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェック。{回数|かいすう}が{多|おお}いほどEXPがふえるよ")}</div>` : ""}
-    ${act.length ? `<div class="note">${R(`ぜんぶクリアで <b>+${CLEAR_BONUS} EXP</b> のボーナス。3{日|か}・7{日|か}・14{日|か}…と{続|つづ}けるとさらにボーナス！`)}</div>`
+    ${act.length ? `<div class="note">${R(`ぜんぶクリアで +${CLEAR_BONUS} EXP のボーナス。3{日|か}・7{日|か}・14{日|か}…と{続|つづ}けるとさらにボーナス！`)}</div>`
                  : `<div class="note">${R("メニューがないよ。{右上|みぎうえ}の{歯車|はぐるま}から{足|た}してね")}</div>`}
   </div>`;
 }
@@ -921,21 +969,125 @@ function vSettings(c) {
       </div>
       <button class="btn sub" data-act="addMenu">${R("{足|た}す")}</button>
     </div>
+    <h2 class="sec">${R("{音|おと}")}</h2>
+    <div class="panel"><div class="mrow"><div class="t">${R("ぜんぶクリアの{時|とき}の{音|おと}")}<small>${R("カキーン！と{歓声|かんせい}")}</small></div>
+      <button class="sw ${S.sound !== false ? "on" : ""}" data-act="swSound" aria-label="おと" aria-pressed="${S.sound !== false}"></button></div></div>
     <div class="note">${R("いまの{記録|きろく}は、このスマホの{中|なか}にほぞんされています。")}</div>
   </div>`;
 }
 
 /* ---------- 演出 ---------- */
-function showOv(html) { const o = document.getElementById("ov"); o.innerHTML = `<div class="box"><div class="rays"></div>${html}<div class="tap">${R("タップでとじる")}</div></div>`; o.hidden = false; }
-document.getElementById("ov").addEventListener("click", () => { document.getElementById("ov").hidden = true; });
-function celebrate(before, after, head) {
+const reduced = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let ovAt = 0;
+function showOv(html, homerun) {
+  const o = document.getElementById("ov");
+  o.innerHTML = `<div class="box">${homerun ? "" : '<div class="rays"></div>'}${html}<div class="tap">${R("タップでとじる")}</div></div>`;
+  o.hidden = false; ovAt = Date.now();
+  if (homerun && !reduced()) { const c = document.createElement("canvas"); c.className = "fx"; o.prepend(c); homerunFx(c); }
+}
+document.getElementById("ov").addEventListener("click", () => { if (Date.now() - ovAt > 700) document.getElementById("ov").hidden = true; });
+function celebrate(before, after, head, homerun) {
   const up = after.lv > before.lv, tUp = titleIdx(after.lv) > titleIdx(before.lv);
-  if (!head && !up) return;
+  if (!head && !up && !homerun) return;
   let h = "";
-  if (head) h += `<div class="big">${head}</div>`;
-  if (up) h += `<div class="${head ? "mid" : "big"}">LEVEL UP!</div><div class="mid">Lv.${before.lv} → Lv.${after.lv}</div>`;
-  if (tUp) h += `<div class="sm2">${R("{新|あたら}しい{称号|しょうごう}")}</div><div class="newttl">${R(TITLES[titleIdx(after.lv)])}</div>`;
-  showOv(h);
+  if (homerun) {
+    h += `<div class="hr-eyebrow">ALL CLEAR</div><div class="hr-title">HOME RUN!</div>
+      <div class="hr-sub">${R("きょうのメニュー ぜんぶクリア！")}</div>
+      <div class="hr-chips"><span class="chip gold">${R(`+${CLEAR_BONUS} EXP ボーナス`)}</span>${after.cur >= 2 ? `<span class="chip fire">🔥 ${R(`${after.cur}{日|にち}{連続|れんぞく}`)}</span>` : ""}</div>`;
+  } else if (head) h += `<div class="big">${head}</div>`;
+  let more = "";
+  if (up) more += `<div class="${head || homerun ? "mid" : "big"}">LEVEL UP!</div><div class="mid">Lv.${before.lv} → Lv.${after.lv}</div>`;
+  if (tUp) more += `<div class="sm2">${R("{新|あたら}しい{称号|しょうごう}")}</div><div class="newttl">${R(TITLES[titleIdx(after.lv)])}</div>`;
+  h += homerun ? `<div class="after-hr">${more}</div>` : more;
+  showOv(h, homerun);
+  if (homerun) sfxHomerun();
+}
+// ホームランの打球と花火（キャンバスに描く）
+function homerunFx(cv) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.width = innerWidth * dpr, H = cv.height = innerHeight * dpr, ctx = cv.getContext("2d");
+  const t0 = performance.now(), parts = [], trail = [];
+  const bursts = [[950, .74, .2], [1250, .28, .26], [1500, .55, .13], [1800, .82, .4], [2100, .18, .16], [2450, .5, .3]];
+  const cols = ["#ffd84a", "#ff6b3d", "#ffffff", "#3fd17a", "#7fe7ff", "#ff5ad1"];
+  let fired = 0;
+  const bez = (a, b, c, p) => (1 - p) * (1 - p) * a + 2 * (1 - p) * p * b + p * p * c;
+  function burst([, bx, by]) {
+    const c1 = cols[Math.floor(Math.random() * cols.length)], c2 = cols[Math.floor(Math.random() * cols.length)];
+    for (let i = 0; i < 80; i++) {
+      const a = Math.random() * Math.PI * 2, sp = (1.5 + Math.random() * 4.5) * dpr;
+      parts.push({ x: bx * W, y: by * H, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, c: i % 2 ? c1 : c2, s: (1.4 + Math.random() * 1.8) * dpr });
+    }
+  }
+  function frame(now) {
+    if (!cv.isConnected || cv.closest("[hidden]")) return;
+    const t = now - t0; ctx.clearRect(0, 0, W, H);
+    if (t < 180) { ctx.fillStyle = `rgba(255,255,255,${0.75 * (1 - t / 180)})`; ctx.fillRect(0, 0, W, H); }   // バットに当たった瞬間の光
+    if (t < 950) {
+      const p = t / 950, e = 1 - Math.pow(1 - p, 2);
+      const x = bez(.08 * W, .45 * W, .74 * W, e), y = bez(.95 * H, -.15 * H, .2 * H, e), r = 16 * (1 - e * .75) * dpr;
+      trail.push({ x, y, r });
+      if (trail.length > 22) trail.shift();
+      trail.forEach((q, i) => { ctx.beginPath(); ctx.fillStyle = `rgba(255,255,255,${(i / trail.length) * .35})`; ctx.arc(q.x, q.y, q.r * (i / trail.length), 0, 7); ctx.fill(); });
+      ctx.beginPath(); ctx.fillStyle = "#fff"; ctx.shadowColor = "#fff"; ctx.shadowBlur = 20 * dpr; ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#e33"; ctx.lineWidth = Math.max(1, r * .14);
+      ctx.beginPath(); ctx.arc(x - r * .9, y, r * .7, -.9, .9); ctx.stroke(); ctx.beginPath(); ctx.arc(x + r * .9, y, r * .7, Math.PI - .9, Math.PI + .9); ctx.stroke();
+    }
+    while (fired < bursts.length && t >= bursts[fired][0]) burst(bursts[fired++]);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const q = parts[i]; q.vy += .045 * dpr; q.vx *= .985; q.vy *= .985; q.x += q.vx; q.y += q.vy; q.life -= .011;
+      if (q.life <= 0) { parts.splice(i, 1); continue; }
+      ctx.globalAlpha = q.life; ctx.fillStyle = q.c; ctx.beginPath(); ctx.arc(q.x, q.y, q.s, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (t < 1000 || fired < bursts.length || parts.length) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+// 音（カキーン！と歓声）。ボタンを押した時に音の準備をしておかないとiPhoneでは鳴らない
+let AC = null;
+function audioUnlock() {
+  if (S.sound === false) return;
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended") AC.resume(); } catch (e) {}
+}
+function noiseBuf(sec, shape) {
+  const n = Math.floor(AC.sampleRate * sec), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (shape ? shape(i / n) : 1);
+  const s = AC.createBufferSource(); s.buffer = b; return s;
+}
+function sfxHomerun() {
+  if (S.sound === false || !AC) return;
+  try {
+    const t = AC.currentTime + .02, out = AC.destination;
+    const crack = noiseBuf(.09, p => Math.pow(1 - p, 3)), hp = AC.createBiquadFilter(), g1 = AC.createGain();
+    hp.type = "highpass"; hp.frequency.value = 1400; g1.gain.value = .9; crack.connect(hp); hp.connect(g1); g1.connect(out); crack.start(t);
+    const o = AC.createOscillator(), g2 = AC.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(2300, t); o.frequency.exponentialRampToValueAtTime(950, t + .18);
+    g2.gain.setValueAtTime(.32, t); g2.gain.exponentialRampToValueAtTime(.001, t + .3); o.connect(g2); g2.connect(out); o.start(t); o.stop(t + .35);
+    const cheer = noiseBuf(2.8), bp = AC.createBiquadFilter(), g3 = AC.createGain();
+    bp.type = "bandpass"; bp.frequency.value = 900; bp.Q.value = .5;
+    g3.gain.setValueAtTime(.0001, t + .15); g3.gain.exponentialRampToValueAtTime(.22, t + .8); g3.gain.exponentialRampToValueAtTime(.001, t + 2.9);
+    cheer.connect(bp); bp.connect(g3); g3.connect(out); cheer.start(t + .15);
+  } catch (e) {}
+}
+// アプリを開いた時の演出
+function splash() {
+  if (reduced()) return;
+  const name = S.profile && S.profile.name;
+  const el = document.createElement("div"); el.className = "splash"; el.setAttribute("aria-hidden", "true");
+  el.innerHTML = `<div class="sp-beam l"></div><div class="sp-beam r"></div>
+    <div class="sp-lamps l">${"<i></i>".repeat(8)}</div><div class="sp-lamps r">${"<i></i>".repeat(8)}</div>
+    <div class="sp-field"></div><div class="sp-ballway"><div class="sp-ball"></div></div>
+    <div class="sp-center">
+      <img class="sp-logo" src="icon.png?v=2" alt="" onerror="this.remove()">
+      <div class="sp-title">${R("{水田|みずた}{自主|じしゅ}トレロード")}</div>
+      <div class="sp-sub">PLAY BALL!</div>
+      ${name ? `<div class="sp-name">${esc(name)}${R("{選手|せんしゅ}、きょうもいこう！")}</div>` : ""}
+    </div>
+    <div class="sp-skip">${R("タップでスキップ")}</div>`;
+  document.body.appendChild(el);
+  let done = false;
+  const end = () => { if (done) return; done = true; el.classList.add("out"); setTimeout(() => el.remove(), 500); };
+  el.addEventListener("click", end); setTimeout(end, 2900);
 }
 function floatAt(id, text) {
   const el = document.querySelector(`[data-act="toggle"][data-v="${id}"]`); if (!el) return;
@@ -953,6 +1105,7 @@ const A = {
     if (ok) { tab = "home"; window.scrollTo(0, 0); }
     render();
   },
+  swSound() { S.sound = S.sound === false; save(); if (S.sound) { audioUnlock(); } render(); },
   photoCancel() { photoWork = null; render(); },
   photoDel() { savePhoto(null); render(); },
   goReview() { tab = "goal"; render(); const el = document.getElementById("reviews"); if (el) el.scrollIntoView(); },
@@ -975,7 +1128,7 @@ const A = {
     save(); render();
     if (adding) floatAt(id, `+${itemExp(m, m.count)} EXP`);
     const after = compute();
-    setTimeout(() => celebrate(before, after, L.clear && !wasClear ? "MISSION<br>CLEAR!" : ""), adding ? 450 : 0);
+    setTimeout(() => celebrate(before, after, "", L.clear && !wasClear), adding ? 450 : 0);
   },
   setCount(id, n) {   // 素振りの回数をえらんだ時。チェック済みなら今日の記録も直す
     const m = S.menu.find(x => x.id === id); if (!m) return;
@@ -1036,6 +1189,7 @@ const A = {
 const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
+  if (b.dataset.act === "toggle") audioUnlock();
   const ctl = e.target.closest("select, input, textarea, label");
   if (ctl && ctl !== b && b.contains(ctl)) return;   // 行の中の回数えらびを押した時はチェックしない
   const a = b.dataset.act;
@@ -1059,10 +1213,11 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.id === "step-new") A.addStep();
-  if ((e.key === "Enter" || e.key === " ") && e.target.matches('div[data-act="toggle"]')) { e.preventDefault(); A.toggle(e.target.dataset.v); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches('div[data-act="toggle"]')) { e.preventDefault(); audioUnlock(); A.toggle(e.target.dataset.v); }
 });
 
 S = loadState();
 loadPhoto();
 render();
+splash();
 </script>
