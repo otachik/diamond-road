@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ja">
 <meta charset="utf-8">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 <title>水田自主トレロード</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,8 +55,10 @@ input, select, textarea { font: inherit; }
 header.top { display: flex; align-items: center; justify-content: space-between; padding-block: 8px 14px; }
 .logo { font-family: var(--font-d); font-size: 18px; letter-spacing: .04em; display: flex; align-items: center; gap: 8px; }
 .logo .dia { width: 18px; height: 18px; background: var(--light); transform: rotate(45deg); border-radius: 3px; box-shadow: 0 0 14px rgba(255,216,74,.7); }
-.gear { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; width: 42px; height: 42px; display: grid; place-items: center; }
-.gear svg { width: 20px; height: 20px; }
+.gear { flex: none; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; width: 52px; height: 52px; display: grid; place-items: center; position: relative; touch-action: manipulation; }
+.gear::after { content: ""; position: absolute; inset: -8px; }   /* 押せる範囲を見た目より広くする */
+.gear svg { width: 26px; height: 26px; }
+.gear:active { background: var(--panel2); transform: scale(.95); }
 
 h2.sec { font-family: var(--font-d); font-size: 17px; margin: 22px 0 10px; letter-spacing: .03em; display: flex; align-items: baseline; gap: 10px; }
 h2.sec small { font-family: var(--font-b); font-size: 12px; color: var(--dim); font-weight: 700; }
