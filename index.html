@@ -380,6 +380,72 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 @keyframes stamp { to { opacity: 1; transform: rotate(-6deg) scale(1); } }
 @keyframes shake { 0%, 100% { transform: translate(0); } 20% { transform: translate(-6px, 3px); } 40% { transform: translate(5px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(3px, -1px); } }
 
+/* ===== チャレンジ・ボス・休養日・ごほうび ===== */
+.chal { display: flex; align-items: center; gap: 12px; background: linear-gradient(90deg, rgba(255,216,74,.16), var(--panel)); border: 1px solid rgba(255,216,74,.5); border-radius: 16px; padding: 10px 14px; }
+.chal-mark { flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--light); color: #241800; display: grid; place-items: center; font-family: var(--font-d); font-size: 20px; }
+.chal-mark svg { width: 20px; height: 20px; }
+.chal.ok { border-color: rgba(63,209,122,.6); background: linear-gradient(90deg, rgba(63,209,122,.2), var(--panel)); }
+.chal.ok .chal-mark { background: var(--turf); }
+.chal-tx { flex: 1; min-width: 0; } .chal-tx small { display: block; font-size: 11px; color: var(--dim); font-weight: 800; } .chal-tx b { font-size: 16px; }
+.chal-xp { flex: none; font-family: var(--font-d); color: var(--light); }
+.boss { background: linear-gradient(135deg, #2a0f2e, #1a1640 60%, #0f1a40); border: 1px solid #5a2d6a; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.boss-top { display: flex; justify-content: space-between; align-items: center; }
+.boss-name { font-family: var(--font-d); font-size: 19px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip.gold { background: var(--light); color: #241800; border-color: var(--light); }
+.hp { position: relative; height: 18px; border-radius: 6px; background: rgba(0,0,0,.45); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+.hp i { display: block; height: 100%; background: linear-gradient(90deg, #ff3d5a, #ff8a3d); box-shadow: 0 0 10px rgba(255,61,90,.6); transition: width .6s; }
+.hp span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px #000; }
+.boss.won { border-color: rgba(255,216,74,.6); }
+.rest-on { background: rgba(127,231,255,.1); border: 1px solid rgba(127,231,255,.45); border-radius: 14px; padding: 10px 12px; font-weight: 800; font-size: 14px; color: #bff3ff; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.tool-btn { flex: none; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: #0b1636; color: var(--light); display: grid; place-items: center; }
+.tool-btn svg { width: 22px; height: 22px; }
+.reward .rw { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.reward .rw:last-child { border-bottom: 0; padding-bottom: 0; }
+.rw-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.rw-top b { min-width: 0; word-break: break-all; } .rw-top span { flex: none; font-size: 12px; color: var(--dim); font-weight: 800; }
+.rw.ok .bar i { background: linear-gradient(90deg, #ffd84a, #ff8a3d); }
+.rw.ok .hint { color: var(--light); }
+.cmp div { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); font-weight: 700; }
+.cmp div:last-child { border-bottom: 0; }
+.cmp b { font-family: var(--font-d); font-weight: 400; font-variant-numeric: tabular-nums; text-align: right; }
+.cmp .old { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
+.cmp .up { color: var(--turf); font-size: 12px; font-weight: 800; min-width: 54px; text-align: right; } .cmp .down { color: var(--dim); font-size: 12px; font-weight: 800; min-width: 54px; text-align: right; }
+.cmp .head { color: var(--dim); font-size: 11px; }
+
+/* ===== 練習のおとも（カウンター・タイマー） ===== */
+.tool { position: fixed; inset: 0; z-index: 60; background: rgba(3,6,18,.94); display: flex; flex-direction: column; padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.tool-in { max-width: 480px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.tool-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tool-head b { font-family: var(--font-d); font-size: 22px; }
+.tap-big { flex: 1; min-height: 260px; border-radius: 28px; border: 2px solid rgba(255,216,74,.5); background: radial-gradient(circle at 50% 40%, rgba(255,216,74,.18), #0d1838 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.tap-big:active { transform: scale(.98); background: radial-gradient(circle at 50% 40%, rgba(255,216,74,.32), #0d1838 70%); }
+.tap-big .n { font-family: var(--font-d); font-size: 96px; line-height: 1; color: var(--light); text-shadow: 0 0 24px rgba(255,216,74,.5); font-variant-numeric: tabular-nums; }
+.tap-big .of { font-weight: 800; color: var(--dim); }
+.tap-big.goal { border-color: var(--turf); } .tap-big.goal .n { color: var(--turf); }
+.timer-face { flex: 1; display: grid; place-items: center; position: relative; min-height: 260px; }
+.timer-face svg { width: min(78vw, 300px); height: min(78vw, 300px); transform: rotate(-90deg); }
+.timer-face .t { position: absolute; font-family: var(--font-d); font-size: 64px; font-variant-numeric: tabular-nums; }
+.tool .btn { width: 100%; }
+
+/* ===== バッジ ===== */
+.badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 4px; min-width: 0; }
+.badge b { font-size: 11px; line-height: 1.5; }
+.badge small { font-size: 9px; color: var(--dim); font-weight: 700; line-height: 1.5; }
+.medal { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-d); font-size: 17px; color: #241800; position: relative; }
+.medal::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.55); }
+.badge.t0 .medal { background: radial-gradient(circle at 35% 30%, #ffd0a0, #b06a3a 70%); }
+.badge.t1 .medal { background: radial-gradient(circle at 35% 30%, #ffffff, #8f9bb8 70%); }
+.badge.t2 .medal { background: radial-gradient(circle at 35% 30%, #fff3a8, #d4a000 70%); box-shadow: 0 0 14px rgba(255,216,74,.5); }
+.badge.t3 .medal { background: conic-gradient(#ff5a5a, #ffcf3d, #4be37f, #3db8ff, #b05cff, #ff5a5a); box-shadow: 0 0 16px rgba(176,92,255,.5); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.badge.locked { opacity: .55; }
+.badge.locked .medal { background: #24345f; color: var(--dim); }
+.ov-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }
+.ov-badges .badge { width: 110px; }
+.card-img { display: block; width: 100%; max-height: 64vh; object-fit: contain; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+.ov-lines { margin-top: 10px; font-weight: 800; color: var(--light); display: flex; flex-direction: column; gap: 4px; }
+
 /* ===== オールクリアの演出（ホームラン） ===== */
 .ov canvas.fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .ov .box { z-index: 1; }
@@ -410,6 +476,7 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 
 <nav class="tabs" id="tabs"></nav>
 <div class="ov" id="ov" hidden></div>
+<div class="tool" id="tool" hidden></div>
 
 <script>
 /* ---------- きまり（ゲームの数字） ---------- */
@@ -463,6 +530,8 @@ function normalize(raw) {
     s.v = 2;
   }
   s.reviews = s.reviews || {};
+  s.rest = s.rest || {};
+  s.rewards = s.rewards || [];
   if (!s.started) s.started = Object.keys(s.logs).sort()[0] || ymd();
   return s;
 }
@@ -609,10 +678,51 @@ const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#06210f" stroke-widt
 const CHECKW = CHECK.replace("#06210f", "#fff");
 
 /* ---------- ぜんぶの数字を記録から計算する ---------- */
+// 週は月曜はじまり
+const weekStart = s => { const [y, m, d] = s.split("-").map(Number); const w = (new Date(y, m - 1, d).getDay() + 6) % 7; return addDays(s, -w); };
+const weekNo = s => { const [y, m, d] = s.split("-").map(Number); return Math.floor(Date.UTC(y, m - 1, d) / 864e5 / 7); };
+const isSwing = name => plain(name) === "素振り";
+// その日の練習でたまったEXP（練習・ぜんぶクリア・チャレンジ）
+const dayExp = L => { let e = 0; for (const id in (L.done || {})) e += L.done[id].exp || 0; return e + (L.clear ? CLEAR_BONUS : 0) + (L.ch || 0); };
+
+/* ---------- 日替わりチャレンジ（日付で決まるので、その日はずっと同じお題） ---------- */
+function hashStr(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function challengeFor(d) {
+  const act = S.menu.filter(m => m.on); if (!act.length) return null;
+  const h = hashStr("ch" + d), sw = act.find(m => m.var), kind = h % 3;
+  if (kind === 0 && sw) { const n = [100, 150, 200, 250, 300][(h >>> 4) % 5]; return { kind: "swing", id: sw.id, n, bonus: 30, text: `{素振|すぶ}り${n}{回|かい}{以上|いじょう}` }; }
+  if (kind === 1 || act.length === 1) return { kind: "all", bonus: 30, text: "メニューをぜんぶクリア" };
+  const others = act.filter(m => !m.var), pool = others.length ? others : act, m = pool[(h >>> 6) % pool.length];
+  return { kind: "item", id: m.id, bonus: 20, text: `${m.name}をやる` };
+}
+function chDone(ch, L) {
+  if (!ch || !L || !L.done) return false;
+  if (ch.kind === "swing") return !!L.done[ch.id] && (L.done[ch.id].count || 0) >= ch.n;
+  if (ch.kind === "all") return !!L.clear;
+  return !!L.done[ch.id];
+}
+// きょうの「ぜんぶクリア」と「チャレンジ達成」をつけなおす
+function updateDay(d) {
+  const L = S.logs[d]; if (!L) return;
+  const act = S.menu.filter(x => x.on);
+  L.clear = act.length > 0 && act.every(x => L.done[x.id]);
+  const ch = challengeFor(d);
+  if (chDone(ch, L)) L.ch = ch.bonus; else delete L.ch;
+}
+
+/* ---------- 週ボス ---------- */
+const BOSS_HP = 500, BOSS_EXP = 100;
+const BOSSES = ["{剛速球|ごうそっきゅう}マシーン", "{鉄壁|てっぺき}キャッチャー", "{魔球|まきゅう}ピッチャー", "{雷|かみなり}スラッガー", "{影|かげ}の{盗塁王|とうるいおう}", "{巨人|きょじん}ホームランキング", "{竜巻|たつまき}ショートストップ", "{氷|こおり}のサウスポー"];
+const bossOf = ws => BOSSES[weekNo(ws) % BOSSES.length];
+
+/* ---------- 休養日 ---------- */
+const REST_PER_WEEK = 1;
+const restUsedInWeek = ws => Object.keys(S.rest || {}).filter(d => weekStart(d) === ws).length;
+
 function compute() {
   let exp = 0; const ab = { meet: 0, power: 0, speed: 0, arm: 0, def: 0 }; const totals = {};
   const days = Object.keys(S.logs).filter(d => Object.keys(S.logs[d].done || {}).length).sort();
-  let run = 0, prev = null, best = 0;
+  let swing = 0, clears = 0, chCount = 0; const dmg = {};
   for (const d of days) {
     const L = S.logs[d];
     for (const id in L.done) {
@@ -620,20 +730,80 @@ function compute() {
       for (const k in (e.ab || {})) ab[k] = (ab[k] || 0) + e.ab[k];
       const t = totals[e.name] || (totals[e.name] = { name: e.name, unit: e.unit, count: 0, times: 0 });
       t.count += e.count || 0; t.times++;
+      if (isSwing(e.name)) swing += e.count || 0;
     }
-    if (L.clear) exp += CLEAR_BONUS;
+    if (L.clear) { exp += CLEAR_BONUS; clears++; }
+    if (L.ch) { exp += L.ch; chCount++; }
+    const ws = weekStart(d); dmg[ws] = (dmg[ws] || 0) + dayExp(L);
+  }
+  // 連続日数（休養日も「続いている」に数える）
+  const sdays = [...new Set([...days, ...Object.keys(S.rest || {})])].sort();
+  let run = 0, prev = null, best = 0;
+  for (const d of sdays) {
     run = (prev && addDays(prev, 1) === d) ? run + 1 : 1; prev = d;
     best = Math.max(best, run); exp += streakBonus(run);
   }
   const today = ymd();
-  const cur = days.length && (prev === today || prev === addDays(today, -1)) ? run : 0;
+  const cur = sdays.length && (prev === today || prev === addDays(today, -1)) ? run : 0;
+  const bossWins = Object.values(dmg).filter(x => x >= BOSS_HP).length;
+  exp += bossWins * BOSS_EXP;
+  let hits = 0, hr = 0, maxHits = 0;
+  for (const g of S.games) { const h = hitsOf(g.ab); hits += h; hr += g.ab.hr || 0; maxHits = Math.max(maxHits, h); }
   exp += S.games.length * GAME_EXP;
-  exp += S.goals.steps.filter(s => s.done).length * STEP_EXP;
-  exp += Object.keys(S.reviews).length * REVIEW_EXP;
+  const steps = S.goals.steps.filter(s => s.done).length;
+  exp += steps * STEP_EXP;
+  const reviews = Object.keys(S.reviews).length;
+  exp += reviews * REVIEW_EXP;
   let lv = 1, rest = exp;
   while (lv < MAX_LV && rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
-  return { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv) };
+  const c = { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv),
+    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews };
+  c.badges = BADGES.filter(b => b.ok(c)).map(b => b.id);
+  return c;
 }
+
+/* ---------- バッジ ---------- */
+const BADGES = [
+  { id: "first", mark: "初", t: 0, name: "はじめの{一歩|いっぽ}", desc: "はじめて{練習|れんしゅう}した", ok: c => c.days >= 1 },
+  { id: "clear1", mark: "全", t: 0, name: "はじめてのぜんぶクリア", desc: "メニューをぜんぶクリア", ok: c => c.clears >= 1 },
+  { id: "st3", mark: "3", t: 0, name: "3{日|か}{連続|れんぞく}", desc: "3{日|か}{続|つづ}けた", ok: c => c.best >= 3 },
+  { id: "st7", mark: "7", t: 1, name: "7{日|か}{連続|れんぞく}", desc: "1{週間|しゅうかん}{続|つづ}けた", ok: c => c.best >= 7 },
+  { id: "st14", mark: "14", t: 1, name: "14{日|か}{連続|れんぞく}", desc: "2{週間|しゅうかん}{続|つづ}けた", ok: c => c.best >= 14 },
+  { id: "st30", mark: "30", t: 2, name: "30{日|にち}{連続|れんぞく}", desc: "1か{月|げつ}{続|つづ}けた", ok: c => c.best >= 30 },
+  { id: "st100", mark: "100", t: 3, name: "100{日|にち}{連続|れんぞく}", desc: "100{日|にち}{続|つづ}けた", ok: c => c.best >= 100 },
+  { id: "sw1k", mark: "千", t: 0, name: "{素振|すぶ}り1000{回|かい}", desc: "{素振|すぶ}りの{合計|ごうけい}1000{回|かい}", ok: c => c.swing >= 1000 },
+  { id: "sw5k", mark: "5千", t: 1, name: "{素振|すぶ}り5000{回|かい}", desc: "{素振|すぶ}りの{合計|ごうけい}5000{回|かい}", ok: c => c.swing >= 5000 },
+  { id: "sw10k", mark: "1万", t: 2, name: "{素振|すぶ}り1{万|まん}{回|かい}", desc: "{素振|すぶ}りの{合計|ごうけい}1{万|まん}{回|かい}", ok: c => c.swing >= 10000 },
+  { id: "sw30k", mark: "3万", t: 3, name: "{素振|すぶ}り3{万|まん}{回|かい}", desc: "{素振|すぶ}りの{合計|ごうけい}3{万|まん}{回|かい}", ok: c => c.swing >= 30000 },
+  { id: "d10", mark: "10", t: 0, name: "{練習|れんしゅう}10{日|か}", desc: "{練習|れんしゅう}した{日|ひ}が10{日|か}", ok: c => c.days >= 10 },
+  { id: "d50", mark: "50", t: 1, name: "{練習|れんしゅう}50{日|にち}", desc: "{練習|れんしゅう}した{日|ひ}が50{日|にち}", ok: c => c.days >= 50 },
+  { id: "d100", mark: "100", t: 2, name: "{練習|れんしゅう}100{日|にち}", desc: "{練習|れんしゅう}した{日|ひ}が100{日|にち}", ok: c => c.days >= 100 },
+  { id: "game1", mark: "試", t: 0, name: "はじめての{試合|しあい}{記録|きろく}", desc: "{試合|しあい}を{記録|きろく}した", ok: c => c.games >= 1 },
+  { id: "hit1", mark: "H", t: 0, name: "{初|はつ}ヒット", desc: "{試合|しあい}でヒットを{打|う}った", ok: c => c.hits >= 1 },
+  { id: "hr1", mark: "HR", t: 2, name: "{初|はつ}ホームラン", desc: "{試合|しあい}でホームランを{打|う}った", ok: c => c.hr >= 1 },
+  { id: "mouda", mark: "猛", t: 2, name: "{猛打賞|もうだしょう}", desc: "1{試合|しあい}で3{安打|あんだ}{以上|いじょう}", ok: c => c.maxHits >= 3 },
+  { id: "game10", mark: "10", t: 1, name: "{試合|しあい}10{回|かい}", desc: "{試合|しあい}を10{回|かい}{記録|きろく}した", ok: c => c.games >= 10 },
+  { id: "step1", mark: "歩", t: 0, name: "ステップ{達成|たっせい}", desc: "スモールステップを1つ{達成|たっせい}", ok: c => c.steps >= 1 },
+  { id: "step5", mark: "5", t: 1, name: "ステップ5つ", desc: "スモールステップを5つ{達成|たっせい}", ok: c => c.steps >= 5 },
+  { id: "rev1", mark: "振", t: 0, name: "はじめてのふりかえり", desc: "{月|つき}のふりかえりをした", ok: c => c.reviews >= 1 },
+  { id: "ch10", mark: "挑", t: 1, name: "チャレンジ10{回|かい}", desc: "{日替|ひが}わりチャレンジを10{回|かい}{達成|たっせい}", ok: c => c.chCount >= 10 },
+  { id: "boss1", mark: "討", t: 1, name: "ボスをたおした", desc: "{週|しゅう}ボスをはじめてたおした", ok: c => c.bossWins >= 1 },
+  { id: "boss5", mark: "5", t: 2, name: "ボスハンター", desc: "{週|しゅう}ボスを5{回|かい}たおした", ok: c => c.bossWins >= 5 },
+  { id: "lv10", mark: "10", t: 1, name: "Lv.10", desc: "レベル10になった", ok: c => c.lv >= 10 },
+  { id: "lv25", mark: "25", t: 2, name: "Lv.25", desc: "レベル25になった", ok: c => c.lv >= 25 },
+  { id: "lv50", mark: "★", t: 3, name: "スーパースター", desc: "レベル50になった", ok: c => c.lv >= 50 },
+  { id: "photo", mark: "写", t: 0, name: "カードに{写真|しゃしん}", desc: "{選手|せんしゅ}カードに{写真|しゃしん}を{入|い}れた", ok: () => !!PHOTO },
+];
+
+/* ---------- おうちのごほうび ---------- */
+const RW_TYPES = {
+  lv: { n: "レベル", pre: "Lv.", suf: "" },
+  streak: { n: "{連続|れんぞく}{日数|にっすう}", pre: "", suf: "{日|にち}{連続|れんぞく}" },
+  days: { n: "{練習|れんしゅう}した{日|ひ}", pre: "{練習|れんしゅう}", suf: "{日|にち}" },
+  swing: { n: "{素振|すぶ}りの{合計|ごうけい}", pre: "{素振|すぶ}り", suf: "{回|かい}" },
+};
+const rwProg = (r, c) => ({ lv: c.lv, streak: c.best, days: c.days, swing: c.swing }[r.type] || 0);
+const rwCond = r => { const t = RW_TYPES[r.type] || RW_TYPES.lv; return `${t.pre}${Number(r.target).toLocaleString()}${t.suf}`; };
 const abVal = pts => Math.min(99, 10 + pts);
 const rank = v => v >= 80 ? "S" : v >= 70 ? "A" : v >= 60 ? "B" : v >= 50 ? "C" : v >= 40 ? "D" : v >= 30 ? "E" : v >= 20 ? "F" : "G";
 const titleIdx = lv => lv >= MAX_LV ? 10 : Math.floor(lv / 5);
@@ -736,6 +906,8 @@ function vHome(c) {
     ${playerCard(c)}
     ${pend.length ? `<button class="rv-banner" data-act="goReview">
       <span class="flag">✎</span><span><b>${R(`${ymLabel(pend[pend.length - 1]).replace(/^\d+\{年\|ねん\}/, "")}のふりかえりをしよう！`)}</b><small>${R(`できたら +${REVIEW_EXP} EXP`)}</small></span></button>` : ""}
+    <div class="row2"><button class="btn sub sm" data-act="cardImage">${R("カードを{画像|がぞう}にする")}</button><button class="btn sub sm" data-act="goBadges">${R(`バッジ ${c.badges.length}/${BADGES.length}`)}</button></div>
+    ${rewardCard(c)}
     <section class="panel"><div class="today">
       <div class="ring ${t.pct === 100 ? "full" : ""}"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
         <circle cx="50" cy="50" r="42" fill="none" stroke="${t.pct === 100 ? "var(--light)" : "var(--turf)"}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - t.pct / 100)}"/></svg>
@@ -745,6 +917,7 @@ function vHome(c) {
         <div class="big">${t.pct === 100 ? R("ミッションクリア！") : R(`あと${t.total - t.done}こ！`)}</div>
         <div class="chips"><span class="chip fire">🔥 ${R(`${c.cur}{日|にち}{連続|れんぞく}`)}</span><span class="chip">${R(`{練習|れんしゅう}した{日|ひ} ${c.days}`)}</span></div>
       </div></div>
+      <div style="margin-top:12px">${bossCard(c, false)}</div>
       <div style="margin-top:14px"><button class="btn wide" data-act="tab" data-v="train">${R(t.pct === 100 ? "きょうの{記録|きろく}を{見|み}る" : "{練習|れんしゅう}をはじめる")}</button></div>
     </section>
     <section class="panel">
@@ -756,29 +929,62 @@ function vHome(c) {
   </div>`;
 }
 
+const TIMER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>';
+const COUNT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8M12 8v8"/></svg>';
+// 今週のボス（練習でためたEXPがダメージになる）
+function bossCard(c, full) {
+  const ws = weekStart(ymd()), d = c.dmg[ws] || 0, left = Math.max(0, BOSS_HP - d), pct = Math.round(left / BOSS_HP * 100);
+  const won = left === 0;
+  return `<section class="boss ${won ? "won" : ""}">
+    <div class="boss-top"><span class="eyebrow">WEEKLY BOSS</span><span class="hint">${R("{日曜|にちよう}まで")}</span></div>
+    <div class="boss-name"><span>${R(bossOf(ws))}</span>${won ? `<span class="chip gold">${R("{撃破|げきは}！")}</span>` : ""}</div>
+    <div class="hp"><i style="width:${pct}%"></i><span>HP ${left}/${BOSS_HP}</span></div>
+    ${full ? `<div class="hint">${R(won ? `たおした！ +${BOSS_EXP} EXP。{来週|らいしゅう}はべつのボスが{来|く}るよ` : `{練習|れんしゅう}でためたEXPがダメージになるよ。たおすと +${BOSS_EXP} EXP`)}</div>` : ""}
+  </section>`;
+}
+// ホームに出す、おうちのごほうび
+function rewardCard(c) {
+  const list = (S.rewards || []).filter(r => !r.got);
+  if (!list.length) return "";
+  const rows = list.map(r => ({ r, p: rwProg(r, c) })).sort((a, b) => (b.p / b.r.target) - (a.p / a.r.target)).slice(0, 3);
+  return `<section class="panel reward">
+    <div class="hint" style="margin-bottom:8px">${R("おうちのごほうび")}</div>
+    ${rows.map(({ r, p }) => { const ok = p >= r.target, pct = Math.min(100, Math.round(p / r.target * 100));
+      return `<div class="rw ${ok ? "ok" : ""}"><div class="rw-top"><b>${esc(r.text)}</b><span>${R(rwCond(r))}</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <div class="hint">${ok ? R("{達成|たっせい}！おうちの{人|ひと}に{見|み}せよう") : R(`あと ${(r.target - p).toLocaleString()}`)}</div></div>`; }).join("")}
+  </section>`;
+}
+
 function vTrain(c) {
   const d = ymd(), L = S.logs[d] || { done: {} }, t = todayStats();
   const act = S.menu.filter(m => m.on);
+  const ch = challengeFor(d), chOk = chDone(ch, S.logs[d]);
+  const practiced = !!(S.logs[d] && Object.keys(S.logs[d].done).length), isRest = !!S.rest[d];
+  const restLeft = REST_PER_WEEK - restUsedInWeek(weekStart(d));
   return `<div class="stack">
     ${lastGameCard()}
+    ${ch ? `<section class="chal ${chOk ? "ok" : ""}"><span class="chal-mark">${chOk ? CHECKW : "!"}</span>
+      <span class="chal-tx"><small>${R("きょうのチャレンジ")}</small><b>${R(ch.text)}</b></span><span class="chal-xp">+${ch.bonus}</span></section>` : ""}
+    ${bossCard(c, true)}
     <div class="dayhead"><div><div class="hint">${R("きょうのメニュー")}</div><div class="d">${R(jpDate(d))}</div></div><div class="c">${t.done}/${t.total}</div></div>
     <div class="bar"><i style="width:${t.pct}%"></i></div>
+    ${isRest ? `<div class="rest-on">${R("きょうは{休養日|きゅうようび}。{体|からだ}を{休|やす}めるのも{練習|れんしゅう}のうち！{連続|れんぞく}{日数|にっすう}は{切|き}れないよ")}</div>` : ""}
     <div class="items">${act.map(m => {
       const done = !!(L.done && L.done[m.id]);
       const n = done ? L.done[m.id].count : m.count;
       const tags = Object.keys(m.ab || {}).map(k => `<span class="tag">${R(ABIL.find(a => a.k === k).n)}</span>`).join("");
+      const tool = `<button class="tool-btn" data-act="tool" data-v="${m.id}" aria-label="${plain(m.unit) === "分" ? "タイマー" : "カウンター"}">${plain(m.unit) === "分" ? TIMER_ICON : COUNT_ICON}</button>`;
+      let mid;
       if (m.var) {
         const opts = []; for (let i = m.step; i <= m.max; i += m.step) opts.push(`<option value="${i}" ${i === n ? "selected" : ""}>${i}</option>`);
-        return `<div class="item ${done ? "done" : ""}" data-act="toggle" data-v="${m.id}" role="button" tabindex="0" aria-pressed="${done}">
-          <span class="ck">${CHECK}</span>
-          <span class="tx"><b>${R(m.name)}</b><span class="cntsel"><select id="cnt-${m.id}" data-count="${m.id}" aria-label="回数">${opts.join("")}</select><small>${R(m.unit)}</small></span><span class="tags">${tags}</span></span>
-          <span class="xp">+${itemExp(m, n)}</span></div>`;
-      }
-      return `<button class="item ${done ? "done" : ""}" data-act="toggle" data-v="${m.id}" aria-pressed="${done}">
-        <span class="ck">${CHECK}</span>
-        <span class="tx"><b>${R(m.name)}</b><small>${R(`${m.count}${m.unit}`)}</small><span class="tags">${tags}</span></span>
-        <span class="xp">+${itemExp(m, m.count)}</span></button>`; }).join("")}
+        mid = `<span class="tx"><b>${R(m.name)}</b><span class="cntsel"><select id="cnt-${m.id}" data-count="${m.id}" aria-label="回数">${opts.join("")}</select><small>${R(m.unit)}</small></span><span class="tags">${tags}</span></span>`;
+      } else mid = `<span class="tx"><b>${R(m.name)}</b><small>${R(`${m.count}${m.unit}`)}</small><span class="tags">${tags}</span></span>`;
+      return `<div class="item ${done ? "done" : ""}" data-act="toggle" data-v="${m.id}" role="button" tabindex="0" aria-pressed="${done}">
+          <span class="ck">${CHECK}</span>${mid}<span class="xp">+${itemExp(m, n)}</span>${tool}</div>`; }).join("")}
     </div>
+    <div class="hint">${R("{右|みぎ}のボタンで、カウンターやタイマーを{使|つか}いながら{練習|れんしゅう}できるよ")}</div>
+    ${!practiced ? `<button class="btn sub" data-act="restDay" ${!isRest && restLeft <= 0 ? "disabled" : ""}>${R(isRest ? "{休養日|きゅうようび}をやめる" : restLeft > 0 ? `きょうは{休養日|きゅうようび}にする（{今週|こんしゅう}あと${restLeft}{回|かい}）` : "{今週|こんしゅう}の{休養日|きゅうようび}はもう{使|つか}ったよ")}</button>` : ""}
     ${act.some(m => m.var) ? `<div class="hint">${R("{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェック。{回数|かいすう}が{多|おお}いほどEXPがふえるよ")}</div>` : ""}
     ${act.length ? `<div class="note">${R(`ぜんぶクリアで +${CLEAR_BONUS} EXP のボーナス。3{日|か}・7{日|か}・14{日|か}…と{続|つづ}けるとさらにボーナス！`)}</div>`
                  : `<div class="note">${R("メニューがないよ。{右上|みぎうえ}の{歯車|はぐるま}から{足|た}してね")}</div>`}
@@ -813,6 +1019,7 @@ function vRecord(c) {
       <div class="stat"><small>${R("たまったEXP")}</small><b>${c.exp.toLocaleString()}</b></div>
       <div class="stat"><small>${R("{試合|しあい}の{記録|きろく}")}</small><b>${S.games.length}<span>${R("{試合|しあい}")}</span></b></div>
     </div>
+    ${compareSection()}
     <h2 class="sec">${R("{練習|れんしゅう}カレンダー")}<small>${R("18{週|しゅう}ぶん")}</small></h2>
     <div class="panel"><div class="heat-wrap"><div class="heat">${cells}</div></div>
       <div class="legend">${R("{少|すく}ない")} <i style="background:rgba(63,209,122,.35)"></i><i style="background:rgba(63,209,122,.65)"></i><i style="background:var(--turf)"></i> ${R("ぜんぶクリア")}</div></div>
@@ -822,7 +1029,33 @@ function vRecord(c) {
     <h2 class="sec">${R("これまでの{合計|ごうけい}")}</h2>
     <div class="panel totals">${totals.length ? totals.map(t => `<div><span>${R(t.name)}</span><em>${R(`${(t.count).toLocaleString()}${t.unit}`)}</em></div>`).join("")
       : `<span class="hint">${R("{練習|れんしゅう}をすると、ここに{回数|かいすう}がたまっていくよ")}</span>`}</div>
+    <h2 class="sec" id="badges">${R("バッジ")}<small>${c.badges.length} / ${BADGES.length}</small></h2>
+    <div class="badges">${BADGES.map(b => badgeHtml(b, c.badges.includes(b.id))).join("")}</div>
   </div>`;
+}
+// 期間の練習の数字（先月とくらべる用）
+function periodStats(from, to) {
+  let days = 0, swing = 0, exp = 0, clears = 0;
+  for (const d in S.logs) {
+    if (d < from || d > to) continue; const L = S.logs[d]; if (!Object.keys(L.done || {}).length) continue;
+    days++; exp += dayExp(L); if (L.clear) clears++;
+    for (const id in L.done) if (isSwing(L.done[id].name)) swing += L.done[id].count || 0;
+  }
+  return { days, swing, exp, clears };
+}
+function compareSection() {
+  const today = ymd(), ym = today.slice(0, 7), dn = Number(today.slice(8)), pym = prevYm(ym);
+  const now = periodStats(ym + "-01", today), old = periodStats(pym + "-01", `${pym}-${pad(Math.min(dn, daysIn(pym)))}`);
+  const row = (label, a, b, unit) => { const d = a - b;
+    return `<div><span>${R(label)}</span><b>${a.toLocaleString()}</b><span class="old">${b.toLocaleString()}</span><span class="${d > 0 ? "up" : "down"}">${d > 0 ? "▲" + d.toLocaleString() : d < 0 ? "▼" + (-d).toLocaleString() : "±0"}</span></div>`; };
+  return `<h2 class="sec">${R("{先月|せんげつ}の{自分|じぶん}とくらべる")}<small>${R(`どちらも${dn}{日|にち}まで`)}</small></h2>
+    <div class="panel cmp">
+      <div class="head"><span></span><span>${R("{今月|こんげつ}")}</span><span>${R("{先月|せんげつ}")}</span><span></span></div>
+      ${row("{練習|れんしゅう}した{日|ひ}", now.days, old.days)}
+      ${row("{素振|すぶ}り（{回|かい}）", now.swing, old.swing)}
+      ${row("ぜんぶクリア", now.clears, old.clears)}
+      ${row("ためたEXP", now.exp, old.exp)}
+    </div>`;
 }
 
 const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["ks", "{空振|からぶ}り{三振|さんしん}"], ["kl", "{見逃|みのが}し{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
@@ -1031,7 +1264,7 @@ function vHelp() {
       + H("きろく") + P("{練習|れんしゅう}カレンダー、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。")
       + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。")
       + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
-      + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、{音|おと}をかえられる。"))}
+      + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、おうちのごほうび、バックアップ、{音|おと}をかえられる。"))}
     ${sec("EXPのもらいかた",
       `<div class="rows">${menuRows}
         <div><span>${R("きょうのメニューをぜんぶクリア")}</span><em>+${CLEAR_BONUS}</em></div>
@@ -1039,9 +1272,20 @@ function vHelp() {
         <div><span>${R("30{日|にち}{連続|れんぞく}ごと")}</span><em>+200</em></div>
         <div><span>${R("{試合|しあい}を{記録|きろく}")}</span><em>+${GAME_EXP}</em></div>
         <div><span>${R("スモールステップを{達成|たっせい}")}</span><em>+${STEP_EXP}</em></div>
-        <div><span>${R("{月|つき}のふりかえり")}</span><em>+${REVIEW_EXP}</em></div></div>`
+        <div><span>${R("{月|つき}のふりかえり")}</span><em>+${REVIEW_EXP}</em></div>
+        <div><span>${R("{日替|ひが}わりチャレンジ")}</span><em>+20〜30</em></div>
+        <div><span>${R("{週|しゅう}ボスをたおす")}</span><em>+${BOSS_EXP}</em></div></div>`
       + P("{素振|すぶ}りは{回数|かいすう}が{多|おお}いほどEXPがふえる（50{回|かい}で+15、600{回|かい}で+70）。"))}
     ${sec("レベルと{称号|しょうごう}", `<div class="rows">${lvRows}</div>` + P("{練習|れんしゅう}すると、ミート・パワー・{走力|そうりょく}・{肩|かた}・{守備|しゅび}の{能力|のうりょく}もG→Sに{育|そだ}つよ。"))}
+    ${sec("{毎日|まいにち}がもっと{楽|たの}しくなるしくみ",
+      H("{日替|ひが}わりチャレンジ") + P("れんしゅう{画面|がめん}の{上|うえ}に、{毎日|まいにち}ちがうお{題|だい}が{出|で}るよ。できたらボーナスEXP！")
+      + H("{週|しゅう}ボス") + P("{月曜|げつよう}から{日曜|にちよう}までに、{練習|れんしゅう}でためたEXPがボスへのダメージになる。HPを0にしたら +100 EXP。{毎週|まいしゅう}ちがうボスが{来|く}るよ。")
+      + H("{休養日|きゅうようび}チケット") + P("{週|しゅう}に1{回|かい}だけ「きょうは{休養日|きゅうようび}」にできる。{休|やす}んでも{連続|れんぞく}{日数|にっすう}は{切|き}れないよ。{体|からだ}を{休|やす}めるのも{大事|だいじ}な{練習|れんしゅう}！")
+      + H("{練習|れんしゅう}のおとも") + P("メニューの{右|みぎ}のボタンをおすと、{回数|かいすう}を{数|かぞ}えるカウンターや、ストレッチのタイマーが{使|つか}える。{終|お}わるとそのままチェックが{付|つ}くよ。")
+      + H("バッジ") + P("{連続|れんぞく}{日数|にっすう}や{素振|すぶ}りの{合計|ごうけい}、{初|はつ}ヒットなどでバッジがもらえる。「きろく」のいちばん{下|した}で{集|あつ}めたバッジが{見|み}られるよ。")
+      + H("おうちのごほうび") + P("{歯車|はぐるま}の「おうちのごほうび」で、おうちの{人|ひと}といっしょにごほうびと{条件|じょうけん}を{決|き}めよう。ホームに「あと{何|なん}こ」が{出|で}るよ。")
+      + H("カードを{画像|がぞう}にする") + P("ホームのボタンで、{選手|せんしゅ}カードを{画像|がぞう}にできる。LINEで{家族|かぞく}やチームメイトに{見|み}せよう。")
+      + H("{先月|せんげつ}の{自分|じぶん}とくらべる") + P("「きろく」で、{今月|こんげつ}と{先月|せんげつ}を{同|おな}じ{日|ひ}にちまでくらべられるよ。"))}
     ${sec("{写真|しゃしん}を{入|い}れるには",
       P("{歯車|はぐるま}→「{選手|せんしゅ}の{写真|しゃしん}」→「{写真|しゃしん}をえらぶ」。{背景|はいけい}は{自動|じどう}で{切|き}り{抜|ぬ}くよ。")
       + L(["{立|た}っていて、{体|からだ}ぜんぶか{上半身|じょうはんしん}がはっきり{写|うつ}った{写真|しゃしん}がおすすめ", "{人|ひと}がたくさん{写|うつ}っている{写真|しゃしん}は、うまく{切|き}り{抜|ぬ}けないことがある", "{切|き}り{抜|ぬ}きはスマホの{中|なか}でするので、{写真|しゃしん}は{外|そと}に{送|おく}られない"]))}
@@ -1116,6 +1360,20 @@ function vSettings(c) {
       </div>
       <button class="btn sub" data-act="addMenu">${R("{足|た}す")}</button>
     </div>
+    <h2 class="sec" id="rewards">${R("おうちのごほうび")}</h2>
+    <div class="panel form">
+      <div class="hint">${R("おうちの{人|ひと}といっしょに{決|き}めよう。{条件|じょうけん}をクリアすると、アプリでお{知|し}らせするよ。")}</div>
+      ${(S.rewards || []).map(r => { const p = rwProg(r, c), ok = p >= r.target; return `<div class="mrow">
+        <div class="t">${esc(r.text)}<small>${R(rwCond(r))}・${r.got ? R("もらった！") : ok ? R("{達成|たっせい}！") : R(`いま ${p.toLocaleString()}`)}</small></div>
+        ${ok && !r.got ? `<button class="btn sm" data-act="rwGot" data-v="${r.id}">${R("もらった")}</button>` : ""}
+        <button class="del" data-act="delReward" data-v="${r.id}">${R("{消|け}す")}</button></div>`; }).join("")}
+      <div class="field"><label for="rw-text">${R("ごほうび")}</label><input id="rw-text" maxlength="40" placeholder="れい：バッティングセンター"></div>
+      <div class="row2">
+        <div class="field"><label for="rw-type">${R("{条件|じょうけん}")}</label><select id="rw-type">${Object.entries(RW_TYPES).map(([k, t]) => `<option value="${k}">${plain(t.n)}</option>`).join("")}</select></div>
+        <div class="field"><label for="rw-target">${R("{目標|もくひょう}の{数|かず}")}</label><input id="rw-target" type="number" inputmode="numeric" min="1" value="10"></div>
+      </div>
+      <button class="btn sub" data-act="addReward">${R("ごほうびを{足|た}す")}</button>
+    </div>
     <h2 class="sec" id="backup">${R("{記録|きろく}のバックアップ")}</h2>
     ${backupSection()}
     <h2 class="sec">${R("{音|おと}")}</h2>
@@ -1134,22 +1392,43 @@ function showOv(html, homerun) {
   o.hidden = false; ovAt = Date.now();
   if (homerun && !reduced()) { const c = document.createElement("canvas"); c.className = "fx"; o.prepend(c); homerunFx(c); }
 }
-document.getElementById("ov").addEventListener("click", () => { if (Date.now() - ovAt > 700) document.getElementById("ov").hidden = true; });
+document.getElementById("ov").addEventListener("click", e => {
+  if (e.target.closest("button, a, .keep")) return;   // 中のボタンや画像を押した時は閉じない
+  if (Date.now() - ovAt > 700) document.getElementById("ov").hidden = true;
+});
 function celebrate(before, after, head, homerun) {
   const up = after.lv > before.lv, tUp = titleIdx(after.lv) > titleIdx(before.lv);
-  if (!head && !up && !homerun) return;
+  const newB = BADGES.filter(b => after.badges.includes(b.id) && !before.badges.includes(b.id));
+  const newR = (S.rewards || []).filter(r => !r.got && rwProg(r, after) >= r.target && rwProg(r, before) < r.target);
+  const boss = after.bossWins > before.bossWins, ch = after.chCount > before.chCount;
+  if (!head && !up && !homerun && !newB.length && !newR.length && !boss && !ch) return;
   let h = "";
   if (homerun) {
     h += `<div class="hr-eyebrow">ALL CLEAR</div><div class="hr-title">HOME RUN!</div>
       <div class="hr-sub">${R("きょうのメニュー ぜんぶクリア！")}</div>
       <div class="hr-chips"><span class="chip gold">${R(`+${CLEAR_BONUS} EXP ボーナス`)}</span>${after.cur >= 2 ? `<span class="chip fire">🔥 ${R(`${after.cur}{日|にち}{連続|れんぞく}`)}</span>` : ""}</div>`;
   } else if (head) h += `<div class="big">${head}</div>`;
+  else if (boss) h += `<div class="big">BOSS<br>${R("{撃破|げきは}！")}</div>`;
+  else if (ch) h += `<div class="big">${R("チャレンジ")}<br>${R("{達成|たっせい}！")}</div>`;
+  else if (newB.length) h += `<div class="big">${R("バッジ")}<br>GET!</div>`;
+  else if (newR.length) h += `<div class="big">${R("ごほうび")}<br>${R("{達成|たっせい}！")}</div>`;
+  const big = !head && !homerun && !boss && !ch && !newB.length && !newR.length;
   let more = "";
-  if (up) more += `<div class="${head || homerun ? "mid" : "big"}">LEVEL UP!</div><div class="mid">Lv.${before.lv} → Lv.${after.lv}</div>`;
+  if (up) more += `<div class="${big ? "big" : "mid"}">LEVEL UP!</div><div class="mid">Lv.${before.lv} → Lv.${after.lv}</div>`;
   if (tUp) more += `<div class="sm2">${R("{新|あたら}しい{称号|しょうごう}")}</div><div class="newttl">${R(TITLES[titleIdx(after.lv)])}</div>`;
+  const lines = [];
+  if (boss && (homerun || head)) lines.push(R(`{週|しゅう}ボス{撃破|げきは}！ +${BOSS_EXP} EXP`));
+  else if (boss) lines.push(R(`${bossOf(weekStart(ymd()))}をたおした！ +${BOSS_EXP} EXP`));
+  if (ch) lines.push(R(`{日替|ひが}わりチャレンジ{達成|たっせい}！ +${S.logs[ymd()] && S.logs[ymd()].ch || ""} EXP`));
+  if (lines.length) more += `<div class="ov-lines">${lines.map(l => `<div>${l}</div>`).join("")}</div>`;
+  if (newB.length) more += `<div class="sm2">${R("{新|あたら}しいバッジ")}</div><div class="ov-badges">${newB.map(b => badgeHtml(b, true)).join("")}</div>`;
+  if (newR.length) more += `<div class="sm2">${R("ごほうび{達成|たっせい}！おうちの{人|ひと}に{見|み}せよう")}</div>${newR.map(r => `<div class="newttl">${esc(r.text)}</div>`).join("")}`;
   h += homerun ? `<div class="after-hr">${more}</div>` : more;
   showOv(h, homerun);
   if (homerun) sfxHomerun();
+}
+function badgeHtml(b, got) {
+  return `<div class="badge ${got ? "got t" + b.t : "locked"}"><span class="medal">${got ? esc(b.mark) : "?"}</span><b>${R(b.name)}</b><small>${R(b.desc)}</small></div>`;
 }
 // ホームランの打球と花火（キャンバスに描く）
 function homerunFx(cv) {
@@ -1218,6 +1497,148 @@ function sfxHomerun() {
     cheer.connect(bp); bp.connect(g3); g3.connect(out); cheer.start(t + .15);
   } catch (e) {}
 }
+function beep(freq, len, vol) {
+  if (S.sound === false || !AC) return;
+  try { const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain(); o.type = "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || .2, t); g.gain.exponentialRampToValueAtTime(.001, t + len); o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + len + .02); } catch (e) {}
+}
+
+/* ---------- 選手カードを画像にする（LINEなどで見せ合う用） ---------- */
+let cardUrl = null;
+const loadImg = src => new Promise((ok, ng) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ng; i.src = src; });
+function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+async function drawCard() {
+  const c = compute(), p = S.profile, ti = titleIdx(c.lv), title = plain(TITLES[ti]);
+  const W = 1080, H = 1500, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const ctx = cv.getContext("2d");
+  const FD = '"Dela Gothic One", "Hiragino Sans", sans-serif', FB = '"M PLUS Rounded 1c", "Hiragino Sans", sans-serif';
+  const texts = `${p.name}${p.number}${p.position}${title}PLAYERCARDLv.0123456789背番号ミートパワー走力肩守備水田自主トレロード練習日連続バッジあとEXPでSABCDEFGブロンズシルバーゴールドプラチナレインボー`;
+  try { await Promise.all([document.fonts.load(`80px ${FD}`, texts), document.fonts.load(`700 40px ${FB}`, texts)]); } catch (e) {}
+  const frames = [["#b06a3a", "#f0b07a", "#7a4220"], ["#b06a3a", "#f0b07a", "#7a4220"], ["#9aa6c4", "#f2f5ff", "#6f7a98"], ["#9aa6c4", "#f2f5ff", "#6f7a98"], ["#9aa6c4", "#f2f5ff", "#6f7a98"],
+    ["#c99a10", "#ffe57a", "#a77800"], ["#c99a10", "#ffe57a", "#a77800"], ["#c99a10", "#ffe57a", "#a77800"], ["#7fe7ff", "#ffffff", "#8aa8ff"], ["#7fe7ff", "#ffffff", "#8aa8ff"], ["#ff5a5a", "#ffcf3d", "#4be37f", "#3db8ff", "#b05cff"]][ti];
+  // 背景と枠
+  ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H);
+  let g = ctx.createLinearGradient(0, 0, W, H); frames.forEach((col, i) => g.addColorStop(i / (frames.length - 1), col));
+  rrect(ctx, 30, 30, W - 60, H - 60, 60); ctx.fillStyle = g; ctx.fill();
+  g = ctx.createLinearGradient(0, 0, W * .4, H); g.addColorStop(0, "#1d3270"); g.addColorStop(.7, "#101c42");
+  rrect(ctx, 46, 46, W - 92, H - 92, 48); ctx.fillStyle = g; ctx.fill();
+  ctx.save(); ctx.clip(); ctx.globalAlpha = .05; ctx.fillStyle = "#fff";
+  for (let x = -H; x < W; x += 56) { ctx.beginPath(); ctx.moveTo(x, H); ctx.lineTo(x + 28, H); ctx.lineTo(x + 28 + H * .47, 0); ctx.lineTo(x + H * .47, 0); ctx.fill(); }
+  ctx.restore(); ctx.globalAlpha = 1;
+  // 見出し
+  ctx.fillStyle = "#95a4d0"; ctx.font = `30px ${FD}`; ctx.textBaseline = "alphabetic"; ctx.fillText("P L A Y E R   C A R D", 96, 128);
+  const tier = TIERS[ti][1]; ctx.font = `700 30px ${FB}`; const tw = ctx.measureText(tier).width;
+  rrect(ctx, W - 96 - tw - 40, 94, tw + 40, 48, 24); ctx.fillStyle = "rgba(255,255,255,.12)"; ctx.fill(); ctx.fillStyle = "#eef2ff"; ctx.fillText(tier, W - 96 - tw - 20, 129);
+  // ステージ（スポットライト）
+  const sx = 96, sy = 170, sw = W - 192, sh = 820;
+  ctx.save(); rrect(ctx, sx, sy, sw, sh, 36); ctx.clip();
+  g = ctx.createLinearGradient(0, sy, 0, sy + sh); g.addColorStop(0, "#25408a"); g.addColorStop(1, "#0c1736"); ctx.fillStyle = g; ctx.fillRect(sx, sy, sw, sh);
+  const rg = ctx.createRadialGradient(sx + sw * .68, sy + sh * .28, 10, sx + sw * .68, sy + sh * .28, sw * .55); rg.addColorStop(0, "rgba(255,216,74,.42)"); rg.addColorStop(1, "rgba(255,216,74,0)");
+  ctx.fillStyle = rg; ctx.fillRect(sx, sy, sw, sh);
+  ctx.fillStyle = "rgba(255,216,74,.13)"; ctx.font = `560px ${FD}`; ctx.textAlign = "right"; ctx.fillText(p.number || "", sx + sw + 10, sy + 520); ctx.textAlign = "left";
+  if (PHOTO) {
+    try {
+      const img = await loadImg(PHOTO.src);
+      if (PHOTO.cut) {
+        const h = sh * .97, w = Math.min(sw * .72, img.width * h / img.height), hh = img.height * w / img.width, x = sx + sw - w - sw * .02, y = sy + sh - hh;
+        const s = document.createElement("canvas"); s.width = Math.ceil(w); s.height = Math.ceil(hh); const sc = s.getContext("2d");
+        sc.drawImage(img, 0, 0, w, hh); sc.globalCompositeOperation = "source-in"; sc.fillStyle = "#fff"; sc.fillRect(0, 0, w, hh);
+        ctx.save(); ctx.shadowColor = "rgba(255,216,74,.85)"; ctx.shadowBlur = 50; ctx.drawImage(s, x, y); ctx.restore();
+        for (const [dx, dy] of [[5, 0], [-5, 0], [0, -5], [4, 4], [-4, 4], [4, -4], [-4, -4]]) ctx.drawImage(s, x + dx, y + dy);
+        ctx.drawImage(img, x, y, w, hh);
+      } else {
+        const w = sw * .52, h = sh * .76, x = sx + sw - w - 30, y = sy + 30;
+        ctx.save(); ctx.translate(x + w / 2, y + h / 2); ctx.rotate(.05); rrect(ctx, -w / 2, -h / 2, w, h, 24); ctx.fillStyle = "#fff"; ctx.fill();
+        rrect(ctx, -w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 18); ctx.clip();
+        const r = Math.max((w - 16) / img.width, (h - 16) / img.height); ctx.drawImage(img, -img.width * r / 2, -img.height * r / 2, img.width * r, img.height * r); ctx.restore();
+      }
+    } catch (e) {}
+  }
+  g = ctx.createLinearGradient(0, sy + sh * .5, 0, sy + sh); g.addColorStop(0, "rgba(6,12,32,0)"); g.addColorStop(1, "rgba(6,12,32,.95)"); ctx.fillStyle = g; ctx.fillRect(sx, sy + sh * .5, sw, sh * .5);
+  ctx.restore();
+  // 背番号・称号・名前
+  ctx.fillStyle = "#ffd84a"; ctx.font = `700 28px ${FB}`; ctx.fillText("背番号", sx + 34, sy + 60);
+  ctx.save(); ctx.shadowColor = "rgba(255,216,74,.6)"; ctx.shadowBlur = 24; ctx.font = `130px ${FD}`; ctx.fillText(p.number || "-", sx + 30, sy + 190); ctx.restore();
+  ctx.font = `700 34px ${FB}`; const ttw = ctx.measureText(title).width;
+  rrect(ctx, sx + 34, sy + sh - 250, ttw + 32, 56, 12); ctx.fillStyle = "#ffd84a"; ctx.fill(); ctx.fillStyle = "#1a1300"; ctx.fillText(title, sx + 50, sy + sh - 210);
+  ctx.fillStyle = "#fff"; ctx.save(); ctx.shadowColor = "rgba(0,0,0,.8)"; ctx.shadowBlur = 20;
+  let fs = 96; ctx.font = `${fs}px ${FD}`; while (ctx.measureText(p.name).width > sw * .62 && fs > 50) { fs -= 4; ctx.font = `${fs}px ${FD}`; }
+  ctx.fillText(p.name, sx + 34, sy + sh - 100); ctx.font = `800 38px ${FB}`; ctx.fillText(p.position || "", sx + 38, sy + sh - 44); ctx.restore();
+  // レベルとEXP
+  const ly = sy + sh + 110;
+  ctx.fillStyle = "#ffd84a"; ctx.font = `44px ${FD}`; ctx.fillText("Lv.", 96, ly); ctx.font = `110px ${FD}`; ctx.fillText(String(c.lv), 170, ly);
+  ctx.fillStyle = "#95a4d0"; ctx.font = `800 32px ${FB}`; ctx.textAlign = "right"; ctx.fillText(c.lv >= MAX_LV ? "MAX!" : `あと ${c.need - c.into} EXPで Lv.${c.lv + 1}`, W - 96, ly - 10); ctx.textAlign = "left";
+  rrect(ctx, 96, ly + 24, W - 192, 26, 13); ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fill();
+  const pw = (W - 192) * (c.lv >= MAX_LV ? 1 : c.into / c.need); if (pw > 26) { rrect(ctx, 96, ly + 24, pw, 26, 13); g = ctx.createLinearGradient(96, 0, 96 + pw, 0); g.addColorStop(0, "#3fd17a"); g.addColorStop(1, "#b8ff6a"); ctx.fillStyle = g; ctx.fill(); }
+  // 能力
+  const RC = { S: "#ff5ad1", A: "#ff6b3d", B: "#ffb23d", C: "#ffd84a", D: "#8cf07a", E: "#5fd3ff", F: "#9fb0e0", G: "#7181ad" };
+  const bw = (W - 192 - 4 * 16) / 5, by = ly + 80;
+  ABIL.forEach((a, i) => { const v = abVal(c.ab[a.k] || 0), r = rank(v), x = 96 + i * (bw + 16);
+    rrect(ctx, x, by, bw, 170, 20); ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.fill(); ctx.textAlign = "center";
+    ctx.fillStyle = "#95a4d0"; ctx.font = `800 26px ${FB}`; ctx.fillText(plain(a.n), x + bw / 2, by + 44);
+    ctx.fillStyle = RC[r]; ctx.font = `70px ${FD}`; ctx.fillText(r, x + bw / 2, by + 122);
+    ctx.fillStyle = "#95a4d0"; ctx.font = `700 24px ${FB}`; ctx.fillText(String(v), x + bw / 2, by + 156); ctx.textAlign = "left"; });
+  // 下の帯
+  ctx.fillStyle = "#eef2ff"; ctx.font = `800 30px ${FB}`;
+  ctx.fillText(`練習 ${c.days}日　最長 ${c.best}日連続　バッジ ${c.badges.length}/${BADGES.length}`, 96, H - 110);
+  ctx.fillStyle = "#95a4d0"; ctx.font = `26px ${FD}`; ctx.fillText(`水田自主トレロード　${ymd().replace(/-/g, ".")}`, 96, H - 68);
+  return cv.toDataURL("image/png");
+}
+
+/* ---------- 練習のおとも（回数カウンター・タイマー） ---------- */
+let TS = null, wakeLock = null;
+function openTool(id) {
+  const m = S.menu.find(x => x.id === id); if (!m) return;
+  const L = S.logs[ymd()];
+  TS = plain(m.unit) === "分" ? { id, mode: "timer", total: m.count * 60000, left: m.count * 60000, running: false }
+                              : { id, mode: "count", n: 0, target: m.count, var: !!m.var };
+  if (L && L.done[id] && TS.mode === "count") TS.n = 0;
+  document.getElementById("tool").hidden = false; renderTool();
+}
+function renderTool() {
+  const el = document.getElementById("tool");
+  if (!TS) { el.hidden = true; el.innerHTML = ""; return; }
+  const m = S.menu.find(x => x.id === TS.id); let body;
+  if (TS.mode === "count") {
+    const goal = TS.n >= TS.target;
+    body = `<button class="tap-big ${goal ? "goal" : ""}" data-act="toolTap"><span class="n">${TS.n}</span><span class="of">${R(`/ ${TS.target}${m.unit}`)}</span>
+        <span class="hint">${R(goal ? "{目標|もくひょう}{達成|たっせい}！" : "1{回|かい}やるごとにタップ")}</span></button>
+      <div class="row2"><button class="btn sub" data-act="toolAdd" data-v="-1">−1</button><button class="btn sub" data-act="toolAdd" data-v="${TS.var ? 10 : 5}">+${TS.var ? 10 : 5}</button></div>
+      <button class="btn" data-act="toolDone" ${TS.n < 1 ? "disabled" : ""}>${R(TS.var ? `おわり！${Math.min(m.max, Math.max(10, Math.floor(TS.n / 10) * 10))}{回|かい}でチェック` : "おわり！チェックする")}</button>`;
+  } else {
+    const C = 2 * Math.PI * 45;
+    body = `<div class="timer-face"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
+        <circle id="tool-ring" cx="50" cy="50" r="45" fill="none" stroke="var(--turf)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg><div class="t" id="tool-t"></div></div>
+      ${TS.left <= 0 ? `<div class="big" style="text-align:center;font-family:var(--font-d);font-size:28px;color:var(--turf)">${R("おわり！チェックしたよ")}</div>`
+                     : `<button class="btn" data-act="toolStart">${R(TS.running ? "ストップ" : "スタート")}</button>`}
+      <div class="row2"><button class="btn sub" data-act="toolReset">${R("リセット")}</button><button class="btn sub" data-act="toolDone">${R("ここでチェック")}</button></div>`;
+  }
+  el.innerHTML = `<div class="tool-in"><div class="tool-head"><b>${R(m.name)}</b><button class="btn sub sm" style="width:auto" data-act="toolClose">${R("とじる")}</button></div>${body}</div>`;
+  if (TS.mode === "timer") toolTick();
+}
+function toolTick() {
+  if (!TS || TS.mode !== "timer") return;
+  if (TS.running) TS.left = Math.max(0, TS.endAt - Date.now());
+  const s = Math.ceil(TS.left / 1000), t = document.getElementById("tool-t"), ring = document.getElementById("tool-ring");
+  if (t) t.textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+  if (ring) ring.setAttribute("stroke-dashoffset", String(2 * Math.PI * 45 * (1 - TS.left / TS.total)));
+  if (TS.running && TS.left <= 0) {
+    TS.running = false; clearInterval(TS.iv); releaseWake();
+    beep(880, .25, .3); setTimeout(() => beep(1320, .4, .3), 280);
+    markDone(TS.id, null, true); renderTool();
+  }
+}
+async function keepAwake() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+function releaseWake() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
+// おとものあとでチェックを付ける（素振りは数えた回数を10回きざみで記録）
+function markDone(id, count, keepOpen) {
+  const m = S.menu.find(x => x.id === id); if (!m) return;
+  const L = S.logs[ymd()], done = !!(L && L.done[id]);
+  if (m.var && count) { if (done) A.setCount(id, count); else m.count = count; }
+  if (!done) A.toggle(id);
+  if (!keepOpen) closeTool();
+}
+function closeTool() { if (TS && TS.iv) clearInterval(TS.iv); releaseWake(); TS = null; renderTool(); }
+
 // アプリを開いた時の演出
 function splash() {
   if (reduced()) return;
@@ -1284,9 +1705,10 @@ const A = {
     const adding = !L.done[id];
     if (adding) L.done[id] = { name: m.name, exp: itemExp(m, m.count), ab: itemAb(m, m.count), count: m.count, unit: m.unit };
     else delete L.done[id];
-    const act = S.menu.filter(x => x.on); const wasClear = !!L.clear;
-    L.clear = act.length > 0 && act.every(x => L.done[x.id]);
+    const wasClear = !!L.clear;
+    updateDay(d);
     if (!Object.keys(L.done).length) delete S.logs[d];
+    else if (S.rest[d]) delete S.rest[d];   // 練習したら休養日ではなくなる
     save(); render();
     if (adding) floatAt(id, `+${itemExp(m, m.count)} EXP`);
     const after = compute();
@@ -1297,8 +1719,59 @@ const A = {
     const before = compute();
     m.count = n;
     const L = S.logs[ymd()];
-    if (L && L.done[id]) Object.assign(L.done[id], { count: n, exp: itemExp(m, n), ab: itemAb(m, n) });
+    if (L && L.done[id]) { Object.assign(L.done[id], { count: n, exp: itemExp(m, n), ab: itemAb(m, n) }); updateDay(ymd()); }
     save(); render(); celebrate(before, compute(), "");
+  },
+  addReward() {
+    const t = document.getElementById("rw-text"), text = t.value.trim(); if (!text) { t.focus(); return; }
+    const target = Math.max(1, parseInt(document.getElementById("rw-target").value) || 1);
+    S.rewards.push({ id: uid(), text, type: document.getElementById("rw-type").value, target, got: false }); save();
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  },
+  rwGot(id) { const r = S.rewards.find(x => x.id === id); if (r) { r.got = true; r.gotAt = ymd(); save(); const y = window.scrollY; render(); window.scrollTo(0, y); } },
+  delReward(id) { S.rewards = S.rewards.filter(x => x.id !== id); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
+  async cardImage() {
+    showOv(`<div class="busy" style="justify-content:center"><span class="spin"></span>${R("カードを{作|つく}っています…")}</div>`);
+    try { cardUrl = await drawCard(); } catch (e) { cardUrl = null; }
+    if (!cardUrl) { showOv(`<div class="mid">${R("うまく{作|つく}れなかったよ")}</div>`); return; }
+    showOv(`<img class="card-img keep" src="${cardUrl}" alt="選手カード">
+      <div class="sm2">${R("{画像|がぞう}を{長|なが}おしすると{保存|ほぞん}できるよ")}</div>
+      <div class="row2" style="margin-top:10px"><button class="btn" data-act="shareCard">${R("{送|おく}る・{保存|ほぞん}する")}</button><button class="btn sub" data-act="closeOv">${R("とじる")}</button></div>`);
+  },
+  async shareCard() {
+    if (!cardUrl) return;
+    try {
+      const blob = await (await fetch(cardUrl)).blob(), file = new File([blob], `player-card-${ymd()}.png`, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    try { const a = document.createElement("a"); a.href = cardUrl; a.download = `player-card-${ymd()}.png`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+  },
+  closeOv() { document.getElementById("ov").hidden = true; },
+  tool(id) { audioUnlock(); openTool(id); },
+  toolTap() { if (!TS) return; TS.n++; beep(TS.n >= TS.target && TS.n - 1 < TS.target ? 1320 : 660, .07, .12); renderTool(); },
+  toolAdd(v) { if (!TS) return; TS.n = Math.max(0, TS.n + Number(v)); renderTool(); },
+  toolDone() {
+    if (!TS) return; const m = S.menu.find(x => x.id === TS.id);
+    const n = TS.mode === "count" && m && m.var ? Math.min(m.max, Math.max(10, Math.floor(TS.n / 10) * 10)) : null;
+    markDone(TS.id, n);
+  },
+  toolStart() {
+    if (!TS) return;
+    if (TS.running) { TS.left = Math.max(0, TS.endAt - Date.now()); TS.running = false; clearInterval(TS.iv); releaseWake(); }
+    else { TS.endAt = Date.now() + TS.left; TS.running = true; TS.iv = setInterval(toolTick, 250); keepAwake(); }
+    renderTool();
+  },
+  toolReset() { if (!TS) return; clearInterval(TS.iv); TS.running = false; TS.left = TS.total; releaseWake(); renderTool(); },
+  toolClose() { closeTool(); },
+  goBadges() { tab = "record"; render(); const el = document.getElementById("badges"); if (el) el.scrollIntoView(); },
+  restDay() {
+    const d = ymd(), L = S.logs[d];
+    if (L && Object.keys(L.done).length) return;
+    const before = compute();
+    if (S.rest[d]) { delete S.rest[d]; save(); render(); return; }
+    if (restUsedInWeek(weekStart(d)) >= REST_PER_WEEK) return;
+    S.rest[d] = true; save(); render();
+    celebrate(before, compute(), R("きょうは{休養日|きゅうようび}") + "<br><span style='font-size:.5em'>" + R("しっかり{休|やす}んで、また{明日|あした}！") + "</span>");
   },
   newGame() { draft = newDraft(); render(); },
   cancelGame() { draft = null; render(); },
@@ -1348,7 +1821,7 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore"]);
+const NEEDS_CONFIRM = new Set(["delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore", "delReward"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "toggle") audioUnlock();
