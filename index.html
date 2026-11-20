@@ -1214,7 +1214,7 @@ function photoSection() {
 
 function vSetup() {
   return `<div class="panel stack">
-    <div style="font-family:var(--font-d);font-size:22px;line-height:1.4">ようこそ！<br>${FIXED ? `${esc(FIXED)}${R("{選手|せんしゅ}")}` : TEAM ? `${esc(TEAM)}<br>${R("{選手|せんしゅ}カードをつくろう")}` : R("{選手|せんしゅ}カードをつくろう")}</div>
+    <div style="font-family:var(--font-d);font-size:22px;line-height:1.4">ようこそ！<br>${FIXED ? `${esc(FIXED)}${R("{選手|せんしゅ}")}` : TEAM ? `${esc(TEAM)}<br>${JH ? "選手カードを作りましょう" : R("{選手|せんしゅ}カードをつくろう")}` : JH ? "選手カードを作りましょう" : R("{選手|せんしゅ}カードをつくろう")}</div>
     <div class="hint">${JH ? esc(FIXED ? `このアプリは${FIXED}選手専用です。背番号とポジションを入れて、レベル1の「${TITLES[0]}」からスタートしましょう。` : `名前と背番号を入れると、レベル1の「${TITLES[0]}」からスタートします。`)
                          : FIXED ? R(`このアプリは${FIXED}{選手|せんしゅ}{専用|せんよう}だよ。{背番号|せばんごう}とポジションを{入|い}れて、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートしよう。`)
                               : R("{名前|なまえ}と{背番号|せばんごう}を{入|い}れると、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートするよ。")}</div>
