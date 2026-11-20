@@ -1198,7 +1198,7 @@ function photoSection() {
   if (w && w.state === "busy") return `<div class="panel"><div class="busy"><span class="spin"></span>${R("{写真|しゃしん}を{切|き}り{抜|ぬ}いています…（はじめてのときは{少|すこ}し{時間|じかん}がかかるよ）")}</div></div>`;
   if (w && w.state === "ready") return `<div class="panel form">
       ${w.msg ? `<div class="hint">${R(w.msg)}</div>` : `<div class="hint">${R("こんなカードになるよ")}</div>`}
-      <div class="card t2"><div class="card-in">${stageHtml(w.cut || w.raw, !!w.cut, R("{新人|しんじん}{選手|せんしゅ}"))}</div></div>
+      <div class="card t2"><div class="card-in">${stageHtml(w.cut || w.raw, !!w.cut, R(TITLES[0]))}</div></div>
       ${w.cut ? `<button class="btn" data-act="photoUse" data-v="cut">${R("これでOK")}</button><button class="btn sub" data-act="photoUse" data-v="raw">${R("{切|き}り{抜|ぬ}かないで{使|つか}う")}</button>`
               : `<button class="btn" data-act="photoUse" data-v="raw">${R("{切|き}り{抜|ぬ}かないで{使|つか}う")}</button>`}
       <div class="row2"><label class="btn sub" for="photo-in">${R("ちがう{写真|しゃしん}にする")}</label><button class="btn sub" data-act="photoCancel">${R("やめる")}</button></div>
@@ -1215,7 +1215,8 @@ function photoSection() {
 function vSetup() {
   return `<div class="panel stack">
     <div style="font-family:var(--font-d);font-size:22px;line-height:1.4">ようこそ！<br>${FIXED ? `${esc(FIXED)}${R("{選手|せんしゅ}")}` : TEAM ? `${esc(TEAM)}<br>${R("{選手|せんしゅ}カードをつくろう")}` : R("{選手|せんしゅ}カードをつくろう")}</div>
-    <div class="hint">${FIXED ? R(`このアプリは${FIXED}{選手|せんしゅ}{専用|せんよう}だよ。{背番号|せばんごう}とポジションを{入|い}れて、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートしよう。`)
+    <div class="hint">${JH ? esc(FIXED ? `このアプリは${FIXED}選手専用です。背番号とポジションを入れて、レベル1の「${TITLES[0]}」からスタートしましょう。` : `名前と背番号を入れると、レベル1の「${TITLES[0]}」からスタートします。`)
+                         : FIXED ? R(`このアプリは${FIXED}{選手|せんしゅ}{専用|せんよう}だよ。{背番号|せばんごう}とポジションを{入|い}れて、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートしよう。`)
                               : R("{名前|なまえ}と{背番号|せばんごう}を{入|い}れると、レベル1の「{新人|しんじん}{選手|せんしゅ}」からスタートするよ。")}</div>
     ${profileFields()}
     <button class="btn wide" data-act="saveProfile">${R("スタート！")}</button>
@@ -1223,9 +1224,9 @@ function vSetup() {
 }
 function profileFields() {
   const p = S.profile;
-  const team = TEAM ? `<div class="field"><label for="pf-team">${R("チーム（このチーム{専用|せんよう}なので、かえられません）")}</label><input id="pf-team" class="locked" value="${esc(TEAM)}" readonly aria-readonly="true"></div>` : "";
+  const team = TEAM ? `<div class="field"><label for="pf-team">${JH ? "チーム（このチーム専用のため、変更できません）" : R("チーム（このチーム{専用|せんよう}なので、かえられません）")}</label><input id="pf-team" class="locked" value="${esc(TEAM)}" readonly aria-readonly="true"></div>` : "";
   if (team) return team + `<div class="field"><label for="pf-name">${R("なまえ")}</label><input id="pf-name" maxlength="16" value="${esc(p.name)}" placeholder="${JH ? "例：山田 太郎" : "れい：たろう"}"></div>` + profileRest(p);
-  if (FIXED) return `<div class="field"><label for="pf-name">${R("なまえ（この{選手|せんしゅ}{専用|せんよう}なので、かえられません）")}</label><input id="pf-name" class="locked" value="${esc(FIXED)}" readonly aria-readonly="true"></div>` + profileRest(p);
+  if (FIXED) return `<div class="field"><label for="pf-name">${JH ? "名前（この選手専用のため、変更できません）" : R("なまえ（この{選手|せんしゅ}{専用|せんよう}なので、かえられません）")}</label><input id="pf-name" class="locked" value="${esc(FIXED)}" readonly aria-readonly="true"></div>` + profileRest(p);
   return `<div class="field"><label for="pf-name">${R("なまえ")}</label><input id="pf-name" maxlength="16" value="${esc(p.name)}" placeholder="${JH ? "例：山田 太郎" : "れい：たろう"}"></div>` + profileRest(p);
 }
 function profileRest(p) {
@@ -1925,7 +1926,7 @@ function vHelp() {
   const menuRows = S.menu.filter(m => m.on).map(m => `<div><span>${R(m.name)}</span><em>${m.var ? "+15〜70" : "+" + m.exp}</em></div>`).join("");
   return `<div class="stack help-doc">
     <h2 class="sec" style="margin-top:0">${R("つかいかた・ちゅうい")}</h2>
-    ${sec("このアプリでできること", P("{毎日|まいにち}の{自主練|じしゅれん}をチェックすると、EXP（{経験値|けいけんち}）がたまってレベルが{上|あ}がるよ。レベルが{上|あ}がると「{新人|しんじん}{選手|せんしゅ}」から「スーパースター」まで{称号|しょうごう}がかわっていく。")
+    ${sec("このアプリでできること", P("{毎日|まいにち}の{自主練|じしゅれん}をチェックすると、EXP（{経験値|けいけんち}）がたまってレベルが{上|あ}がるよ。レベルが{上|あ}がると「" + TITLES[0] + "」から「スーパースター」まで{称号|しょうごう}がかわっていく。")
       + P("{試合|しあい}の{記録|きろく}や、{夢|ゆめ}・{目標|もくひょう}も{書|か}いておけるよ。"), true)}
     ${sec("{画面|がめん}ごとのつかいかた",
       H("ホーム") + P("{選手|せんしゅ}カードと、きょうの{達成率|たっせいりつ}、{何日|なんにち}{続|つづ}けているかが{見|み}られる。")
