@@ -434,6 +434,20 @@ nav.tabs button.on { color: var(--light); background: rgba(255,216,74,.1); }
 .hp { position: relative; height: 18px; border-radius: 6px; background: rgba(0,0,0,.45); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
 .hp i { display: block; height: 100%; background: linear-gradient(90deg, #ff3d5a, #ff8a3d); box-shadow: 0 0 10px rgba(255,61,90,.6); transition: width .6s; }
 .hp span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px #000; }
+.wk { background: linear-gradient(135deg, #0b1a3a, #13284f); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.wk-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.wk-days span { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--dim); font-weight: 800; }
+.wk-days i { width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,.07); border: 1.5px solid transparent; }
+.wk-days .on i { background: var(--turf); box-shadow: 0 0 6px rgba(63,209,122,.5); }
+.wk-days .rest i { border-color: var(--dim); background: none; }
+.wk-days .now i { border-color: var(--light); }
+.wk-days .fut { opacity: .4; }
+.wk-sum { font-weight: 800; display: flex; align-items: baseline; gap: 2px; flex-wrap: wrap; }
+.wk-sum b { font-family: var(--font-d); font-weight: 400; font-size: 22px; color: var(--light); margin-left: 2px; }
+.wk-sum .hint { margin-left: auto; }
+.bk-nag { background: linear-gradient(135deg, #3a2208, #2a1a10); border: 1.5px solid rgba(255,170,60,.7); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.bk-top { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.bk-ico { font-size: 22px; }
 .boss.won { border-color: rgba(255,216,74,.6); }
 .rest-on { background: rgba(127,231,255,.1); border: 1px solid rgba(127,231,255,.45); border-radius: 14px; padding: 10px 12px; font-weight: 800; font-size: 14px; color: #bff3ff; }
 .btn[disabled] { opacity: .45; pointer-events: none; }
@@ -568,6 +582,7 @@ const TEAM = (window.TR_TEAM && String(window.TR_TEAM.name || "").trim()) || "";
 const CLEAR_BONUS = 50;   // 今日のメニュー全部クリア
 const GAME_EXP = 30;      // 試合を記録
 const TEAM_EXP = 15;      // チーム練習を記録
+const BK_EXP = 20;        // 記録を保存（週に1回ぶん）
 const STEP_EXP = 100;     // スモールステップ達成
 const MAX_LV = 50;
 const needFor = lv => 60 + 20 * (lv - 1);   // 次のレベルまでに要るEXP
@@ -636,6 +651,7 @@ function normalize(raw) {
   s.body = s.body || [];     // 体と数字の記録（中学生版）
   s.notes = s.notes || {};   // 練習ノート（中学生版）{ 日付: 文 }
   s.tp = s.tp || [];         // チーム練習の記録 [{ id, date, theme, did, next, at }]
+  s.bkDays = s.bkDays || (s.lastBackup ? [s.lastBackup] : []);   // 記録を保存した日
   s.tday = s.tday || {};     // 自主練で課題を練習した日 { 日付: 課題 }
   if (!s.started) s.started = Object.keys(s.logs).sort()[0] || ymd();
   return s;
@@ -726,7 +742,24 @@ function backupSummary(o) {
   const keep = S; S = normalize(o.data); const c = compute(); const name = S.profile.name; S = keep;
   return { name, lv: c.lv, days: c.days, at: o.at || "", photo: !!o.photo };
 }
-function bkDone(msg) { S.lastBackup = ymd(); save(); bkMsg = msg; render(); }
+function bkDone(msg) {
+  const before = compute(), d = ymd(), newWeek = !S.bkDays.some(x => weekStart(x) === weekStart(d));
+  S.lastBackup = d; if (!S.bkDays.includes(d)) S.bkDays.push(d); save(); bkMsg = msg; render();
+  celebrate(before, compute(), R("{記録|きろく}を{保存|ほぞん}したよ！") + (newWeek ? `<br><span style='font-size:.5em'>+${BK_EXP} EXP</span>` : ""));
+}
+// ホームに出す「保存しよう」。今週まだ保存していない時に出す（記録が何もない時は出さない）
+function backupNag(c) {
+  if (!(c.days || S.games.length || S.tp.length)) return "";
+  const d = ymd(), last = S.lastBackup;
+  if (last && weekStart(last) === weekStart(d)) return "";
+  return `<section class="bk-nag">
+    <div class="bk-top"><span class="bk-ico">💾</span><b>${R(last ? `{今週|こんしゅう}の{保存|ほぞん}がまだだよ（さいごは${md(last)}）` : "まだ{記録|きろく}を{保存|ほぞん}していないよ")}</b></div>
+    <div class="hint">${R(`スマホがこわれたり、{機種変更|きしゅへんこう}したりしても、{保存|ほぞん}しておけば{記録|きろく}をもどせるよ。{週|しゅう}に1{回|かい}、{保存|ほぞん}すると +${BK_EXP} EXP`)}</div>
+    <button class="btn wide" data-act="makeBackup">${R("いま{保存|ほぞん}する")}</button>
+    <div class="hint">${R("{出|で}てきた{画面|がめん}で「“ファイル”に{保存|ほぞん}」をえらぶか、LINEでおうちの{人|ひと}に{送|おく}ってね")}</div>
+    ${bkMsg ? `<div class="bk-msg">${R(bkMsg)}</div>` : ""}
+  </section>`;
+}
 async function makeBackup() {
   const name = `mizuta-jishutore-${ymd()}.json`;
   const file = new File([backupJson(true)], name, { type: "application/json" });
@@ -1020,7 +1053,9 @@ function compute() {
   }
   const today = ymd();
   const cur = sdays.length && (prev === today || prev === addDays(today, -1)) ? run : 0;
-  const bossWins = Object.values(dmg).filter(x => x >= BOSS_HP).length;
+  const bossWins = JH ? 0 : Object.values(dmg).filter(x => x >= BOSS_HP).length;   // 中学生版は週ボスなし
+  const bkWeeks = new Set(S.bkDays.map(weekStart)).size;
+  exp += bkWeeks * BK_EXP;
   exp += bossWins * BOSS_EXP;
   let hits = 0, hr = 0, maxHits = 0;
   let pitchGames = 0, pk = 0;
@@ -1038,7 +1073,7 @@ function compute() {
   let lv = 1, rest = exp;
   while (lv < MAX_LV && rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
   const c = { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv),
-    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays, tps: S.tp.length };
+    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays, tps: S.tp.length, bks: S.bkDays.length };
   c.badges = BADGES.filter(b => b.ok(c)).map(b => b.id);
   return c;
 }
@@ -1080,7 +1115,9 @@ const BADGES = [
   { id: "lv25", mark: "25", t: 2, name: "Lv.25", desc: "レベル25になった", ok: c => c.lv >= 25 },
   { id: "lv50", mark: "★", t: 3, name: "スーパースター", desc: "レベル50になった", ok: c => c.lv >= 50 },
   { id: "photo", mark: "写", t: 0, name: "カードに{写真|しゃしん}", desc: "{選手|せんしゅ}カードに{写真|しゃしん}を{入|い}れた", ok: () => !!PHOTO },
-];
+  { id: "bk1", mark: "守", t: 0, name: "{記録|きろく}を{守|まも}った", desc: "はじめて{記録|きろく}を{保存|ほぞん}した", ok: c => c.bks >= 1 },
+  { id: "bk10", mark: "10", t: 1, name: "{保存|ほぞん}10{回|かい}", desc: "{記録|きろく}を10{回|かい}{保存|ほぞん}した", ok: c => c.bks >= 10 },
+].filter(b => !(JH && (b.id === "boss1" || b.id === "boss5")));
 
 /* ---------- おうちのごほうび ---------- */
 const RW_TYPES = {
@@ -1198,6 +1235,7 @@ function vHome(c) {
   const pend = pendingReviews();
   return `<div class="stack">
     ${playerCard(c)}
+    ${backupNag(c)}
     ${pend.length ? `<button class="rv-banner" data-act="goReview">
       <span class="flag">✎</span><span><b>${R(`${ymLabel(pend[pend.length - 1]).replace(/^\d+\{年\|ねん\}/, "")}のふりかえりをしよう！`)}</b><small>${R(`できたら +${REVIEW_EXP} EXP`)}</small></span></button>` : ""}
     <div class="row2"><button class="btn sub sm" data-act="cardImage">${R("カードを{画像|がぞう}にする")}</button><button class="btn sub sm" data-act="goBadges">${R(`バッジ ${c.badges.length}/${BADGES.length}`)}</button></div>
@@ -1226,7 +1264,21 @@ function vHome(c) {
 const TIMER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>';
 const COUNT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8M12 8v8"/></svg>';
 // 今週のボス（練習でためたEXPがダメージになる）
+function weekCard(c) {
+  const ws = weekStart(ymd()), today = ymd(), pws = addDays(ws, -7);
+  const did = d => !!(S.logs[d] && Object.keys(S.logs[d].done || {}).length);
+  let days = 0, pdays = 0;
+  for (let i = 0; i < 7; i++) { if (did(addDays(ws, i))) days++; if (did(addDays(pws, i))) pdays++; }
+  const cells = Array.from({ length: 7 }, (_, i) => { const d = addDays(ws, i);
+    return `<span class="${did(d) ? "on" : S.rest[d] ? "rest" : ""} ${d === today ? "now" : ""} ${d > today ? "fut" : ""}"><small>${WD[(i + 1) % 7]}</small><i></i></span>`; }).join("");
+  return `<section class="wk">
+    <div class="boss-top"><span class="eyebrow">THIS WEEK</span><span class="hint">今週の練習</span></div>
+    <div class="wk-days">${cells}</div>
+    <div class="wk-sum"><b>${days}</b>日・<b>${(c.dmg[ws] || 0).toLocaleString()}</b> EXP<span class="hint">先週は ${pdays}日・${(c.dmg[pws] || 0).toLocaleString()} EXP</span></div>
+  </section>`;
+}
 function bossCard(c, full) {
+  if (JH) return weekCard(c);
   const ws = weekStart(ymd()), d = c.dmg[ws] || 0, left = Math.max(0, BOSS_HP - d), pct = Math.round(left / BOSS_HP * 100);
   const won = left === 0;
   return `<section class="boss ${won ? "won" : ""}">
@@ -1238,6 +1290,7 @@ function bossCard(c, full) {
 }
 // ホームに出す、おうちのごほうび
 function rewardCard(c) {
+  if (JH) return "";
   const list = (S.rewards || []).filter(r => !r.got);
   if (!list.length) return "";
   const rows = list.map(r => ({ r, p: rwProg(r, c) })).sort((a, b) => (b.p / b.r.target) - (a.p / a.r.target)).slice(0, 3);
@@ -1733,7 +1786,7 @@ function vHelp() {
       + H("きろく") + P("カレンダー（{自主練|じしゅれん}・チーム{練習|れんしゅう}・{試合|しあい}が1つに{出|で}る。{日|ひ}にちをおすと、その{日|ひ}の{中身|なかみ}が{見|み}られる）、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。" + (JH ? "身長・体重・50m走・遠投を記録すると、伸びがグラフで見られる。練習ノートもここに並ぶ。" : ""))
       + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。ピッチャーで{投|な}げた{日|ひ}は「ピッチャーで{投|な}げた」をおすと、{投球回|とうきゅうかい}・{奪三振|だつさんしん}などを{記録|きろく}できて、{防御率|ぼうぎょりつ}も{計算|けいさん}するよ。")
       + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
-      + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、おうちのごほうび、バックアップ、{音|おと}をかえられる。"))}
+      + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、" + (JH ? "" : "おうちのごほうび、") + "{記録|きろく}の{保存|ほぞん}（バックアップ）、{音|おと}をかえられる。"))}
     ${sec("EXPのもらいかた",
       `<div class="rows">${menuRows}
         <div><span>${R("きょうのメニューをぜんぶクリア")}</span><em>+${CLEAR_BONUS}</em></div>
@@ -1744,7 +1797,8 @@ function vHelp() {
         <div><span>${R("スモールステップを{達成|たっせい}")}</span><em>+${STEP_EXP}</em></div>
         <div><span>${R("{月|つき}のふりかえり")}</span><em>+${REVIEW_EXP}</em></div>
         <div><span>${R("{日替|ひが}わりチャレンジ")}</span><em>+20〜30</em></div>
-        <div><span>${R("{週|しゅう}ボスをたおす")}</span><em>+${BOSS_EXP}</em></div>
+        ${JH ? "" : `<div><span>${R("{週|しゅう}ボスをたおす")}</span><em>+${BOSS_EXP}</em></div>`}
+        <div><span>${R("{記録|きろく}を{保存|ほぞん}（{週|しゅう}1{回|かい}）")}</span><em>+${BK_EXP}</em></div>
         <div><span>${R("{野球|やきゅう}クイズに{正解|せいかい}")}</span><em>+${QUIZ_EXP}</em></div>
         ${JH ? `<div><span>体と数字の記録（1日1回）</span><em>+${BODY_EXP}</em></div>` : ""}</div>`
       + P("{素振|すぶ}りは{回数|かいすう}が{多|おお}いほどEXPがふえる（50{回|かい}で+15、600{回|かい}で+70）。"))}
@@ -1753,11 +1807,11 @@ function vHelp() {
       H("{野球|やきゅう}クイズ") + P(`れんしゅう{画面|がめん}の{下|した}に、1{日|にち}1{問|もん}のクイズが{出|で}るよ。{答|こた}えられるのは1{回|かい}だけ。{正解|せいかい}で +${QUIZ_EXP} EXP。`)
       + H("きょうのことば") + P("{野球|やきゅう}{選手|せんしゅ}などの{名言|めいげん}や、がんばる{力|ちから}になることわざが{毎日|まいにち}かわるよ。")
       + H("{日替|ひが}わりチャレンジ") + P("れんしゅう{画面|がめん}の{上|うえ}に、{毎日|まいにち}ちがうお{題|だい}が{出|で}るよ。できたらボーナスEXP！")
-      + H("{週|しゅう}ボス") + P("{月曜|げつよう}から{日曜|にちよう}までに、{練習|れんしゅう}でためたEXPがボスへのダメージになる。HPを0にしたら +100 EXP。{毎週|まいしゅう}ちがうボスが{来|く}るよ。")
+      + (JH ? H("今週の練習") + P("ホームと練習の画面に、月曜から日曜までに練習した日と、ためたEXPが出る。先週とくらべて、ペースをつかもう。") : H("{週|しゅう}ボス") + P("{月曜|げつよう}から{日曜|にちよう}までに、{練習|れんしゅう}でためたEXPがボスへのダメージになる。HPを0にしたら +100 EXP。{毎週|まいしゅう}ちがうボスが{来|く}るよ。"))
       + H("{休養日|きゅうようび}チケット") + P("{週|しゅう}に1{回|かい}だけ「きょうは{休養日|きゅうようび}」にできる。{休|やす}んでも{連続|れんぞく}{日数|にっすう}は{切|き}れないよ。{体|からだ}を{休|やす}めるのも{大事|だいじ}な{練習|れんしゅう}！")
       + H("{練習|れんしゅう}のおとも") + P("メニューの{右|みぎ}のボタンをおすと、{回数|かいすう}を{数|かぞ}えるカウンターや、ストレッチのタイマーが{使|つか}える。{終|お}わるとそのままチェックが{付|つ}くよ。")
       + H("バッジ") + P("{連続|れんぞく}{日数|にっすう}や{素振|すぶ}りの{合計|ごうけい}、{初|はつ}ヒットなどでバッジがもらえる。「きろく」のいちばん{下|した}で{集|あつ}めたバッジが{見|み}られるよ。")
-      + H("おうちのごほうび") + P("{歯車|はぐるま}の「おうちのごほうび」で、おうちの{人|ひと}といっしょにごほうびと{条件|じょうけん}を{決|き}めよう。ホームに「あと{何|なん}こ」が{出|で}るよ。")
+      + (JH ? "" : H("おうちのごほうび") + P("{歯車|はぐるま}の「おうちのごほうび」で、おうちの{人|ひと}といっしょにごほうびと{条件|じょうけん}を{決|き}めよう。ホームに「あと{何|なん}こ」が{出|で}るよ。"))
       + H("カードを{画像|がぞう}にする") + P("ホームのボタンで、{選手|せんしゅ}カードを{画像|がぞう}にできる。LINEで{家族|かぞく}やチームメイトに{見|み}せよう。")
       + H("{先月|せんげつ}の{自分|じぶん}とくらべる") + P("「きろく」で、{今月|こんげつ}と{先月|せんげつ}を{同|おな}じ{日|ひ}にちまでくらべられるよ。"))}
     ${sec("{写真|しゃしん}を{入|い}れるには",
@@ -1793,7 +1847,7 @@ function backupSection() {
     </div>`;
   }
   return `<div class="panel form">
-    <div class="hint">${R("スマホをかえる{時|とき}や、アイコンを{置|お}きなおす{前|まえ}に、バックアップをとっておこう。ときどきとっておくと{安心|あんしん}だよ。")}</div>
+    <div class="hint">${R(`{記録|きろく}はこのスマホの{中|なか}だけにあるよ。{週|しゅう}に1{回|かい}は{保存|ほぞん}しておこう（{週|しゅう}1{回|かい} +${BK_EXP} EXP）。スマホをかえる{時|とき}や、アイコンを{置|お}きなおす{前|まえ}は{必|かなら}ず{保存|ほぞん}してね。`)}</div>
     <div class="hint" style="color:var(--light)">${last}</div>
     ${bkMsg ? `<div class="bk-msg">${R(bkMsg)}</div>` : ""}
     <button class="btn" data-act="makeBackup">${R("ファイルにする（{写真|しゃしん}こみ）")}</button>
@@ -1834,7 +1888,7 @@ function vSettings(c) {
       </div>
       <button class="btn sub" data-act="addMenu">${R("{足|た}す")}</button>
     </div>
-    <h2 class="sec" id="rewards">${R("おうちのごほうび")}</h2>
+    ${JH ? "" : `    <h2 class="sec" id="rewards">${R("おうちのごほうび")}</h2>
     <div class="panel form">
       <div class="hint">${R("おうちの{人|ひと}といっしょに{決|き}めよう。{条件|じょうけん}をクリアすると、アプリでお{知|し}らせするよ。")}</div>
       ${(S.rewards || []).map(r => { const p = rwProg(r, c), ok = p >= r.target; return `<div class="mrow">
@@ -1848,6 +1902,7 @@ function vSettings(c) {
       </div>
       <button class="btn sub" data-act="addReward">${R("ごほうびを{足|た}す")}</button>
     </div>
+`}
     <h2 class="sec" id="backup">${R("{記録|きろく}のバックアップ")}</h2>
     ${backupSection()}
     <h2 class="sec">${R("{音|おと}")}</h2>
@@ -1873,7 +1928,7 @@ document.getElementById("ov").addEventListener("click", e => {
 function celebrate(before, after, head, homerun) {
   const up = after.lv > before.lv, tUp = titleIdx(after.lv) > titleIdx(before.lv);
   const newB = BADGES.filter(b => after.badges.includes(b.id) && !before.badges.includes(b.id));
-  const newR = (S.rewards || []).filter(r => !r.got && rwProg(r, after) >= r.target && rwProg(r, before) < r.target);
+  const newR = JH ? [] : (S.rewards || []).filter(r => !r.got && rwProg(r, after) >= r.target && rwProg(r, before) < r.target);
   const boss = after.bossWins > before.bossWins, ch = after.chCount > before.chCount;
   if (!head && !up && !homerun && !newB.length && !newR.length && !boss && !ch) return;
   let h = "";
@@ -2444,11 +2499,12 @@ function seedDemo() {
     { id: "dt2", date: addDays(t, -2), theme: "速い球に振りおくれない", did: "マシン120kmで、5本中3本は前にとんだ", next: "速い球のティーを毎日50球", at: 3 }];
   S.tday = { [addDays(t, -5)]: "追い込まれたら、ストライクはふる", [addDays(t, -1)]: "速い球のティーを毎日50球" };
   S.goals = { dream: JH ? "甲子園に出る" : "プロやきゅうせんしゅになる", year: JH ? "夏の大会でレギュラー" : "レギュラーになる", month: "打率3割", monthKey: t.slice(0, 7), steps: [{ id: "ds1", text: "素振り200回を1週間つづける", done: false }, { id: "ds2", text: "毎日ストレッチ", done: true, doneDate: addDays(t, -10) }] };
-  S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
+  if (!JH) S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
   if (JH) {
     S.body = [[60, 152.1, 42.0, 7.9, 48], [30, 153.0, 42.8, 7.8, 51], [2, 153.6, 43.5, 7.6, 53]].map(([n, h, w, r50, thr], i) => ({ id: "db" + i, date: addDays(t, -n), h, w, r50, thr }));
     S.notes = { [addDays(t, -1)]: "ティーで右方向を意識したら、打球が強くなった", [addDays(t, -3)]: "体幹のあとに素振りをすると、軸がぶれにくい" };
   }
+  S.bkDays = [addDays(t, -16)]; S.lastBackup = addDays(t, -16);
   S.started = addDays(t, -30); save();
 }
 if (window.TR_DEMO && !S.profile.ready) seedDemo();
