@@ -218,6 +218,10 @@ label.btn { display: inline-flex; align-items: center; justify-content: center; 
 .loop span { padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
 .loop .s { color: var(--turf); } .loop .t { color: #6aa8ff; } .loop .g { color: var(--score); } .loop .k { color: var(--light); }
 .loop i { font-style: normal; color: var(--dim); }
+.lg-theme.cleared { background: rgba(255,216,74,.12); border-color: rgba(255,216,74,.6); }
+.lg-theme.cleared small { color: var(--light); }
+.seg-wk { margin-bottom: 10px; }
+.week-img { max-height: 58vh; object-fit: contain; background: #0a1430; }
 .tday.on { background: rgba(63,209,122,.18); border-color: var(--turf); color: var(--turf); }
 .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .cal-nav b { font-size: 16px; }
@@ -583,6 +587,7 @@ const CLEAR_BONUS = 50;   // 今日のメニュー全部クリア
 const GAME_EXP = 30;      // 試合を記録
 const TEAM_EXP = 15;      // チーム練習を記録
 const BK_EXP = 20;        // 記録を保存（週に1回ぶん）
+const THEME_EXP = 30;     // 課題ができるようになった
 const STEP_EXP = 100;     // スモールステップ達成
 const MAX_LV = 50;
 const needFor = lv => 60 + 20 * (lv - 1);   // 次のレベルまでに要るEXP
@@ -652,6 +657,7 @@ function normalize(raw) {
   s.notes = s.notes || {};   // 練習ノート（中学生版）{ 日付: 文 }
   s.tp = s.tp || [];         // チーム練習の記録 [{ id, date, theme, did, next, at }]
   s.bkDays = s.bkDays || (s.lastBackup ? [s.lastBackup] : []);   // 記録を保存した日
+  s.tdone = s.tdone || [];   // できるようになった課題 [{ key, t, src, d, at }]
   s.tday = s.tday || {};     // 自主練で課題を練習した日 { 日付: 課題 }
   if (!s.started) s.started = Object.keys(s.logs).sort()[0] || ymd();
   return s;
@@ -1056,6 +1062,7 @@ function compute() {
   const bossWins = JH ? 0 : Object.values(dmg).filter(x => x >= BOSS_HP).length;   // 中学生版は週ボスなし
   const bkWeeks = new Set(S.bkDays.map(weekStart)).size;
   exp += bkWeeks * BK_EXP;
+  exp += S.tdone.length * THEME_EXP;
   exp += bossWins * BOSS_EXP;
   let hits = 0, hr = 0, maxHits = 0;
   let pitchGames = 0, pk = 0;
@@ -1073,7 +1080,7 @@ function compute() {
   let lv = 1, rest = exp;
   while (lv < MAX_LV && rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
   const c = { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv),
-    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays, tps: S.tp.length, bks: S.bkDays.length };
+    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays, tps: S.tp.length, bks: S.bkDays.length, tdone: S.tdone.length };
   c.badges = BADGES.filter(b => b.ok(c)).map(b => b.id);
   return c;
 }
@@ -1103,6 +1110,8 @@ const BADGES = [
   { id: "k10", mark: "K", t: 1, name: "{奪三振|だつさんしん}10", desc: "{奪三振|だつさんしん}の{合計|ごうけい}が10", ok: c => c.pk >= 10 },
   { id: "tp1", mark: "チ", t: 0, name: "チーム{練習|れんしゅう}の{記録|きろく}", desc: "チーム{練習|れんしゅう}の{課題|かだい}を{記録|きろく}した", ok: c => c.tps >= 1 },
   { id: "tp10", mark: "10", t: 1, name: "チーム{練習|れんしゅう}10{回|かい}", desc: "チーム{練習|れんしゅう}を10{回|かい}{記録|きろく}した", ok: c => c.tps >= 10 },
+  { id: "td1", mark: "克", t: 1, name: "{課題|かだい}クリア", desc: "{課題|かだい}が1つできるようになった", ok: c => c.tdone >= 1 },
+  { id: "td10", mark: "10", t: 2, name: "{課題|かだい}クリア10", desc: "{課題|かだい}が10こできるようになった", ok: c => c.tdone >= 10 },
   { id: "step1", mark: "歩", t: 0, name: "ステップ{達成|たっせい}", desc: "スモールステップを1つ{達成|たっせい}", ok: c => c.steps >= 1 },
   { id: "step5", mark: "5", t: 1, name: "ステップ5つ", desc: "スモールステップを5つ{達成|たっせい}", ok: c => c.steps >= 5 },
   { id: "rev1", mark: "振", t: 0, name: "はじめてのふりかえり", desc: "{月|つき}のふりかえりをした", ok: c => c.reviews >= 1 },
@@ -1239,6 +1248,7 @@ function vHome(c) {
     ${pend.length ? `<button class="rv-banner" data-act="goReview">
       <span class="flag">✎</span><span><b>${R(`${ymLabel(pend[pend.length - 1]).replace(/^\d+\{年\|ねん\}/, "")}のふりかえりをしよう！`)}</b><small>${R(`できたら +${REVIEW_EXP} EXP`)}</small></span></button>` : ""}
     <div class="row2"><button class="btn sub sm" data-act="cardImage">${R("カードを{画像|がぞう}にする")}</button><button class="btn sub sm" data-act="goBadges">${R(`バッジ ${c.badges.length}/${BADGES.length}`)}</button></div>
+    <button class="btn sub sm" data-act="weekImage" data-v="0">${R("{今週|こんしゅう}のまとめを{画像|がぞう}にする（{監督|かんとく}・{家族|かぞく}に{送|おく}れる）")}</button>
     ${rewardCard(c)}
     <section class="panel"><div class="today">
       <div class="ring ${t.pct === 100 ? "full" : ""}"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
@@ -1394,6 +1404,120 @@ function vRecord(c) {
     <div class="badges">${BADGES.map(b => badgeHtml(b, c.badges.includes(b.id))).join("")}</div>
   </div>`;
 }
+/* ---------- メニューのコード（チームで同じメニューを配る） ---------- */
+let menuMsg = "", menuText = "";
+const UNITS = ["回", "本", "球", "分"];
+function menuCode() {
+  const items = S.menu.map(m => ({ n: plain(m.name), c: m.count, u: plain(m.unit), e: m.exp, a: m.ab || {}, v: m.var ? 1 : 0, st: m.step, mx: m.max, o: m.on ? 1 : 0 }));
+  return "TRMENU1:" + btoa(unescape(encodeURIComponent(JSON.stringify(items))));
+}
+function parseMenuCode(text) {
+  const mm = String(text || "").match(/TRMENU1:([A-Za-z0-9+/=]+)/); if (!mm) return null;
+  try {
+    const arr = JSON.parse(decodeURIComponent(escape(atob(mm[1])))); if (!Array.isArray(arr) || !arr.length || arr.length > 40) return null;
+    const num = (x, lo, hi, d) => { x = parseInt(x); return isNaN(x) ? d : Math.min(hi, Math.max(lo, x)); };
+    return arr.map(it => {
+      const ab = {}; for (const a of ABIL) if (it.a && it.a[a.k]) ab[a.k] = num(it.a[a.k], 1, 3, 1);
+      const m = { id: "c" + uid(), name: String(it.n || "").trim().slice(0, 20), count: num(it.c, 1, 9999, 10), unit: UNITS.includes(it.u) ? it.u : "回",
+        exp: num(it.e, 5, 100, 15), ab, on: !!it.o, custom: true };
+      if (it.v) Object.assign(m, { var: true, step: num(it.st, 1, 100, 10), max: num(it.mx, 10, 3000, 600) });
+      return m;
+    }).filter(m => m.name);
+  } catch (e) { return null; }
+}
+
+/* ---------- 今週のまとめを画像にする（監督・コーチや家族に送る用） ---------- */
+let shareName = "player-card";
+function wrapText(ctx, text, maxW) {
+  const out = [];
+  for (const para of String(text || "").split("\n")) {
+    let line = "";
+    for (const ch of para) { if (ctx.measureText(line + ch).width > maxW && line) { out.push(line); line = ch; } else line += ch; }
+    out.push(line);
+  }
+  return out;
+}
+async function drawWeek(off) {
+  const c = compute(), p = S.profile, ws = addDays(weekStart(ymd()), 7 * off), we = addDays(ws, 6);
+  const inW = d => d >= ws && d <= we;
+  const did = d => !!(S.logs[d] && Object.keys(S.logs[d].done || {}).length);
+  let days = 0, swing = 0, clears = 0;
+  for (let i = 0; i < 7; i++) { const d = addDays(ws, i); if (!did(d)) continue; days++; const L = S.logs[d]; if (L.clear) clears++;
+    for (const id in L.done) if (isSwing(L.done[id].name)) swing += L.done[id].count || 0; }
+  const tdays = Object.keys(S.tday).filter(inW).length;
+  const tps = S.tp.filter(x => inW(x.date)).sort((x, y) => x.date.localeCompare(y.date));
+  const gms = S.games.filter(x => inW(x.date)).sort((x, y) => x.date.localeCompare(y.date));
+  const dones = S.tdone.filter(x => inW(x.at));
+  const th = themeNow();
+  const W = 1080, cv = document.createElement("canvas"); cv.width = W; cv.height = 6000; const ctx = cv.getContext("2d");
+  const FD = '"Dela Gothic One", "Hiragino Sans", sans-serif', FB = '"M PLUS Rounded 1c", "Hiragino Sans", sans-serif';
+  const all = JSON.stringify([tps, gms, dones, th, p, TEAM]) + "今週のまとめ自主練チーム練習試合課題指導を受けたことやってみて次の課題できるようになった日回勝負引き分けトレーニングロード0123456789";
+  try { await Promise.all([document.fonts.load(`60px ${FD}`, all), document.fonts.load(`700 30px ${FB}`, all), document.fonts.load(`800 30px ${FB}`, all)]); } catch (e) {}
+  ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, cv.height);
+  const X = 70, CW = W - 140; let y = 90;
+  // 見出し
+  ctx.fillStyle = "#ffd84a"; ctx.font = `34px ${FD}`; ctx.fillText(TEAM || "WEEKLY REPORT", X, y); y += 80;
+  ctx.fillStyle = "#fff"; ctx.font = `64px ${FD}`; ctx.fillText(off ? "先週のまとめ" : "今週のまとめ", X, y); y += 62;
+  ctx.fillStyle = "#c9d3f5"; ctx.font = `800 36px ${FB}`;
+  ctx.fillText(`${p.number ? "#" + p.number + " " : ""}${p.name}${p.position ? "（" + p.position + "）" : ""}`, X, y); y += 50;
+  ctx.fillStyle = "#95a4d0"; ctx.font = `700 30px ${FB}`; ctx.fillText(`${plain(jpDate(ws))} 〜 ${plain(jpDate(we))}`, X, y); y += 40;
+  const box = (color, title, draw) => {
+    const top = y + 20; y = top + 64;
+    const body = draw(true); // 高さを測る
+    const h = 64 + body + 28;
+    rrect(ctx, X, top, CW, h, 26); ctx.fillStyle = "#14234f"; ctx.fill();
+    ctx.fillStyle = color; rrect(ctx, X, top, 12, h, 6); ctx.fill();
+    ctx.fillStyle = color; ctx.font = `800 32px ${FB}`; ctx.fillText(title, X + 40, top + 52);
+    y = top + 64; draw(false); y = top + h;
+  };
+  const para = (label, text, dry, color) => {
+    let hh = 0;
+    if (label) { if (!dry) { ctx.fillStyle = "#95a4d0"; ctx.font = `800 24px ${FB}`; ctx.fillText(label, X + 40, y + hh + 30); } hh += 38; }
+    ctx.font = `700 32px ${FB}`;
+    for (const ln of wrapText(ctx, text, CW - 80)) { if (!dry) { ctx.fillStyle = color || "#eef2ff"; ctx.fillText(ln, X + 40, y + hh + 34); } hh += 46; }
+    if (!dry) y += hh + 8; return hh + 8;
+  };
+  // 自主練
+  box("#3fd17a", "自主練", dry => {
+    let hh = 0; const sz = (CW - 80 - 6 * 14) / 7;
+    if (!dry) for (let i = 0; i < 7; i++) { const d = addDays(ws, i), x = X + 40 + i * (sz + 14);
+      ctx.fillStyle = "#95a4d0"; ctx.font = `800 24px ${FB}`; ctx.textAlign = "center"; ctx.fillText(WD[(i + 1) % 7], x + sz / 2, y + 28); ctx.textAlign = "left";
+      rrect(ctx, x, y + 42, sz, 70, 14); ctx.fillStyle = did(d) ? (S.logs[d].clear ? "#ffd84a" : "#3fd17a") : S.rest[d] ? "#2a3a66" : "rgba(255,255,255,.08)"; ctx.fill(); }
+    hh += 130; if (!dry) y += 130;
+    hh += para("", `練習 ${days}日（全部クリア ${clears}日）・素振り ${swing.toLocaleString()}回・${(c.dmg[ws] || 0).toLocaleString()} EXP`, dry);
+    hh += para("", `課題を練習した日 ${tdays}日`, dry, "#b8ffcf");
+    return hh;
+  });
+  // いまの課題
+  if (th && !off) box("#ffd84a", isDone(th) ? "いまの課題（クリア！）" : "いまの課題", dry => para(`${md(th.d)}の${plain(SRC[th.src])}で見つけた`, th.t, dry));
+  // できるようになった課題
+  if (dones.length) box("#ffd84a", "できるようになった課題", dry => dones.reduce((hh, x) => hh + para(`${md(x.at)}`, x.t, dry), 0));
+  // チーム練習
+  for (const t of tps) box("#5aa0ff", `チーム練習　${plain(jpDate(t.date))}`, dry => {
+    let hh = 0;
+    if (t.theme) hh += para("試した課題", t.theme, dry);
+    if (t.did) hh += para("やってみて", t.did, dry);
+    if (t.coach) hh += para("指導を受けたこと", t.coach, dry, "#ffe9a8");
+    if (t.next) hh += para("次の課題", t.next, dry);
+    return hh;
+  });
+  // 試合
+  for (const g of gms) { const res = g.my > g.their ? "勝ち" : g.my < g.their ? "負け" : "引き分け";
+    box("#ff6b3d", `試合　${plain(jpDate(g.date))}`, dry => {
+      let hh = para("", `vs ${g.opp || "（相手未記入）"}　${g.my} - ${g.their}　${res}`, dry);
+      hh += para("", plain(gameLine(g)) + (g.p ? "\n" + plain(pitLine(g.p)) : ""), dry, "#c9d3f5");
+      if (g.theme) hh += para("意識した課題", g.theme, dry);
+      if (g.good) hh += para("よかったこと", g.good, dry);
+      if (g.coach) hh += para("指導を受けたこと", g.coach, dry, "#ffe9a8");
+      if (g.next) hh += para("次の課題", g.next, dry);
+      return hh;
+    }); }
+  if (!tps.length && !gms.length) { y += 50; ctx.fillStyle = "#95a4d0"; ctx.font = `700 28px ${FB}`; ctx.fillText("この週は、チーム練習と試合の記録はありません", X, y); }
+  y += 70; ctx.fillStyle = "#95a4d0"; ctx.font = `26px ${FD}`; ctx.fillText(`水田トレーニングロード　${ymd().replace(/-/g, ".")}`, X, y); y += 50;
+  const out = document.createElement("canvas"); out.width = W; out.height = Math.ceil(y); out.getContext("2d").drawImage(cv, 0, 0);
+  return out.toDataURL("image/png");
+}
+
 /* ---------- カレンダー（自主練・チーム練習・試合を1つに） ---------- */
 let calYm = null, calSel = null;
 const shiftYm = (ym, n) => { const [y, m] = ym.split("-").map(Number); const t = new Date(y, m - 1 + n, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; };
@@ -1554,16 +1678,33 @@ function themeNow() {
   return c[c.length - 1] || null;
 }
 let tpDraft = null;
+const tkey = th => `${th.src}|${th.d}|${th.t}`;
+const isDone = th => !!th && S.tdone.some(x => x.key === tkey(th));
+const themeOpen = () => { const th = themeNow(); return th && !isDone(th) ? th : null; };
 function themeCard(d) {
-  const th = themeNow(), did = !!S.tday[d];
+  const th = themeNow(), done = isDone(th), did = !!S.tday[d];
+  let body;
+  if (th && !done) body = `<div class="lg-theme"><small>${R(`${md(th.d)}の${SRC[th.src]}で{見|み}つけた{課題|かだい}`)}</small>${esc(th.t)}</div>
+      <button class="btn sub sm tday ${did ? "on" : ""}" data-act="tday" aria-pressed="${did}">${R(did ? "✓ きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}した" : "きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}したらおす")}</button>
+      <button class="btn sub sm" data-act="themeDone">${R(`この{課題|かだい}ができるようになった！（+${THEME_EXP} EXP）`)}</button>`;
+  else if (th) body = `<div class="lg-theme cleared"><small>${R("✓ クリアした{課題|かだい}")}</small>${esc(th.t)}</div>
+      <div class="hint">${R("つぎの{課題|かだい}は、チーム{練習|れんしゅう}や{試合|しあい}で{見|み}つけて、{記録|きろく}の「つぎの{課題|かだい}」に{書|か}こう")}</div>
+      <div style="text-align:right"><button class="del" data-act="themeUndo">${R("{取|と}り{消|け}す")}</button></div>`;
+  else body = `<div class="hint">${R("{試合|しあい}やチーム{練習|れんしゅう}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、ここに{出|で}るよ")}</div>`;
   return `<section class="theme-card">
-    <div class="lg-head"><span class="eyebrow">MY THEME</span><span class="hint">${R("いまの{課題|かだい}")}</span></div>
+    <div class="lg-head"><span class="eyebrow">MY THEME</span><span class="hint">${R(`いまの{課題|かだい}・クリア ${S.tdone.length}`)}</span></div>
     <div class="loop"><span class="s">${R("{自主練|じしゅれん}")}</span><i>→</i><span class="t">${R("チーム{練習|れんしゅう}")}</span><i>→</i><span class="g">${R("{試合|しあい}")}</span><i>→</i><span class="k">${R("つぎの{課題|かだい}")}</span></div>
-    ${th ? `<div class="lg-theme"><small>${R(`${md(th.d)}の${SRC[th.src]}で{見|み}つけた{課題|かだい}`)}</small>${esc(th.t)}</div>
-      <button class="btn sub sm tday ${did ? "on" : ""}" data-act="tday" aria-pressed="${did}">${R(did ? "✓ きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}した" : "きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}したらおす")}</button>`
-      : `<div class="hint">${R("{試合|しあい}やチーム{練習|れんしゅう}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、ここに{出|で}るよ")}</div>`}
+    ${body}
     ${tpDraft ? "" : `<button class="btn wide" data-act="newTp">${R(`チーム{練習|れんしゅう}を{記録|きろく}する（+${TEAM_EXP} EXP）`)}</button>`}
   </section>${tpDraft ? tpForm() : ""}`;
+}
+// 目標の画面に出す、できるようになった課題の一覧
+function doneSection() {
+  const list = [...S.tdone].sort((x, y) => y.at.localeCompare(x.at));
+  return `<h2 class="sec">${R("できるようになった{課題|かだい}")}<small>${R(`${list.length}こ・1つ +${THEME_EXP} EXP`)}</small></h2>
+    <div class="panel">${list.length ? list.map(x => `<div class="mrow"><div class="t">${esc(x.t)}<small>${R(`${md(x.at)}にクリア（${md(x.d)}の${SRC[x.src] || ""}で{見|み}つけた）`)}</small></div>
+      <button class="del" data-act="delDone" data-v="${esc(x.key)}">${R("{消|け}す")}</button></div>`).join("")
+      : `<div class="hint">${R("れんしゅう{画面|がめん}の「いまの{課題|かだい}」ができるようになったら、「できるようになった！」をおそう。ここにたまっていくよ")}</div>`}</div>`;
 }
 function tpForm() {
   const p = tpDraft;
@@ -1700,6 +1841,7 @@ function vGoal(c) {
       ${!g.steps.length ? `<div class="note">${R("{今月|こんげつ}の{目標|もくひょう}に{近|ちか}づくための、すぐできる{小|ちい}さなことを{書|か}こう。れい：「{毎日|まいにち}{素振|すぶ}り50{回|かい}を1{週間|しゅうかん}{続|つづ}ける」")}</div>` : ""}
       <div class="addrow"><input id="step-new" maxlength="60" placeholder="${JH ? "新しいステップ" : "あたらしいステップ"}"><button class="btn sm" data-act="addStep">${R("{足|た}す")}</button></div>
     </div>
+    ${doneSection()}
     ${vReviews()}
   </div>`;
 }
@@ -1787,7 +1929,7 @@ function vHelp() {
       + P("{試合|しあい}の{記録|きろく}や、{夢|ゆめ}・{目標|もくひょう}も{書|か}いておけるよ。"), true)}
     ${sec("{画面|がめん}ごとのつかいかた",
       H("ホーム") + P("{選手|せんしゅ}カードと、きょうの{達成率|たっせいりつ}、{何日|なんにち}{続|つづ}けているかが{見|み}られる。")
-      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には「いまの{課題|かだい}」が{出|で}るよ。") + H("{課題|かだい}のつなげかた") + P("{自主練|じしゅれん}で{課題|かだい}を{練習|れんしゅう}する → チーム{練習|れんしゅう}で{実戦|じっせん}に{近|ちか}い{形|かたち}でためす → {試合|しあい}でためす → また{新|あたら}しい{課題|かだい}が{見|み}つかる。この{流|なが}れを{記録|きろく}でつなげよう。チーム{練習|れんしゅう}と{試合|しあい}では、{監督|かんとく}・コーチから{指導|しどう}を{受|う}けたことも{書|か}いておけるよ。") + P("チーム{練習|れんしゅう}と{試合|しあい}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、いちばん{新|あたら}しいものが「いまの{課題|かだい}」になって、れんしゅう{画面|がめん}に{出|で}るよ。チーム{練習|れんしゅう}は、れんしゅう{画面|がめん}の「チーム{練習|れんしゅう}を{記録|きろく}する」から{書|か}けるよ。")
+      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には「いまの{課題|かだい}」が{出|で}るよ。") + H("{課題|かだい}のつなげかた") + P("{自主練|じしゅれん}で{課題|かだい}を{練習|れんしゅう}する → チーム{練習|れんしゅう}で{実戦|じっせん}に{近|ちか}い{形|かたち}でためす → {試合|しあい}でためす → また{新|あたら}しい{課題|かだい}が{見|み}つかる。この{流|なが}れを{記録|きろく}でつなげよう。チーム{練習|れんしゅう}と{試合|しあい}では、{監督|かんとく}・コーチから{指導|しどう}を{受|う}けたことも{書|か}いておけるよ。") + P(`{課題|かだい}ができるようになったら「この{課題|かだい}ができるようになった！」をおそう（+${THEME_EXP} EXP）。できた{課題|かだい}は「もくひょう」にたまっていくよ。`) + H("{今週|こんしゅう}のまとめ") + P("ホームの「{今週|こんしゅう}のまとめを{画像|がぞう}にする」で、{自主練|じしゅれん}・{課題|かだい}・チーム{練習|れんしゅう}・{試合|しあい}を1{枚|まい}の{画像|がぞう}にできる。LINEで{監督|かんとく}・コーチやおうちの{人|ひと}に{送|おく}ろう。{先週|せんしゅう}のぶんも{作|つく}れるよ。") + H("メニューをチームで{配|くば}る") + P("{歯車|はぐるま}→「メニューを{配|くば}る・{受|う}け{取|と}る」。{監督|かんとく}やキャプテンが「コードにする」でLINEに{送|おく}り、みんなははりつけて「このメニューにする」をおすと、{同|おな}じメニューになるよ。") + P("チーム{練習|れんしゅう}と{試合|しあい}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、いちばん{新|あたら}しいものが「いまの{課題|かだい}」になって、れんしゅう{画面|がめん}に{出|で}るよ。チーム{練習|れんしゅう}は、れんしゅう{画面|がめん}の「チーム{練習|れんしゅう}を{記録|きろく}する」から{書|か}けるよ。")
       + H("きろく") + P("カレンダー（{自主練|じしゅれん}・チーム{練習|れんしゅう}・{試合|しあい}が1つに{出|で}る。{日|ひ}にちをおすと、その{日|ひ}の{中身|なかみ}が{見|み}られる）、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。" + (JH ? "身長・体重・50m走・遠投を記録すると、伸びがグラフで見られる。練習ノートもここに並ぶ。" : ""))
       + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。ピッチャーで{投|な}げた{日|ひ}は「ピッチャーで{投|な}げた」をおすと、{投球回|とうきゅうかい}・{奪三振|だつさんしん}などを{記録|きろく}できて、{防御率|ぼうぎょりつ}も{計算|けいさん}するよ。")
       + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
@@ -1804,6 +1946,7 @@ function vHelp() {
         <div><span>${R("{日替|ひが}わりチャレンジ")}</span><em>+20〜30</em></div>
         ${JH ? "" : `<div><span>${R("{週|しゅう}ボスをたおす")}</span><em>+${BOSS_EXP}</em></div>`}
         <div><span>${R("{記録|きろく}を{保存|ほぞん}（{週|しゅう}1{回|かい}）")}</span><em>+${BK_EXP}</em></div>
+        <div><span>${R("{課題|かだい}ができるようになった")}</span><em>+${THEME_EXP}</em></div>
         <div><span>${R("{野球|やきゅう}クイズに{正解|せいかい}")}</span><em>+${QUIZ_EXP}</em></div>
         ${JH ? `<div><span>体と数字の記録（1日1回）</span><em>+${BODY_EXP}</em></div>` : ""}</div>`
       + P("{素振|すぶ}りは{回数|かいすう}が{多|おお}いほどEXPがふえる（50{回|かい}で+15、600{回|かい}で+70）。"))}
@@ -1892,6 +2035,16 @@ function vSettings(c) {
         <div class="field"><label for="nm-ab">${R("{伸|の}びる{能力|のうりょく}")}</label><select id="nm-ab">${abOpts.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></div>
       </div>
       <button class="btn sub" data-act="addMenu">${R("{足|た}す")}</button>
+    </div>
+    <div class="panel form" id="menu-share">
+      <div style="font-weight:800">${R("メニューを{配|くば}る・{受|う}け{取|と}る")}</div>
+      <div class="hint">${R("チームで{同|おな}じメニューを{使|つか}う{時|とき}に。{監督|かんとく}やキャプテンがメニューを{作|つく}って「コードにする」をおし、LINEなどでみんなに{送|おく}ろう。")}</div>
+      <button class="btn sub" data-act="exportMenu">${R("いまのメニューをコードにする")}</button>
+      ${menuMsg ? `<div class="bk-msg">${R(menuMsg)}</div>` : ""}
+      ${menuText ? `<textarea class="bk-text" readonly aria-label="メニューのコード">${esc(menuText)}</textarea>` : ""}
+      <div class="field"><label for="menu-in">${R("{受|う}け{取|と}ったコードをはりつける")}</label><textarea id="menu-in" class="bk-text" placeholder="TRMENU1:..."></textarea></div>
+      <button class="btn sub" data-act="importMenu">${R("このメニューにする（いまのメニューと{入|い}れかわる）")}</button>
+      <div class="hint">${R("これまでの{練習|れんしゅう}の{記録|きろく}は{消|き}えないよ")}</div>
     </div>
     ${JH ? "" : `    <h2 class="sec" id="rewards">${R("おうちのごほうび")}</h2>
     <div class="panel form">
@@ -2318,7 +2471,7 @@ const A = {
   delReward(id) { S.rewards = S.rewards.filter(x => x.id !== id); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
   async cardImage() {
     showOv(`<div class="busy" style="justify-content:center"><span class="spin"></span>${R("カードを{作|つく}っています…")}</div>`);
-    try { cardUrl = await drawCard(); } catch (e) { cardUrl = null; }
+    shareName = "player-card"; try { cardUrl = await drawCard(); } catch (e) { cardUrl = null; }
     if (!cardUrl) { showOv(`<div class="mid">${R("うまく{作|つく}れなかったよ")}</div>`); return; }
     showOv(`<img class="card-img keep" src="${cardUrl}" alt="選手カード">
       <div class="sm2">${R("{画像|がぞう}を{長|なが}おしすると{保存|ほぞん}できるよ")}</div>
@@ -2327,10 +2480,39 @@ const A = {
   async shareCard() {
     if (!cardUrl) return;
     try {
-      const blob = await (await fetch(cardUrl)).blob(), file = new File([blob], `player-card-${ymd()}.png`, { type: "image/png" });
+      const blob = await (await fetch(cardUrl)).blob(), file = new File([blob], `${shareName}-${ymd()}.png`, { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
     } catch (e) { if (e && e.name === "AbortError") return; }
-    try { const a = document.createElement("a"); a.href = cardUrl; a.download = `player-card-${ymd()}.png`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+    try { const a = document.createElement("a"); a.href = cardUrl; a.download = `${shareName}-${ymd()}.png`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+  },
+  async weekImage(v) {
+    const off = Number(v) || 0;
+    showOv(`<div class="busy" style="justify-content:center"><span class="spin"></span>${R("まとめを{作|つく}っています…")}</div>`);
+    shareName = off ? "last-week" : "this-week"; try { cardUrl = await drawWeek(off); } catch (e) { cardUrl = null; }
+    if (!cardUrl) { showOv(`<div class="mid">${R("うまく{作|つく}れなかったよ")}</div>`); return; }
+    showOv(`<div class="row2 seg-wk"><button class="btn sm ${off ? "sub" : ""}" data-act="weekImage" data-v="0">${R("{今週|こんしゅう}")}</button><button class="btn sm ${off ? "" : "sub"}" data-act="weekImage" data-v="-1">${R("{先週|せんしゅう}")}</button></div>
+      <img class="card-img week-img keep" src="${cardUrl}" alt="まとめ">
+      <div class="sm2">${R("LINEで{監督|かんとく}・コーチやおうちの{人|ひと}に{送|おく}ろう")}</div>
+      <div class="row2" style="margin-top:10px"><button class="btn" data-act="shareCard">${R("{送|おく}る・{保存|ほぞん}する")}</button><button class="btn sub" data-act="closeOv">${R("とじる")}</button></div>`);
+  },
+  themeDone() {
+    const th = themeOpen(); if (!th) return; const before = compute();
+    S.tdone.push({ key: tkey(th), t: th.t, src: th.src, d: th.d, at: ymd() }); save(); render();
+    celebrate(before, compute(), R("{課題|かだい}クリア！") + `<br><span style='font-size:.5em'>+${THEME_EXP} EXP</span>`);
+  },
+  themeUndo() { const th = themeNow(); if (!th) return; S.tdone = S.tdone.filter(x => x.key !== tkey(th)); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
+  delDone(k) { S.tdone = S.tdone.filter(x => x.key !== k); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
+  async exportMenu() {
+    const code = menuCode(), text = `トレーニングロードの練習メニュー（${S.menu.filter(m => m.on).map(m => plain(m.name)).join("・")}）\n設定の「メニューを配る・受け取る」に貼りつけてね\n${code}`;
+    try { await navigator.clipboard.writeText(text); menuText = ""; menuMsg = "コピーしたよ。LINEなどにはりつけて{送|おく}ろう"; }
+    catch (e) { menuText = text; menuMsg = "{下|した}の{文字|もじ}をぜんぶえらんで、コピーしてね"; }
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  },
+  importMenu() {
+    const el = document.getElementById("menu-in"), m = parseMenuCode(el && el.value);
+    if (!m || !m.length) { menuText = ""; menuMsg = "コードが{読|よ}めなかったよ。「TRMENU1:」からあとを{全部|ぜんぶ}はりつけてね"; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+    S.menu = m; save(); menuText = ""; menuMsg = `メニューを${m.length}こ{受|う}け{取|と}ったよ`;
+    const y = window.scrollY; render(); window.scrollTo(0, y);
   },
   closeOv() { document.getElementById("ov").hidden = true; },
   tool(id) { audioUnlock(); openTool(id); },
@@ -2376,12 +2558,12 @@ const A = {
   calMove(v) { calYm = shiftYm(calYm || ymd().slice(0, 7), Number(v)); calSel = null; const y = window.scrollY; render(); window.scrollTo(0, y); },
   calSel(d) { calSel = d; const y = window.scrollY; render(); window.scrollTo(0, y); },
   tday() {
-    const d = ymd(), th = themeNow(); if (!th) return;
+    const d = ymd(), th = themeOpen(); if (!th) return;
     if (S.tday[d]) delete S.tday[d]; else S.tday[d] = th.t;
     save(); const y = window.scrollY; render(); window.scrollTo(0, y);
     if (S.tday[d]) beep(1320, .12, .15);
   },
-  newTp() { const th = themeNow(); tpDraft = { date: ymd(), theme: th ? th.t : "", did: "", coach: "", next: "" }; render(); const el = document.getElementById("tp-form"); if (el) el.scrollIntoView({ block: "start" }); },
+  newTp() { const th = themeOpen(); tpDraft = { date: ymd(), theme: th ? th.t : "", did: "", coach: "", next: "" }; render(); const el = document.getElementById("tp-form"); if (el) el.scrollIntoView({ block: "start" }); },
   cancelTp() { tpDraft = null; render(); },
   saveTp() {
     const p = tpDraft; if (!p) return;
@@ -2392,7 +2574,7 @@ const A = {
     celebrate(before, compute(), "");
   },
   delTp(id) { S.tp = S.tp.filter(p => p.id !== id); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
-  newGame() { draft = newDraft(); const th = themeNow(); draft.theme = th ? th.t : ""; render(); },
+  newGame() { draft = newDraft(); const th = themeOpen(); draft.theme = th ? th.t : ""; render(); },
   bodyKey(v) { bodyKey = v; const y = window.scrollY; render(); window.scrollTo(0, y); },
   addBody() {
     const before = compute(), b = { id: uid(), date: document.getElementById("bd-date").value || ymd() }; let any = false;
@@ -2451,7 +2633,7 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delTp", "delBody", "delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore", "delReward"]);
+const NEEDS_CONFIRM = new Set(["delDone", "importMenu", "delTp", "delBody", "delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore", "delReward"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "toggle") audioUnlock();
@@ -2502,6 +2684,7 @@ function seedDemo() {
   S.games.push({ id: "demo1", date: addDays(t, -4), opp: JH ? "サンプル中学校" : "サンプル少年団", p: { outs: 9, np: 52, h: 3, k: 4, bb: 1, r: 1, er: 1 }, my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", coach: "追い込まれてからのファウルはよかった、と言われた", theme: "追い込まれたら、ストライクはふる", next: "速いストレートに振りおくれた。速い球に強くなる", at: 2 });
   S.tp = [{ id: "dt1", date: addDays(t, -6), theme: "外のボールを見きわめる", did: "ボール球はふらなかったけど、見逃し三振が1回", next: "追い込まれたら、ストライクはふる", at: 1 },
     { id: "dt2", date: addDays(t, -2), theme: "速い球に振りおくれない", did: "マシン120kmで、5本中3本は前にとんだ", coach: "トップを早くつくって、待つ時間をつくるように言われた", next: "速い球のティーを毎日50球", at: 3 }];
+  S.tdone = [{ key: "tp|" + addDays(t, -6) + "|追い込まれたら、ストライクはふる", t: "追い込まれたら、ストライクはふる", src: "tp", d: addDays(t, -6), at: addDays(t, -3) }];
   S.tday = { [addDays(t, -5)]: "追い込まれたら、ストライクはふる", [addDays(t, -1)]: "速い球のティーを毎日50球" };
   S.goals = { dream: JH ? "甲子園に出る" : "プロやきゅうせんしゅになる", year: JH ? "夏の大会でレギュラー" : "レギュラーになる", month: "打率3割", monthKey: t.slice(0, 7), steps: [{ id: "ds1", text: "素振り200回を1週間つづける", done: false }, { id: "ds2", text: "毎日ストレッチ", done: true, doneDate: addDays(t, -10) }] };
   if (!JH) S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
