@@ -213,6 +213,43 @@ label.btn { display: inline-flex; align-items: center; justify-content: center; 
 .stat small { font-size: 12px; color: var(--dim); font-weight: 800; }
 .stat b { display: block; font-family: var(--font-d); font-size: 26px; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 1.3; }
 .stat b span { font-size: 13px; margin-left: 2px; color: var(--dim); }
+.theme-card { background: linear-gradient(135deg, #061a14, #123a2c); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.loop { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; font-size: 12px; font-weight: 800; }
+.loop span { padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.loop .s { color: var(--turf); } .loop .t { color: #6aa8ff; } .loop .g { color: var(--score); } .loop .k { color: var(--light); }
+.loop i { font-style: normal; color: var(--dim); }
+.tday.on { background: rgba(63,209,122,.18); border-color: var(--turf); color: var(--turf); }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.cal-nav b { font-size: 16px; }
+.cal-nav button { width: 40px; height: 40px; border-radius: 12px; background: var(--panel2); color: var(--ink); font-size: 22px; border: 1px solid var(--line); }
+.cal-nav button:disabled { opacity: .3; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-wd { text-align: center; font-size: 11px; color: var(--dim); font-weight: 800; padding-bottom: 2px; }
+.cal-wd.sun { color: #ff8a8a; } .cal-wd.sat { color: #8ab8ff; }
+.cal-d { min-width: 0; min-height: 46px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1.5px solid transparent; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 5px 0 4px; font: inherit; }
+.cal-d .n { font-size: 13px; font-weight: 800; line-height: 1; }
+.cal-d.empty { background: none; }
+.cal-d.fut { opacity: .35; }
+.cal-d.now { border-color: rgba(255,216,74,.6); }
+.cal-d.sel { background: rgba(255,216,74,.2); border-color: var(--light); }
+.mks { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.mk { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.mk.self { background: var(--turf); }
+.mk.self.clear { background: var(--light); box-shadow: 0 0 4px var(--light); }
+.mk.tp { background: #5aa0ff; border-radius: 2px; }
+.mk.gm { background: var(--score); border-radius: 1px; transform: rotate(45deg) scale(.9); }
+.mk.rest { border: 1.5px solid var(--dim); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--dim); margin-top: 10px; }
+.cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.cal-sum { margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--dim); }
+.day-detail { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.dd-head { font-weight: 800; }
+.dd { margin-top: 8px; border-left: 3px solid var(--line); background: rgba(0,0,0,.2); border-radius: 8px; padding: 6px 10px; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+.dd > * + * { margin-top: 4px; }
+.dd small { display: block; font-size: 11px; font-weight: 800; color: var(--dim); }
+.dd.self { border-color: var(--turf); } .dd.tp { border-color: #5aa0ff; } .dd.gmd { border-color: var(--score); } .dd.rest, .dd.note { border-color: var(--dim); }
+.dd-line { font-size: 12px; color: var(--dim); font-weight: 700; }
+.dd-del { text-align: right; }
 .heat-wrap { overflow-x: auto; }
 .heat { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 4px; width: max-content; }
 .heat i { width: 15px; height: 15px; border-radius: 4px; background: rgba(255,255,255,.06); }
@@ -530,6 +567,7 @@ const TEAM = (window.TR_TEAM && String(window.TR_TEAM.name || "").trim()) || "";
 /* ---------- きまり（ゲームの数字） ---------- */
 const CLEAR_BONUS = 50;   // 今日のメニュー全部クリア
 const GAME_EXP = 30;      // 試合を記録
+const TEAM_EXP = 15;      // チーム練習を記録
 const STEP_EXP = 100;     // スモールステップ達成
 const MAX_LV = 50;
 const needFor = lv => 60 + 20 * (lv - 1);   // 次のレベルまでに要るEXP
@@ -597,6 +635,8 @@ function normalize(raw) {
   s.quiz = s.quiz || {};
   s.body = s.body || [];     // 体と数字の記録（中学生版）
   s.notes = s.notes || {};   // 練習ノート（中学生版）{ 日付: 文 }
+  s.tp = s.tp || [];         // チーム練習の記録 [{ id, date, theme, did, next, at }]
+  s.tday = s.tday || {};     // 自主練で課題を練習した日 { 日付: 課題 }
   if (!s.started) s.started = Object.keys(s.logs).sort()[0] || ymd();
   return s;
 }
@@ -737,7 +777,7 @@ const JH_WORDS = [["おうちの人に見せよう", "家族に見せよう"], [
   ["れんしゅう", "練習"], ["きろく", "記録"], ["しあい", "試合"], ["もくひょう", "目標"], ["なまえ", "名前"], ["ぜんぶ", "全部"],
   ["ふりかえり", "振り返り"], ["ほぞん", "保存"], ["つかいかた", "使い方"], ["ちゅうい", "注意"], ["えらんで", "選んで"], ["えらぶ", "選ぶ"],
   ["こんげつ", "今月"], ["ことし", "今年"], ["じぶんたち", "自分たち"], ["じぶん", "自分"], ["さいご", "最後"], ["たんい", "単位"],
-  ["きょう", "今日"], ["あした", "明日"], ["いちばん", "一番"], ["まだないよ", "まだありません"]];
+  ["きょう", "今日"], ["つぎ", "次"], ["ためす", "試す"], ["あした", "明日"], ["いちばん", "一番"], ["まだないよ", "まだありません"]];
 const jw = s => { for (const [a, b] of JH_WORDS) s = s.split(a).join(b); return s; };
 const R = JH ? s => esc(jw(plain(s))) : s => esc(s).replace(/\{([^|{}]+)\|([^{}]+)\}/g, "<ruby>$1<rt>$2</rt></ruby>");
 const pad = n => String(n).padStart(2, "0");
@@ -986,6 +1026,7 @@ function compute() {
   let pitchGames = 0, pk = 0;
   for (const g of S.games) { const h = hitsOf(g.ab); hits += h; hr += g.ab.hr || 0; maxHits = Math.max(maxHits, h); if (g.p) { pitchGames++; pk += g.p.k || 0; } }
   exp += S.games.length * GAME_EXP;
+  exp += S.tp.length * TEAM_EXP;
   const steps = S.goals.steps.filter(s => s.done).length;
   exp += steps * STEP_EXP;
   const reviews = Object.keys(S.reviews).length;
@@ -997,7 +1038,7 @@ function compute() {
   let lv = 1, rest = exp;
   while (lv < MAX_LV && rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
   const c = { exp, ab, totals, days: days.length, best, cur, lv, into: lv >= MAX_LV ? 1 : rest, need: lv >= MAX_LV ? 1 : needFor(lv),
-    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays };
+    swing, clears, chCount, dmg, bossWins, games: S.games.length, hits, hr, maxHits, steps, reviews, quizOk, pitchGames, pk, bodyDays, tps: S.tp.length };
   c.badges = BADGES.filter(b => b.ok(c)).map(b => b.id);
   return c;
 }
@@ -1025,6 +1066,8 @@ const BADGES = [
   { id: "game10", mark: "10", t: 1, name: "{試合|しあい}10{回|かい}", desc: "{試合|しあい}を10{回|かい}{記録|きろく}した", ok: c => c.games >= 10 },
   { id: "pit1", mark: "投", t: 0, name: "{初登板|はつとうばん}", desc: "ピッチャーとして{投|な}げた{記録|きろく}をつけた", ok: c => c.pitchGames >= 1 },
   { id: "k10", mark: "K", t: 1, name: "{奪三振|だつさんしん}10", desc: "{奪三振|だつさんしん}の{合計|ごうけい}が10", ok: c => c.pk >= 10 },
+  { id: "tp1", mark: "チ", t: 0, name: "チーム{練習|れんしゅう}の{記録|きろく}", desc: "チーム{練習|れんしゅう}の{課題|かだい}を{記録|きろく}した", ok: c => c.tps >= 1 },
+  { id: "tp10", mark: "10", t: 1, name: "チーム{練習|れんしゅう}10{回|かい}", desc: "チーム{練習|れんしゅう}を10{回|かい}{記録|きろく}した", ok: c => c.tps >= 10 },
   { id: "step1", mark: "歩", t: 0, name: "ステップ{達成|たっせい}", desc: "スモールステップを1つ{達成|たっせい}", ok: c => c.steps >= 1 },
   { id: "step5", mark: "5", t: 1, name: "ステップ5つ", desc: "スモールステップを5つ{達成|たっせい}", ok: c => c.steps >= 5 },
   { id: "rev1", mark: "振", t: 0, name: "はじめてのふりかえり", desc: "{月|つき}のふりかえりをした", ok: c => c.reviews >= 1 },
@@ -1236,6 +1279,7 @@ function vTrain(c) {
   const practiced = !!(S.logs[d] && Object.keys(S.logs[d].done).length), isRest = !!S.rest[d];
   const restLeft = REST_PER_WEEK - restUsedInWeek(weekStart(d));
   return `<div class="stack">
+    ${themeCard(d)}
     ${lastGameCard()}
     ${ch ? `<section class="chal ${chOk ? "ok" : ""}"><span class="chal-mark">${chOk ? CHECKW : "!"}</span>
       <span class="chal-tx"><small>${R("きょうのチャレンジ")}</small><b>${R(ch.text)}</b></span><span class="chal-xp">+${ch.bonus}</span></section>` : ""}
@@ -1269,17 +1313,6 @@ function vTrain(c) {
 
 function vRecord(c) {
   const today = ymd();
-  // 18週ぶんのカレンダー（日曜はじまり）
-  const [y, m, d] = today.split("-").map(Number);
-  const start = addDays(today, -(new Date(y, m - 1, d).getDay()) - 17 * 7);
-  let cells = "";
-  for (let i = 0; i < 18 * 7; i++) {
-    const day = addDays(start, i);
-    if (day > today) { cells += `<i class="fut"></i>`; continue; }
-    const L = S.logs[day]; const n = L ? Object.keys(L.done || {}).length : 0;
-    const lvl = !n ? "" : L.clear ? "l3" : n >= 3 ? "l2" : "l1";
-    cells += `<i class="${lvl} ${day === today ? "now" : ""}" title="${day}"></i>`;
-  }
   // レーダー
   const cx = 150, cy = 140, r = 95;
   const pt = (i, f) => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return [cx + Math.cos(a) * r * f, cy + Math.sin(a) * r * f]; };
@@ -1295,10 +1328,8 @@ function vRecord(c) {
       <div class="stat"><small>${R("たまったEXP")}</small><b>${c.exp.toLocaleString()}</b></div>
       <div class="stat"><small>${R("{試合|しあい}の{記録|きろく}")}</small><b>${S.games.length}<span>${R("{試合|しあい}")}</span></b></div>
     </div>
+    ${calendarSection()}
     ${compareSection()}
-    <h2 class="sec">${R("{練習|れんしゅう}カレンダー")}<small>${R("18{週|しゅう}ぶん")}</small></h2>
-    <div class="panel"><div class="heat-wrap"><div class="heat">${cells}</div></div>
-      <div class="legend">${R("{少|すく}ない")} <i style="background:rgba(63,209,122,.35)"></i><i style="background:rgba(63,209,122,.65)"></i><i style="background:var(--turf)"></i> ${R("ぜんぶクリア")}</div></div>
     <h2 class="sec">${R("{能力|のうりょく}")}<small>${R("{練習|れんしゅう}で{育|そだ}つ")}</small></h2>
     <div class="panel"><svg class="radar" viewBox="0 0 300 290" role="img" aria-label="能力のグラフ">${grid}${axes}
       <polygon points="${vals}" fill="rgba(255,216,74,.28)" stroke="var(--light)" stroke-width="2.5" stroke-linejoin="round"/>${labels}</svg></div>
@@ -1310,6 +1341,48 @@ function vRecord(c) {
     <div class="badges">${BADGES.map(b => badgeHtml(b, c.badges.includes(b.id))).join("")}</div>
   </div>`;
 }
+/* ---------- カレンダー（自主練・チーム練習・試合を1つに） ---------- */
+let calYm = null, calSel = null;
+const shiftYm = (ym, n) => { const [y, m] = ym.split("-").map(Number); const t = new Date(y, m - 1 + n, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; };
+function dayInfo(d) {
+  const L = S.logs[d], n = L ? Object.keys(L.done || {}).length : 0;
+  return { self: n, clear: !!(L && L.clear), rest: !!S.rest[d], tp: S.tp.filter(p => p.date === d), games: S.games.filter(g => g.date === d), tday: S.tday[d], note: (S.notes || {})[d] };
+}
+function calendarSection() {
+  const today = ymd(), ym = calYm || today.slice(0, 7), [y, m] = ym.split("-").map(Number);
+  const first = new Date(y, m - 1, 1).getDay(), n = daysIn(ym);
+  const sel = calSel && calSel.startsWith(ym) ? calSel : (today.startsWith(ym) ? today : null);
+  let cells = WD.map((w, i) => `<b class="cal-wd ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</b>`).join("");
+  for (let i = 0; i < first; i++) cells += `<span class="cal-d empty"></span>`;
+  let sDays = 0, tps = 0, gms = 0;
+  for (let k = 1; k <= n; k++) {
+    const d = `${ym}-${pad(k)}`, f = dayInfo(d);
+    if (f.self) sDays++; tps += f.tp.length; gms += f.games.length;
+    const mk = (f.self ? `<i class="mk self ${f.clear ? "clear" : ""}"></i>` : f.rest ? `<i class="mk rest"></i>` : "")
+             + (f.tp.length ? `<i class="mk tp"></i>` : "") + (f.games.length ? `<i class="mk gm"></i>` : "");
+    cells += `<button class="cal-d ${d === sel ? "sel" : ""} ${d === today ? "now" : ""} ${d > today ? "fut" : ""}" data-act="calSel" data-v="${d}" aria-label="${m}月${k}日"><span class="n">${k}</span><span class="mks">${mk}</span></button>`;
+  }
+  return `<h2 class="sec">${R("カレンダー")}<small>${R("{日|ひ}にちをおすと{中身|なかみ}が{見|み}られる")}</small></h2>
+    <div class="panel">
+      <div class="cal-nav"><button data-act="calMove" data-v="-1" aria-label="前の月">‹</button><b>${R(ymLabel(ym))}</b><button data-act="calMove" data-v="1" aria-label="次の月" ${ym >= today.slice(0, 7) ? "disabled" : ""}>›</button></div>
+      <div class="cal">${cells}</div>
+      <div class="cal-legend"><span><i class="mk self"></i>${R("{自主練|じしゅれん}")}</span><span><i class="mk self clear"></i>${R("ぜんぶクリア")}</span><span><i class="mk tp"></i>${R("チーム{練習|れんしゅう}")}</span><span><i class="mk gm"></i>${R("{試合|しあい}")}</span><span><i class="mk rest"></i>${R("{休養日|きゅうようび}")}</span></div>
+      <div class="cal-sum">${R(`{自主練|じしゅれん} ${sDays}{日|にち}・チーム{練習|れんしゅう} ${tps}{回|かい}・{試合|しあい} ${gms}`)}</div>
+      ${sel ? dayDetail(sel) : ""}
+    </div>`;
+}
+function dayDetail(d) {
+  const f = dayInfo(d), L = S.logs[d]; let h = "";
+  if (f.self) h += `<div class="dd self"><small>${R("{自主練|じしゅれん}")}${f.clear ? R("・ぜんぶクリア") : ""}</small>${Object.values(L.done).map(e => R(`${e.name}${e.count != null ? ` ${e.count}${e.unit || ""}` : ""}`)).join("、")}</div>`;
+  if (f.tday) h += `<div class="dd self"><small>${R("{自主練|じしゅれん}で{練習|れんしゅう}した{課題|かだい}")}</small>${esc(f.tday)}</div>`;
+  if (f.rest && !f.self) h += `<div class="dd rest"><small>${R("{休養日|きゅうようび}")}</small>${R("{体|からだ}を{休|やす}めた{日|ひ}")}</div>`;
+  for (const p of f.tp) h += `<div class="dd tp"><small>${R("チーム{練習|れんしゅう}")}</small>${tpHtml(p)}<div class="dd-del"><button class="del" data-act="delTp" data-v="${p.id}">${R("{消|け}す")}</button></div></div>`;
+  for (const g of f.games) { const res = g.my > g.their ? "{勝|か}ち" : g.my < g.their ? "{負|ま}け" : "{引|ひ}き{分|わ}け";
+    h += `<div class="dd gmd"><small>${R("{試合|しあい}")}</small><b>vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}　${g.my} - ${g.their}　${R(res)}</b><div class="dd-line">${R(gameLine(g))}${g.p ? `<br>${R(pitLine(g.p))}` : ""}</div>${g.theme ? `<div><small>${R("{意識|いしき}した{課題|かだい}")}</small>${esc(g.theme)}</div>` : ""}${g.good ? `<div><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}${g.next ? `<div><small>${R("つぎの{課題|かだい}")}</small>${esc(g.next)}</div>` : ""}</div>`; }
+  if (f.note) h += `<div class="dd note"><small>練習ノート</small>${esc(f.note)}</div>`;
+  return `<div class="day-detail"><div class="dd-head">${R(jpDate(d))}</div>${h || `<div class="hint">${R("この{日|ひ}の{記録|きろく}はないよ")}</div>`}</div>`;
+}
+
 /* ---------- 体と数字の記録（中学生版） ---------- */
 // low: 小さいほどよい（50m走のタイム）
 const BODY = [["h", "身長", "cm", false], ["w", "体重", "kg", false], ["r50", "50m走", "秒", true], ["thr", "遠投", "m", false]];
@@ -1384,7 +1457,7 @@ function compareSection() {
 }
 
 const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["ks", "{空振|からぶ}り{三振|さんしん}"], ["kl", "{見逃|みのが}し{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
-const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "", good: "", next: "",
+const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "", good: "", next: "", theme: "",
   pitched: false, p: { outs: 0, np: "", h: 0, k: 0, bb: 0, r: 0, er: 0 } });
 // 投手の成績。outs はとったアウトの数（投球回 ＝ outs ÷ 3）
 const PIT = [["h", "{被安打|ひあんだ}"], ["k", "{奪三振|だつさんしん}"], ["bb", "{与四死球|よししきゅう}"], ["r", "{失点|しってん}"], ["er", "{自責点|じせきてん}"]];
@@ -1411,10 +1484,50 @@ function pitLine(p) {
   return parts.join("・");
 }
 function gameNotes(g) {
-  return (g.good ? `<div class="memo"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : "")
-       + (g.next ? `<div class="memo next"><small>${R("つぎにがんばること")}</small>${esc(g.next)}</div>` : "")
+  return (g.theme ? `<div class="memo"><small>${R("{意識|いしき}した{課題|かだい}")}</small>${esc(g.theme)}</div>` : "")
+       + (g.good ? `<div class="memo"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : "")
+       + (g.next ? `<div class="memo next"><small>${R("つぎの{課題|かだい}")}</small>${esc(g.next)}</div>` : "")
        + (g.memo ? `<div class="memo">${esc(g.memo)}</div>` : "");
 }
+/* ---------- 課題のつながり（自主練 → チーム練習 → 試合 → 自主練） ---------- */
+const SRC = { game: "{試合|しあい}", tp: "チーム{練習|れんしゅう}" };
+const md = s => `${Number(s.slice(5, 7))}/${Number(s.slice(8))}`;
+// いまの課題：試合とチーム練習の「つぎの課題」のうち、いちばん新しいもの
+function themeNow() {
+  const c = [...S.games.filter(g => g.next).map(g => ({ t: g.next, d: g.date, src: "game", at: g.at || 0 })),
+             ...S.tp.filter(p => p.next).map(p => ({ t: p.next, d: p.date, src: "tp", at: p.at || 0 }))];
+  c.sort((a, b) => a.d.localeCompare(b.d) || a.at - b.at);
+  return c[c.length - 1] || null;
+}
+let tpDraft = null;
+function themeCard(d) {
+  const th = themeNow(), did = !!S.tday[d];
+  return `<section class="theme-card">
+    <div class="lg-head"><span class="eyebrow">MY THEME</span><span class="hint">${R("いまの{課題|かだい}")}</span></div>
+    <div class="loop"><span class="s">${R("{自主練|じしゅれん}")}</span><i>→</i><span class="t">${R("チーム{練習|れんしゅう}")}</span><i>→</i><span class="g">${R("{試合|しあい}")}</span><i>→</i><span class="k">${R("つぎの{課題|かだい}")}</span></div>
+    ${th ? `<div class="lg-theme"><small>${R(`${md(th.d)}の${SRC[th.src]}で{見|み}つけた{課題|かだい}`)}</small>${esc(th.t)}</div>
+      <button class="btn sub sm tday ${did ? "on" : ""}" data-act="tday" aria-pressed="${did}">${R(did ? "✓ きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}した" : "きょうの{自主練|じしゅれん}で、この{課題|かだい}を{練習|れんしゅう}したらおす")}</button>`
+      : `<div class="hint">${R("{試合|しあい}やチーム{練習|れんしゅう}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、ここに{出|で}るよ")}</div>`}
+    ${tpDraft ? "" : `<button class="btn wide" data-act="newTp">${R(`チーム{練習|れんしゅう}を{記録|きろく}する（+${TEAM_EXP} EXP）`)}</button>`}
+  </section>${tpDraft ? tpForm() : ""}`;
+}
+function tpForm() {
+  const p = tpDraft;
+  return `<div class="panel form" id="tp-form">
+    <div style="font-family:var(--font-d);font-size:18px">${R("チーム{練習|れんしゅう}の{記録|きろく}")}</div>
+    <div class="row2"><div class="field"><label for="tp-date">${R("{日|ひ}にち")}</label><input id="tp-date" type="date" data-tp="date" value="${esc(p.date)}"></div><div></div></div>
+    <div class="field"><label for="tp-theme">${R("チーム{練習|れんしゅう}でためす{課題|かだい}")}</label><textarea id="tp-theme" data-tp="theme" maxlength="300" placeholder="${JH ? "例：シートノックで、捕ってから素早く投げる" : "れい：ノックで、とってからすぐなげる"}">${esc(p.theme)}</textarea></div>
+    <div class="field"><label for="tp-did">${R("やってみてどうだった？（できたこと・{気|き}づいたこと）")}</label><textarea id="tp-did" data-tp="did" maxlength="300" placeholder="${JH ? "例：正面のゴロはできた。逆シングルで焦って悪送球が2回" : "れい：しょうめんのゴロはできた。よこのゴロでエラーした"}">${esc(p.did)}</textarea></div>
+    <div class="field"><label for="tp-next">${R("つぎの{課題|かだい}（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="tp-next" data-tp="next" maxlength="300" placeholder="${JH ? "例：逆シングルの捕球を自主練で30本" : "れい：よこのゴロをとるれんしゅうを30かい"}">${esc(p.next)}</textarea></div>
+    <div class="row2"><button class="btn sub" data-act="cancelTp">${R("やめる")}</button><button class="btn" data-act="saveTp">${R("{記録|きろく}する")}</button></div>
+  </div>`;
+}
+function tpHtml(p) {
+  return (p.theme ? `<div><small>${R("ためした{課題|かだい}")}</small>${esc(p.theme)}</div>` : "")
+       + (p.did ? `<div><small>${R("やってみて")}</small>${esc(p.did)}</div>` : "")
+       + (p.next ? `<div><small>${R("つぎの{課題|かだい}")}</small>${esc(p.next)}</div>` : "");
+}
+
 // れんしゅう画面のいちばん上に出す、いちばん新しい試合
 function lastGameCard() {
   const g = [...S.games].sort((a, b) => b.date.localeCompare(a.date))[0]; if (!g) return "";
@@ -1423,10 +1536,8 @@ function lastGameCard() {
     <div class="lg-head"><span class="eyebrow">LAST GAME</span><span class="hint">${R(jpDate(g.date))}</span></div>
     <div class="lg-score"><span class="vs">vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}</span><span class="res ${res[0]}">${R(res[1])}</span><b>${g.my} - ${g.their}</b></div>
     <div class="line">${R(gameLine(g))}${g.p ? `<br>${R(pitLine(g.p))}` : ""}</div>
-    ${g.next ? `<div class="lg-theme"><small>${R("つぎにがんばること → きょうのテーマ")}</small>${esc(g.next)}</div>` : ""}
     ${g.good ? `<div class="lg-good"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}
-    ${!g.next && !g.good && g.memo ? `<div class="lg-good">${esc(g.memo)}</div>` : ""}
-    ${!g.next && !g.good && !g.memo ? `<div class="hint">${R("{試合|しあい}の{記録|きろく}に「つぎにがんばること」を{書|か}くと、ここに{出|で}るよ")}</div>` : ""}
+    ${!g.good && g.memo ? `<div class="lg-good">${esc(g.memo)}</div>` : ""}
   </section>`;
 }
 function vGame(c) {
@@ -1496,8 +1607,9 @@ function gameForm() {
       <div class="counters">${PIT.map(([k, n]) => cnt("p." + k, n, g.p[k])).join("")}</div>
       <div class="hint">${R("{自責点|じせきてん}がわからない{時|とき}は、{失点|しってん}と{同|おな}じ{数|かず}でOK")}</div>
     </div>` : ""}
+    <div class="field"><label for="g-theme">${R("この{試合|しあい}で{意識|いしき}した{課題|かだい}")}</label><textarea id="g-theme" data-draft="theme" maxlength="300">${esc(g.theme || "")}</textarea></div>
     <div class="field"><label for="g-good">${R("よかったこと")}</label><textarea id="g-good" data-draft="good" maxlength="300">${esc(g.good)}</textarea></div>
-    <div class="field"><label for="g-next">${R("つぎにがんばること（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="g-next" data-draft="next" maxlength="300">${esc(g.next)}</textarea></div>
+    <div class="field"><label for="g-next">${R("つぎの{課題|かだい}（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="g-next" data-draft="next" maxlength="300">${esc(g.next)}</textarea></div>
     <div class="row2"><button class="btn sub" data-act="cancelGame">${R("やめる")}</button><button class="btn" data-act="saveGame">${R("{記録|きろく}する")}</button></div>
   </div>`;
 }
@@ -1617,8 +1729,8 @@ function vHelp() {
       + P("{試合|しあい}の{記録|きろく}や、{夢|ゆめ}・{目標|もくひょう}も{書|か}いておけるよ。"), true)}
     ${sec("{画面|がめん}ごとのつかいかた",
       H("ホーム") + P("{選手|せんしゅ}カードと、きょうの{達成率|たっせいりつ}、{何日|なんにち}{続|つづ}けているかが{見|み}られる。")
-      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には{前|まえ}の{試合|しあい}と「つぎにがんばること」が{出|で}るよ。")
-      + H("きろく") + P("{練習|れんしゅう}カレンダー、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。" + (JH ? "身長・体重・50m走・遠投を記録すると、伸びがグラフで見られる。練習ノートもここに並ぶ。" : ""))
+      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には「いまの{課題|かだい}」が{出|で}るよ。") + H("{課題|かだい}のつなげかた") + P("{自主練|じしゅれん}で{課題|かだい}を{練習|れんしゅう}する → チーム{練習|れんしゅう}で{実戦|じっせん}に{近|ちか}い{形|かたち}でためす → {試合|しあい}でためす → また{新|あたら}しい{課題|かだい}が{見|み}つかる。この{流|なが}れを{記録|きろく}でつなげよう。") + P("チーム{練習|れんしゅう}と{試合|しあい}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、いちばん{新|あたら}しいものが「いまの{課題|かだい}」になって、れんしゅう{画面|がめん}に{出|で}るよ。チーム{練習|れんしゅう}は、れんしゅう{画面|がめん}の「チーム{練習|れんしゅう}を{記録|きろく}する」から{書|か}けるよ。")
+      + H("きろく") + P("カレンダー（{自主練|じしゅれん}・チーム{練習|れんしゅう}・{試合|しあい}が1つに{出|で}る。{日|ひ}にちをおすと、その{日|ひ}の{中身|なかみ}が{見|み}られる）、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。" + (JH ? "身長・体重・50m走・遠投を記録すると、伸びがグラフで見られる。練習ノートもここに並ぶ。" : ""))
       + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。ピッチャーで{投|な}げた{日|ひ}は「ピッチャーで{投|な}げた」をおすと、{投球回|とうきゅうかい}・{奪三振|だつさんしん}などを{記録|きろく}できて、{防御率|ぼうぎょりつ}も{計算|けいさん}するよ。")
       + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
       + H("{右上|みぎうえ}の{歯車|はぐるま}") + P("{名前|なまえ}・{背番号|せばんごう}・ポジション、{写真|しゃしん}、{練習|れんしゅう}メニュー、おうちのごほうび、バックアップ、{音|おと}をかえられる。"))}
@@ -1628,6 +1740,7 @@ function vHelp() {
         <div><span>${R("3{日|か}・7{日|か}・14{日|か}{連続|れんぞく}")}</span><em>+30 / +70 / +100</em></div>
         <div><span>${R("30{日|にち}{連続|れんぞく}ごと")}</span><em>+200</em></div>
         <div><span>${R("{試合|しあい}を{記録|きろく}")}</span><em>+${GAME_EXP}</em></div>
+        <div><span>${R("チーム{練習|れんしゅう}を{記録|きろく}")}</span><em>+${TEAM_EXP}</em></div>
         <div><span>${R("スモールステップを{達成|たっせい}")}</span><em>+${STEP_EXP}</em></div>
         <div><span>${R("{月|つき}のふりかえり")}</span><em>+${REVIEW_EXP}</em></div>
         <div><span>${R("{日替|ひが}わりチャレンジ")}</span><em>+20〜30</em></div>
@@ -2200,7 +2313,26 @@ const A = {
     S.rest[d] = true; save(); render();
     celebrate(before, compute(), R("きょうは{休養日|きゅうようび}") + "<br><span style='font-size:.5em'>" + R("しっかり{休|やす}んで、また{明日|あした}！") + "</span>");
   },
-  newGame() { draft = newDraft(); render(); },
+  calMove(v) { calYm = shiftYm(calYm || ymd().slice(0, 7), Number(v)); calSel = null; const y = window.scrollY; render(); window.scrollTo(0, y); },
+  calSel(d) { calSel = d; const y = window.scrollY; render(); window.scrollTo(0, y); },
+  tday() {
+    const d = ymd(), th = themeNow(); if (!th) return;
+    if (S.tday[d]) delete S.tday[d]; else S.tday[d] = th.t;
+    save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+    if (S.tday[d]) beep(1320, .12, .15);
+  },
+  newTp() { const th = themeNow(); tpDraft = { date: ymd(), theme: th ? th.t : "", did: "", next: "" }; render(); const el = document.getElementById("tp-form"); if (el) el.scrollIntoView({ block: "start" }); },
+  cancelTp() { tpDraft = null; render(); },
+  saveTp() {
+    const p = tpDraft; if (!p) return;
+    if (!p.theme.trim() && !p.did.trim() && !p.next.trim()) { document.getElementById("tp-theme").focus(); return; }
+    const before = compute();
+    S.tp.push({ id: uid(), date: p.date || ymd(), theme: p.theme.trim(), did: p.did.trim(), next: p.next.trim(), at: Date.now() });
+    tpDraft = null; save(); render(); window.scrollTo(0, 0);
+    celebrate(before, compute(), "");
+  },
+  delTp(id) { S.tp = S.tp.filter(p => p.id !== id); save(); const y = window.scrollY; render(); window.scrollTo(0, y); },
+  newGame() { draft = newDraft(); const th = themeNow(); draft.theme = th ? th.t : ""; render(); },
   bodyKey(v) { bodyKey = v; const y = window.scrollY; render(); window.scrollTo(0, y); },
   addBody() {
     const before = compute(), b = { id: uid(), date: document.getElementById("bd-date").value || ymd() }; let any = false;
@@ -2220,7 +2352,7 @@ const A = {
   },
   saveGame() {
     const before = compute(); const g = draft;
-    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: "", good: g.good.trim(), next: g.next.trim(),
+    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: "", good: g.good.trim(), next: g.next.trim(), theme: (g.theme || "").trim(), at: Date.now(),
       ...(g.pitched ? { p: { ...g.p, outs: Number(g.p.outs) || 0, np: Math.max(0, parseInt(g.p.np) || 0) || "" } } : {}) });
     draft = null; save(); render(); celebrate(before, compute(), "");
   },
@@ -2259,7 +2391,7 @@ const A = {
     save(); render();
   },
 };
-const NEEDS_CONFIRM = new Set(["delBody", "delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore", "delReward"]);
+const NEEDS_CONFIRM = new Set(["delTp", "delBody", "delGame", "delStep", "delMenu", "delReview", "photoDel", "doRestore", "delReward"]);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "toggle") audioUnlock();
@@ -2277,6 +2409,7 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const t = e.target;
   if (t.dataset.draft && draft) draft[t.dataset.draft] = t.value;
+  if (t.dataset.tp && tpDraft) tpDraft[t.dataset.tp] = t.value;
   if (t.dataset.pit && draft) draft.p[t.dataset.pit] = t.dataset.pit === "outs" ? Number(t.value) : t.value;
   if (t.dataset.rv) { const [ym, f] = t.dataset.rv.split("|"); (rvDraft[ym] || (rvDraft[ym] = { goal: "", grade: "", good: "", next: "" }))[f] = t.value; }
 });
@@ -2306,7 +2439,10 @@ function seedDemo() {
     S.menu.forEach(m => { if (r() < .85) { const n = m.var ? 50 + Math.floor(r() * 16) * 10 : m.count; L.done[m.id] = { name: m.name, exp: itemExp(m, n), ab: itemAb(m, n), count: n, unit: m.unit }; } });
     const act = S.menu.filter(x => x.on); L.clear = act.every(x => L.done[x.id]);
   }
-  S.games.push({ id: "demo1", date: addDays(t, -4), opp: JH ? "サンプル中学校" : "サンプル少年団", p: { outs: 9, np: 52, h: 3, k: 4, bb: 1, r: 1, er: 1 }, my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", next: "見逃し三振をしない。ストライクはふる" });
+  S.games.push({ id: "demo1", date: addDays(t, -4), opp: JH ? "サンプル中学校" : "サンプル少年団", p: { outs: 9, np: 52, h: 3, k: 4, bb: 1, r: 1, er: 1 }, my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", theme: "追い込まれたら、ストライクはふる", next: "速いストレートに振りおくれた。速い球に強くなる", at: 2 });
+  S.tp = [{ id: "dt1", date: addDays(t, -6), theme: "外のボールを見きわめる", did: "ボール球はふらなかったけど、見逃し三振が1回", next: "追い込まれたら、ストライクはふる", at: 1 },
+    { id: "dt2", date: addDays(t, -2), theme: "速い球に振りおくれない", did: "マシン120kmで、5本中3本は前にとんだ", next: "速い球のティーを毎日50球", at: 3 }];
+  S.tday = { [addDays(t, -5)]: "追い込まれたら、ストライクはふる", [addDays(t, -1)]: "速い球のティーを毎日50球" };
   S.goals = { dream: JH ? "甲子園に出る" : "プロやきゅうせんしゅになる", year: JH ? "夏の大会でレギュラー" : "レギュラーになる", month: "打率3割", monthKey: t.slice(0, 7), steps: [{ id: "ds1", text: "素振り200回を1週間つづける", done: false }, { id: "ds2", text: "毎日ストレッチ", done: true, doneDate: addDays(t, -10) }] };
   S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
   if (JH) {
