@@ -1431,7 +1431,7 @@ function dayDetail(d) {
   if (f.rest && !f.self) h += `<div class="dd rest"><small>${R("{休養日|きゅうようび}")}</small>${R("{体|からだ}を{休|やす}めた{日|ひ}")}</div>`;
   for (const p of f.tp) h += `<div class="dd tp"><small>${R("チーム{練習|れんしゅう}")}</small>${tpHtml(p)}<div class="dd-del"><button class="del" data-act="delTp" data-v="${p.id}">${R("{消|け}す")}</button></div></div>`;
   for (const g of f.games) { const res = g.my > g.their ? "{勝|か}ち" : g.my < g.their ? "{負|ま}け" : "{引|ひ}き{分|わ}け";
-    h += `<div class="dd gmd"><small>${R("{試合|しあい}")}</small><b>vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}　${g.my} - ${g.their}　${R(res)}</b><div class="dd-line">${R(gameLine(g))}${g.p ? `<br>${R(pitLine(g.p))}` : ""}</div>${g.theme ? `<div><small>${R("{意識|いしき}した{課題|かだい}")}</small>${esc(g.theme)}</div>` : ""}${g.good ? `<div><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}${g.next ? `<div><small>${R("つぎの{課題|かだい}")}</small>${esc(g.next)}</div>` : ""}</div>`; }
+    h += `<div class="dd gmd"><small>${R("{試合|しあい}")}</small><b>vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}　${g.my} - ${g.their}　${R(res)}</b><div class="dd-line">${R(gameLine(g))}${g.p ? `<br>${R(pitLine(g.p))}` : ""}</div>${g.theme ? `<div><small>${R("{意識|いしき}した{課題|かだい}")}</small>${esc(g.theme)}</div>` : ""}${g.good ? `<div><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}${g.coach ? `<div><small>${R("{指導|しどう}を{受|う}けたこと")}</small>${esc(g.coach)}</div>` : ""}${g.next ? `<div><small>${R("つぎの{課題|かだい}")}</small>${esc(g.next)}</div>` : ""}</div>`; }
   if (f.note) h += `<div class="dd note"><small>練習ノート</small>${esc(f.note)}</div>`;
   return `<div class="day-detail"><div class="dd-head">${R(jpDate(d))}</div>${h || `<div class="hint">${R("この{日|ひ}の{記録|きろく}はないよ")}</div>`}</div>`;
 }
@@ -1510,7 +1510,7 @@ function compareSection() {
 }
 
 const BAT = [["h", "ヒット"], ["d2", "ツーベース"], ["d3", "スリーベース"], ["hr", "ホームラン"], ["bb", "フォアボール・デッドボール"], ["ks", "{空振|からぶ}り{三振|さんしん}"], ["kl", "{見逃|みのが}し{三振|さんしん}"], ["out", "アウト（ゴロ・フライ）"], ["sac", "バント・{犠牲|ぎせい}フライ"]];
-const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "", good: "", next: "", theme: "",
+const newDraft = () => ({ date: ymd(), opp: "", my: "", their: "", ab: { h: 0, d2: 0, d3: 0, hr: 0, bb: 0, ks: 0, kl: 0, out: 0, sac: 0 }, rbi: 0, sb: 0, memo: "", good: "", coach: "", next: "", theme: "",
   pitched: false, p: { outs: 0, np: "", h: 0, k: 0, bb: 0, r: 0, er: 0 } });
 // 投手の成績。outs はとったアウトの数（投球回 ＝ outs ÷ 3）
 const PIT = [["h", "{被安打|ひあんだ}"], ["k", "{奪三振|だつさんしん}"], ["bb", "{与四死球|よししきゅう}"], ["r", "{失点|しってん}"], ["er", "{自責点|じせきてん}"]];
@@ -1539,6 +1539,7 @@ function pitLine(p) {
 function gameNotes(g) {
   return (g.theme ? `<div class="memo"><small>${R("{意識|いしき}した{課題|かだい}")}</small>${esc(g.theme)}</div>` : "")
        + (g.good ? `<div class="memo"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : "")
+       + (g.coach ? `<div class="memo"><small>${R("{指導|しどう}を{受|う}けたこと")}</small>${esc(g.coach)}</div>` : "")
        + (g.next ? `<div class="memo next"><small>${R("つぎの{課題|かだい}")}</small>${esc(g.next)}</div>` : "")
        + (g.memo ? `<div class="memo">${esc(g.memo)}</div>` : "");
 }
@@ -1571,6 +1572,7 @@ function tpForm() {
     <div class="row2"><div class="field"><label for="tp-date">${R("{日|ひ}にち")}</label><input id="tp-date" type="date" data-tp="date" value="${esc(p.date)}"></div><div></div></div>
     <div class="field"><label for="tp-theme">${R("チーム{練習|れんしゅう}でためす{課題|かだい}")}</label><textarea id="tp-theme" data-tp="theme" maxlength="300" placeholder="${JH ? "例：シートノックで、捕ってから素早く投げる" : "れい：ノックで、とってからすぐなげる"}">${esc(p.theme)}</textarea></div>
     <div class="field"><label for="tp-did">${R("やってみてどうだった？（できたこと・{気|き}づいたこと）")}</label><textarea id="tp-did" data-tp="did" maxlength="300" placeholder="${JH ? "例：正面のゴロはできた。逆シングルで焦って悪送球が2回" : "れい：しょうめんのゴロはできた。よこのゴロでエラーした"}">${esc(p.did)}</textarea></div>
+    <div class="field"><label for="tp-coach">${R("{監督|かんとく}・コーチから{指導|しどう}を{受|う}けたこと")}</label><textarea id="tp-coach" data-tp="coach" maxlength="300" placeholder="${JH ? "例：捕ってから投げるまで、足を止めないように言われた" : "れい：とってからなげるまで、足をとめないと言われた"}">${esc(p.coach || "")}</textarea></div>
     <div class="field"><label for="tp-next">${R("つぎの{課題|かだい}（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="tp-next" data-tp="next" maxlength="300" placeholder="${JH ? "例：逆シングルの捕球を自主練で30本" : "れい：よこのゴロをとるれんしゅうを30かい"}">${esc(p.next)}</textarea></div>
     <div class="row2"><button class="btn sub" data-act="cancelTp">${R("やめる")}</button><button class="btn" data-act="saveTp">${R("{記録|きろく}する")}</button></div>
   </div>`;
@@ -1578,6 +1580,7 @@ function tpForm() {
 function tpHtml(p) {
   return (p.theme ? `<div><small>${R("ためした{課題|かだい}")}</small>${esc(p.theme)}</div>` : "")
        + (p.did ? `<div><small>${R("やってみて")}</small>${esc(p.did)}</div>` : "")
+       + (p.coach ? `<div><small>${R("{指導|しどう}を{受|う}けたこと")}</small>${esc(p.coach)}</div>` : "")
        + (p.next ? `<div><small>${R("つぎの{課題|かだい}")}</small>${esc(p.next)}</div>` : "");
 }
 
@@ -1590,6 +1593,7 @@ function lastGameCard() {
     <div class="lg-score"><span class="vs">vs ${g.opp ? esc(g.opp) : R("（{相手|あいて}{未記入|みきにゅう}）")}</span><span class="res ${res[0]}">${R(res[1])}</span><b>${g.my} - ${g.their}</b></div>
     <div class="line">${R(gameLine(g))}${g.p ? `<br>${R(pitLine(g.p))}` : ""}</div>
     ${g.good ? `<div class="lg-good"><small>${R("よかったこと")}</small>${esc(g.good)}</div>` : ""}
+    ${g.coach ? `<div class="lg-good"><small>${R("{指導|しどう}を{受|う}けたこと")}</small>${esc(g.coach)}</div>` : ""}
     ${!g.good && g.memo ? `<div class="lg-good">${esc(g.memo)}</div>` : ""}
   </section>`;
 }
@@ -1662,6 +1666,7 @@ function gameForm() {
     </div>` : ""}
     <div class="field"><label for="g-theme">${R("この{試合|しあい}で{意識|いしき}した{課題|かだい}")}</label><textarea id="g-theme" data-draft="theme" maxlength="300">${esc(g.theme || "")}</textarea></div>
     <div class="field"><label for="g-good">${R("よかったこと")}</label><textarea id="g-good" data-draft="good" maxlength="300">${esc(g.good)}</textarea></div>
+    <div class="field"><label for="g-coach">${R("{監督|かんとく}・コーチから{指導|しどう}を{受|う}けたこと")}</label><textarea id="g-coach" data-draft="coach" maxlength="300" placeholder="${JH ? "例：捕ってから投げるまで、足を止めないように言われた" : "れい：とってからなげるまで、足をとめないと言われた"}">${esc(g.coach || "")}</textarea></div>
     <div class="field"><label for="g-next">${R("つぎの{課題|かだい}（{自主練|じしゅれん}の{画面|がめん}に{出|で}るよ）")}</label><textarea id="g-next" data-draft="next" maxlength="300">${esc(g.next)}</textarea></div>
     <div class="row2"><button class="btn sub" data-act="cancelGame">${R("やめる")}</button><button class="btn" data-act="saveGame">${R("{記録|きろく}する")}</button></div>
   </div>`;
@@ -1782,7 +1787,7 @@ function vHelp() {
       + P("{試合|しあい}の{記録|きろく}や、{夢|ゆめ}・{目標|もくひょう}も{書|か}いておけるよ。"), true)}
     ${sec("{画面|がめん}ごとのつかいかた",
       H("ホーム") + P("{選手|せんしゅ}カードと、きょうの{達成率|たっせいりつ}、{何日|なんにち}{続|つづ}けているかが{見|み}られる。")
-      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には「いまの{課題|かだい}」が{出|で}るよ。") + H("{課題|かだい}のつなげかた") + P("{自主練|じしゅれん}で{課題|かだい}を{練習|れんしゅう}する → チーム{練習|れんしゅう}で{実戦|じっせん}に{近|ちか}い{形|かたち}でためす → {試合|しあい}でためす → また{新|あたら}しい{課題|かだい}が{見|み}つかる。この{流|なが}れを{記録|きろく}でつなげよう。") + P("チーム{練習|れんしゅう}と{試合|しあい}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、いちばん{新|あたら}しいものが「いまの{課題|かだい}」になって、れんしゅう{画面|がめん}に{出|で}るよ。チーム{練習|れんしゅう}は、れんしゅう{画面|がめん}の「チーム{練習|れんしゅう}を{記録|きろく}する」から{書|か}けるよ。")
+      + H("れんしゅう") + P("やった{練習|れんしゅう}をタップしてチェック。{素振|すぶ}りは、やった{回数|かいすう}をえらんでからチェックしてね（10〜${(S.menu.find(m => m.var) || { max: 600 }).max}{回|かい}）。いちばん{上|うえ}には「いまの{課題|かだい}」が{出|で}るよ。") + H("{課題|かだい}のつなげかた") + P("{自主練|じしゅれん}で{課題|かだい}を{練習|れんしゅう}する → チーム{練習|れんしゅう}で{実戦|じっせん}に{近|ちか}い{形|かたち}でためす → {試合|しあい}でためす → また{新|あたら}しい{課題|かだい}が{見|み}つかる。この{流|なが}れを{記録|きろく}でつなげよう。チーム{練習|れんしゅう}と{試合|しあい}では、{監督|かんとく}・コーチから{指導|しどう}を{受|う}けたことも{書|か}いておけるよ。") + P("チーム{練習|れんしゅう}と{試合|しあい}の{記録|きろく}に「つぎの{課題|かだい}」を{書|か}くと、いちばん{新|あたら}しいものが「いまの{課題|かだい}」になって、れんしゅう{画面|がめん}に{出|で}るよ。チーム{練習|れんしゅう}は、れんしゅう{画面|がめん}の「チーム{練習|れんしゅう}を{記録|きろく}する」から{書|か}けるよ。")
       + H("きろく") + P("カレンダー（{自主練|じしゅれん}・チーム{練習|れんしゅう}・{試合|しあい}が1つに{出|で}る。{日|ひ}にちをおすと、その{日|ひ}の{中身|なかみ}が{見|み}られる）、{能力|のうりょく}のグラフ、これまでの{合計|ごうけい}{回数|かいすう}が{見|み}られる。" + (JH ? "身長・体重・50m走・遠投を記録すると、伸びがグラフで見られる。練習ノートもここに並ぶ。" : ""))
       + H("しあい") + P("{試合|しあい}が{終|お}わったら{記録|きろく}しよう。{打席|だせき}ごとに＋をおすと、{打率|だりつ}などを{自動|じどう}で{計算|けいさん}するよ。ピッチャーで{投|な}げた{日|ひ}は「ピッチャーで{投|な}げた」をおすと、{投球回|とうきゅうかい}・{奪三振|だつさんしん}などを{記録|きろく}できて、{防御率|ぼうぎょりつ}も{計算|けいさん}するよ。")
       + H("もくひょう") + P("{夢|ゆめ}→ことし→こんげつ→スモールステップの{順|じゅん}に{書|か}こう。{月|つき}が{終|お}わったら「{月|つき}のふりかえり」もしよう。")
@@ -2376,13 +2381,13 @@ const A = {
     save(); const y = window.scrollY; render(); window.scrollTo(0, y);
     if (S.tday[d]) beep(1320, .12, .15);
   },
-  newTp() { const th = themeNow(); tpDraft = { date: ymd(), theme: th ? th.t : "", did: "", next: "" }; render(); const el = document.getElementById("tp-form"); if (el) el.scrollIntoView({ block: "start" }); },
+  newTp() { const th = themeNow(); tpDraft = { date: ymd(), theme: th ? th.t : "", did: "", coach: "", next: "" }; render(); const el = document.getElementById("tp-form"); if (el) el.scrollIntoView({ block: "start" }); },
   cancelTp() { tpDraft = null; render(); },
   saveTp() {
     const p = tpDraft; if (!p) return;
-    if (!p.theme.trim() && !p.did.trim() && !p.next.trim()) { document.getElementById("tp-theme").focus(); return; }
+    if (!p.theme.trim() && !p.did.trim() && !(p.coach || "").trim() && !p.next.trim()) { document.getElementById("tp-theme").focus(); return; }
     const before = compute();
-    S.tp.push({ id: uid(), date: p.date || ymd(), theme: p.theme.trim(), did: p.did.trim(), next: p.next.trim(), at: Date.now() });
+    S.tp.push({ id: uid(), date: p.date || ymd(), theme: p.theme.trim(), did: p.did.trim(), coach: (p.coach || "").trim(), next: p.next.trim(), at: Date.now() });
     tpDraft = null; save(); render(); window.scrollTo(0, 0);
     celebrate(before, compute(), "");
   },
@@ -2407,7 +2412,7 @@ const A = {
   },
   saveGame() {
     const before = compute(); const g = draft;
-    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: "", good: g.good.trim(), next: g.next.trim(), theme: (g.theme || "").trim(), at: Date.now(),
+    S.games.push({ id: uid(), date: g.date || ymd(), opp: g.opp.trim(), my: Math.max(0, parseInt(g.my) || 0), their: Math.max(0, parseInt(g.their) || 0), ab: { ...g.ab }, rbi: g.rbi, sb: g.sb, memo: "", good: g.good.trim(), coach: (g.coach || "").trim(), next: g.next.trim(), theme: (g.theme || "").trim(), at: Date.now(),
       ...(g.pitched ? { p: { ...g.p, outs: Number(g.p.outs) || 0, np: Math.max(0, parseInt(g.p.np) || 0) || "" } } : {}) });
     draft = null; save(); render(); celebrate(before, compute(), "");
   },
@@ -2494,9 +2499,9 @@ function seedDemo() {
     S.menu.forEach(m => { if (r() < .85) { const n = m.var ? 50 + Math.floor(r() * 16) * 10 : m.count; L.done[m.id] = { name: m.name, exp: itemExp(m, n), ab: itemAb(m, n), count: n, unit: m.unit }; } });
     const act = S.menu.filter(x => x.on); L.clear = act.every(x => L.done[x.id]);
   }
-  S.games.push({ id: "demo1", date: addDays(t, -4), opp: JH ? "サンプル中学校" : "サンプル少年団", p: { outs: 9, np: 52, h: 3, k: 4, bb: 1, r: 1, er: 1 }, my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", theme: "追い込まれたら、ストライクはふる", next: "速いストレートに振りおくれた。速い球に強くなる", at: 2 });
+  S.games.push({ id: "demo1", date: addDays(t, -4), opp: JH ? "サンプル中学校" : "サンプル少年団", p: { outs: 9, np: 52, h: 3, k: 4, bb: 1, r: 1, er: 1 }, my: 6, their: 4, ab: { h: 1, d2: 1, d3: 0, hr: 0, bb: 1, ks: 0, kl: 1, out: 0, sac: 0 }, rbi: 2, sb: 1, memo: "", good: "ツーベースが打てた", coach: "追い込まれてからのファウルはよかった、と言われた", theme: "追い込まれたら、ストライクはふる", next: "速いストレートに振りおくれた。速い球に強くなる", at: 2 });
   S.tp = [{ id: "dt1", date: addDays(t, -6), theme: "外のボールを見きわめる", did: "ボール球はふらなかったけど、見逃し三振が1回", next: "追い込まれたら、ストライクはふる", at: 1 },
-    { id: "dt2", date: addDays(t, -2), theme: "速い球に振りおくれない", did: "マシン120kmで、5本中3本は前にとんだ", next: "速い球のティーを毎日50球", at: 3 }];
+    { id: "dt2", date: addDays(t, -2), theme: "速い球に振りおくれない", did: "マシン120kmで、5本中3本は前にとんだ", coach: "トップを早くつくって、待つ時間をつくるように言われた", next: "速い球のティーを毎日50球", at: 3 }];
   S.tday = { [addDays(t, -5)]: "追い込まれたら、ストライクはふる", [addDays(t, -1)]: "速い球のティーを毎日50球" };
   S.goals = { dream: JH ? "甲子園に出る" : "プロやきゅうせんしゅになる", year: JH ? "夏の大会でレギュラー" : "レギュラーになる", month: "打率3割", monthKey: t.slice(0, 7), steps: [{ id: "ds1", text: "素振り200回を1週間つづける", done: false }, { id: "ds2", text: "毎日ストレッチ", done: true, doneDate: addDays(t, -10) }] };
   if (!JH) S.rewards = [{ id: "dr1", text: "バッティングセンター", type: "lv", target: 15, got: false }];
